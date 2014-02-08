@@ -1,4 +1,5 @@
-"""RFC 3986 compliant, scheme-agnostic replacement for urlparse.
+"""RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for
+urlparse.
 
 The urlparse module is not compliant with RFC 3986, and is generally
 unusable with custom (private) URI schemes.  This module provides
@@ -9,7 +10,7 @@ convenient way to compose URIs.
 import collections
 import re
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
 # RFC 3986: 2.2. Reserved Characters

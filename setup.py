@@ -16,7 +16,7 @@ setup(
     url='https://github.com/tkem/uritools',
     license='MIT',
 
-    description='RFC 3986 compliant, scheme-agnostic replacement for urlparse',
+    description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse.',  # noqa
     long_description=open('README.rst').read(),
     classifiers=[
         'Development Status :: 3 - Alpha',
