@@ -7,11 +7,10 @@ compliant replacements for urlsplit and urlunsplit, as well as a
 convenient way to compose URIs.
 
 """
-import collections
+from collections import namedtuple
 import re
 
 __version__ = '0.0.3'
-
 
 # RFC 3986: 2.2. Reserved Characters
 GEN_DELIMS = ':/?#[]@'
@@ -21,13 +20,12 @@ SUB_DELIMS = "!$&'()*+,;="
 RESERVED_CHARS = GEN_DELIMS + SUB_DELIMS
 
 # RFC 3986: 2.3. Unreserved Characters
-UNRESERVED_CHARS = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                    'abcdefghijklmnopqrstuvwxyz'
-                    '0123456789'
-                    '_.-~')
-
-# RFC 3986: 3. Syntax Components
-URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
+UNRESERVED_CHARS = (
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    'abcdefghijklmnopqrstuvwxyz'
+    '0123456789'
+    '_.-~'
+)
 
 # RFC 3986: Appendix B
 URI_RE = re.compile(r"""
@@ -39,37 +37,37 @@ URI_RE = re.compile(r"""
 """, flags=(re.VERBOSE))
 
 
-def encode(s, reserved='', encoding='utf-8'):
+class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragment')):
+
+    def getscheme(self, encoding='utf-8'):
+        return uridecode(self.scheme, encoding=encoding)
+
+    def getauthority(self, encoding='utf-8'):
+        return uridecode(self.authority, encoding=encoding)
+
+    def getpath(self, encoding='utf-8'):
+        return uridecode(self.path, encoding=encoding)
+
+    def getquery(self, encoding='utf-8'):
+        return uridecode(self.query, encoding=encoding)
+
+    def getfragment(self, encoding='utf-8'):
+        return uridecode(self.fragment, encoding=encoding)
+
+    def geturi(self):
+        return uriunsplit(self)
+
+
+def uriencode(s, reserved='', encoding='utf-8'):
     from urllib import quote
     # FIXME: more efficient implementation (w/o urllib?)
     safe = set(RESERVED_CHARS + UNRESERVED_CHARS) - set(reserved)
     return quote(s.encode(encoding), str(safe))
 
 
-def decode(s, encoding='utf-8'):
+def uridecode(s, encoding='utf-8'):
     from urllib import unquote
     return unquote(s).decode(encoding)
-
-
-class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
-
-    def getscheme(self, encoding='utf-8'):
-        return decode(self.scheme, encoding=encoding)
-
-    def getauthority(self, encoding='utf-8'):
-        return decode(self.authority, encoding=encoding)
-
-    def getpath(self, encoding='utf-8'):
-        return decode(self.path, encoding=encoding)
-
-    def getquery(self, encoding='utf-8'):
-        return decode(self.query, encoding=encoding)
-
-    def getfragment(self, encoding='utf-8'):
-        return decode(self.fragment, encoding=encoding)
-
-    def geturi(self):
-        return uriunsplit(self)
 
 
 def urisplit(uri):
@@ -123,13 +121,13 @@ def uriunsplit(data):
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, encoding='utf-8'):
     if scheme:
-        scheme = encode(scheme, reserved=':/?#', encoding=encoding)
+        scheme = uriencode(scheme, reserved=':/?#', encoding=encoding)
     if authority:
-        authority = encode(authority, reserved='/?#', encoding=encoding)
+        authority = uriencode(authority, reserved='/?#', encoding=encoding)
     if path:
-        path = encode(path, reserved='?#', encoding=encoding)
+        path = uriencode(path, reserved='?#', encoding=encoding)
     if query:
-        query = encode(query, reserved='#', encoding=encoding)
+        query = uriencode(query, reserved='#', encoding=encoding)
     if fragment:
-        fragment = encode(fragment, encoding=encoding)
+        fragment = uriencode(fragment, encoding=encoding)
     return uriunsplit((scheme, authority, path, query, fragment))
