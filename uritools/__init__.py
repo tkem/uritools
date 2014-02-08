@@ -8,9 +8,10 @@ convenient way to compose URIs.
 """
 import collections
 import re
-import urllib
 
-__version__ = '0.0.1'
+from urllib import quote, unquote
+
+__version__ = '0.0.2'
 
 # see RFC 3986 Appendix B.
 URI_RE = re.compile(r"""
@@ -23,23 +24,29 @@ URI_RE = re.compile(r"""
 
 URI_FIELDS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
+GEN_DELIMS = ':/?#[]@'
+
+SUB_DELIMS = "!$&'()*+,;="
+
+RESERVED = GEN_DELIMS + SUB_DELIMS
+
 
 class SplitResult(collections.namedtuple('SplitResult', URI_FIELDS)):
 
     def getscheme(self):
-        return urllib.unquote(self.scheme)
+        return unquote(self.scheme)
 
     def getauthority(self):
-        return urllib.unquote(self.authority)
+        return unquote(self.authority)
 
     def getpath(self):
-        return urllib.unquote(self.path)
+        return unquote(self.path)
 
     def getquery(self):
-        return urllib.unquote(self.query)
+        return unquote(self.query)
 
     def getfragment(self):
-        return urllib.unquote(self.fragment)
+        return unquote(self.fragment)
 
     def geturi(self):
         return uriunsplit(self)
@@ -83,11 +90,15 @@ def uriunsplit(data):
     return uri
 
 
-def uricompose(scheme='', authority='', path='', query='', fragment=''):
-    # TODO: check quoting
-    scheme = urllib.quote(scheme, '')
-    authority = urllib.quote(authority, ':')
-    path = urllib.quote(path, ':/')
-    query = urllib.quote(query, ':/?')
-    fragment = urllib.quote(fragment, ':/?#')
+def uricompose(scheme=None, authority=None, path='', query=None, fragment=None):
+    if scheme:
+        scheme = quote(scheme, SUB_DELIMS)
+    if authority:
+        authority = quote(authority, SUB_DELIMS + ':')
+    if path:
+        path = quote(path, SUB_DELIMS + ':/')
+    if query:
+        query = quote(query, SUB_DELIMS + ':/?')
+    if fragment:
+        fragment = quote(fragment, SUB_DELIMS + ':/?#')
     return uriunsplit((scheme, authority, path, query, fragment))

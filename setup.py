@@ -35,5 +35,6 @@ setup(
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
 
-    # TODO: test_suite
+    test_suite='nose.collector',
+    tests_require=['nose']
 )
