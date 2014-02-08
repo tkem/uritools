@@ -89,21 +89,31 @@ def uriunsplit(data):
 
     """
     scheme, authority, path, query, fragment = data
-    if authority:
-        if path.startswith('/'):
-            uri = '//' + authority + path
-        else:
-            uri = '//' + authority + '/' + path
-    elif path.startswith('//'):
-        # RFC 3986 3.3: If a URI does not contain an authority
-        # component, then the path cannot begin with two slash
-        # characters ("//").
-        raise ValueError('invalid uri path: %s' % path)
-    else:
-        uri = path
+    uri = ''
     if scheme:
-        uri = scheme + ':' + uri
+        if any(c in ':/?#' for c in scheme):
+            raise ValueError('Reserved character in "%s"' % scheme)
+        uri += scheme + ':'
+    if authority:
+        if any(c in '/?#' for c in authority):
+            raise ValueError('Reserved character in "%s"' % authority)
+        uri += '//' + authority
+    if path:
+        if any(c in '?#' for c in path):
+            raise ValueError('Reserved character in "%s"' % path)
+        # RFC 3986 3.3: If a URI contains an authority component, then
+        # the path component must either be empty or begin with a
+        # slash ("/") character.  If a URI does not contain an
+        # authority component, then the path cannot begin with two
+        # slash characters ("//")
+        if authority and not path.startswith('/'):
+            raise ValueError('Cannot use path "%s" with authority' % path)
+        if not authority and path.startswith('//'):
+            raise ValueError('Cannot use path "%s" without authority' % path)
+        uri += path
     if query:
+        if '#' in query:
+            raise ValueError('Reserved character in "%s"' % query)
         uri += '?' + query
     if fragment:
         uri += '#' + fragment
