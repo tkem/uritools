@@ -40,15 +40,14 @@ URI_RE = re.compile(r"""
 
 def encode(s, reserved='', encoding='utf-8'):
     from urllib import quote
-    # FIXME: encoding (and write our own implementation!)
+    # FIXME: more efficient implementation (w/o urllib?)
     safe = set(RESERVED_CHARS + UNRESERVED_CHARS) - set(reserved)
-    return quote(s, str(safe))
+    return quote(s.encode(encoding), str(safe))
 
 
 def decode(s, encoding='utf-8'):
     from urllib import unquote
-    # FIXME: encoding
-    return unquote(s)
+    return unquote(s).decode(encoding)
 
 
 class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
