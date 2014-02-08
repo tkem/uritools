@@ -9,11 +9,26 @@ convenient way to compose URIs.
 import collections
 import re
 
-from urllib import quote, unquote
-
 __version__ = '0.0.2'
 
-# see RFC 3986 Appendix B.
+
+# RFC 3986: 2.2. Reserved Characters
+GEN_DELIMS = ':/?#[]@'
+
+SUB_DELIMS = "!$&'()*+,;="
+
+RESERVED_CHARS = GEN_DELIMS + SUB_DELIMS
+
+# RFC 3986: 2.3. Unreserved Characters
+UNRESERVED_CHARS = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    'abcdefghijklmnopqrstuvwxyz'
+                    '0123456789'
+                    '_.-~')
+
+# RFC 3986: 3. Syntax Components
+URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
+
+# RFC 3986: Appendix B
 URI_RE = re.compile(r"""
 (?:([^:/?#]+):)?  # scheme
 (?://([^/?#]*))?  # authority
@@ -22,31 +37,36 @@ URI_RE = re.compile(r"""
 (?:\#(.*))?       # fragment
 """, flags=(re.VERBOSE))
 
-URI_FIELDS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
-GEN_DELIMS = ':/?#[]@'
+def encode(s, reserved='', encoding='utf-8'):
+    from urllib import quote
+    # FIXME: encoding (and write our own implementation!)
+    safe = set(RESERVED_CHARS + UNRESERVED_CHARS) - set(reserved)
+    return quote(s, str(safe))
 
-SUB_DELIMS = "!$&'()*+,;="
 
-RESERVED = GEN_DELIMS + SUB_DELIMS
+def decode(s, encoding='utf-8'):
+    from urllib import unquote
+    # FIXME: encoding
+    return unquote(s)
 
 
-class SplitResult(collections.namedtuple('SplitResult', URI_FIELDS)):
+class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
 
-    def getscheme(self):
-        return unquote(self.scheme)
+    def getscheme(self, encoding='utf-8'):
+        return decode(self.scheme, encoding=encoding)
 
-    def getauthority(self):
-        return unquote(self.authority)
+    def getauthority(self, encoding='utf-8'):
+        return decode(self.authority, encoding=encoding)
 
-    def getpath(self):
-        return unquote(self.path)
+    def getpath(self, encoding='utf-8'):
+        return decode(self.path, encoding=encoding)
 
-    def getquery(self):
-        return unquote(self.query)
+    def getquery(self, encoding='utf-8'):
+        return decode(self.query, encoding=encoding)
 
-    def getfragment(self):
-        return unquote(self.fragment)
+    def getfragment(self, encoding='utf-8'):
+        return decode(self.fragment, encoding=encoding)
 
     def geturi(self):
         return uriunsplit(self)
@@ -90,15 +110,16 @@ def uriunsplit(data):
     return uri
 
 
-def uricompose(scheme=None, authority=None, path='', query=None, fragment=None):
+def uricompose(scheme=None, authority=None, path='', query=None,
+               fragment=None, encoding='utf-8'):
     if scheme:
-        scheme = quote(scheme, SUB_DELIMS)
+        scheme = encode(scheme, reserved=':/?#', encoding=encoding)
     if authority:
-        authority = quote(authority, SUB_DELIMS + ':')
+        authority = encode(authority, reserved='/?#', encoding=encoding)
     if path:
-        path = quote(path, SUB_DELIMS + ':/')
+        path = encode(path, reserved='?#', encoding=encoding)
     if query:
-        query = quote(query, SUB_DELIMS + ':/?')
+        query = encode(query, reserved='#', encoding=encoding)
     if fragment:
-        fragment = quote(fragment, SUB_DELIMS + ':/?#')
+        fragment = encode(fragment, encoding=encoding)
     return uriunsplit((scheme, authority, path, query, fragment))
