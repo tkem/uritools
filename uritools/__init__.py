@@ -17,10 +17,10 @@ GEN_DELIMS = ':/?#[]@'
 
 SUB_DELIMS = "!$&'()*+,;="
 
-RESERVED_CHARS = GEN_DELIMS + SUB_DELIMS
+RESERVED = GEN_DELIMS + SUB_DELIMS
 
 # RFC 3986: 2.3. Unreserved Characters
-UNRESERVED_CHARS = (
+UNRESERVED = (
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     'abcdefghijklmnopqrstuvwxyz'
     '0123456789'
@@ -28,46 +28,53 @@ UNRESERVED_CHARS = (
 )
 
 # RFC 3986: Appendix B
-URI_RE = re.compile(r"""
+RE = re.compile(r"""
 (?:([^:/?#]+):)?  # scheme
 (?://([^/?#]*))?  # authority
 ([^?#]*)          # path
 (?:\?([^#]*))?    # query
 (?:\#(.*))?       # fragment
 """, flags=(re.VERBOSE))
+"""Regular expression to split URIs into components."""
 
 
-class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragment')):
-
-    def getscheme(self, encoding='utf-8'):
-        return uridecode(self.scheme, encoding=encoding)
-
-    def getauthority(self, encoding='utf-8'):
-        return uridecode(self.authority, encoding=encoding)
-
-    def getpath(self, encoding='utf-8'):
-        return uridecode(self.path, encoding=encoding)
-
-    def getquery(self, encoding='utf-8'):
-        return uridecode(self.query, encoding=encoding)
-
-    def getfragment(self, encoding='utf-8'):
-        return uridecode(self.fragment, encoding=encoding)
-
-    def geturi(self):
-        return uriunsplit(self)
-
-
-def uriencode(s, reserved='', encoding='utf-8'):
+def uriencode(s, safe='', encoding='utf-8'):
     from urllib import quote
-    # FIXME: more efficient implementation (w/o urllib?)
-    safe = set(RESERVED_CHARS + UNRESERVED_CHARS) - set(reserved)
-    return quote(s.encode(encoding), str(safe))
+    return quote(s.encode(encoding), UNRESERVED + safe)
 
 
 def uridecode(s, encoding='utf-8'):
     from urllib import unquote
     return unquote(s).decode(encoding)
+
+
+class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragment')):
+
+    def getscheme(self, default=None):
+        if self.scheme is None:
+            return default
+        return uridecode(self.scheme, encoding='ascii')
+
+    def getauthority(self, default=None, encoding='utf-8'):
+        if self.authority is None:
+            return default
+        return uridecode(self.authority, encoding=encoding)
+
+    def getpath(self, encoding='utf-8'):
+        return uridecode(self.path, encoding=encoding)
+
+    def getquery(self, default=None, encoding='utf-8'):
+        if self.query is None:
+            return default
+        return uridecode(self.query, encoding=encoding)
+
+    def getfragment(self, default=None, encoding='utf-8'):
+        if self.fragment is None:
+            return default
+        return uridecode(self.fragment, encoding=encoding)
+
+    def geturi(self):
+        return uriunsplit(self)
 
 
 def urisplit(uri):
@@ -76,7 +83,7 @@ def urisplit(uri):
     %-escapes are not expaneded.
 
     """
-    return SplitResult(*URI_RE.match(uri).groups())
+    return SplitResult(*RE.match(uri).groups())
 
 
 def uriunsplit(data):
@@ -86,48 +93,55 @@ def uriunsplit(data):
     equivalent URI string.
 
     """
+
     scheme, authority, path, query, fragment = data
     uri = ''
-    if scheme:
+
+    if scheme is not None:
         if any(c in ':/?#' for c in scheme):
-            raise ValueError('Reserved character in "%s"' % scheme)
+            raise ValueError('Reserved character in %r' % scheme)
         uri += scheme + ':'
-    if authority:
+
+    if authority is not None:
         if any(c in '/?#' for c in authority):
-            raise ValueError('Reserved character in "%s"' % authority)
+            raise ValueError('Reserved character in %r' % authority)
         uri += '//' + authority
-    if path:
-        if any(c in '?#' for c in path):
-            raise ValueError('Reserved character in "%s"' % path)
-        # RFC 3986 3.3: If a URI contains an authority component, then
-        # the path component must either be empty or begin with a
-        # slash ("/") character.  If a URI does not contain an
-        # authority component, then the path cannot begin with two
-        # slash characters ("//")
-        if authority and not path.startswith('/'):
-            raise ValueError('Cannot use path "%s" with authority' % path)
-        if not authority and path.startswith('//'):
-            raise ValueError('Cannot use path "%s" without authority' % path)
-        uri += path
-    if query:
+
+    if path is None:
+        raise ValueError('URI path must be present if empty')
+    if any(c in '?#' for c in path):
+        raise ValueError('Reserved character in %r' % path)
+    # RFC 3986 3.3: If a URI contains an authority component, then the
+    # path component must either be empty or begin with a slash ("/")
+    # character.  If a URI does not contain an authority component,
+    # then the path cannot begin with two slash characters ("//")
+    if authority and path and not path.startswith('/'):
+        raise ValueError('Cannot use path %r with authority' % path)
+    if not authority and path.startswith('//'):
+        raise ValueError('Cannot use path %r without authority' % path)
+    uri += path
+
+    if query is not None:
         if '#' in query:
-            raise ValueError('Reserved character in "%s"' % query)
+            raise ValueError('Reserved character in %r' % query)
         uri += '?' + query
-    if fragment:
+
+    if fragment is not None:
         uri += '#' + fragment
+
     return uri
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, encoding='utf-8'):
-    if scheme:
-        scheme = uriencode(scheme, reserved=':/?#', encoding=encoding)
-    if authority:
-        authority = uriencode(authority, reserved='/?#', encoding=encoding)
-    if path:
-        path = uriencode(path, reserved='?#', encoding=encoding)
-    if query:
-        query = uriencode(query, reserved='#', encoding=encoding)
-    if fragment:
-        fragment = uriencode(fragment, encoding=encoding)
+    if scheme is not None:
+        scheme = uriencode(scheme, encoding='ascii')
+    if authority is not None:
+        authority = uriencode(authority, SUB_DELIMS + ':@', encoding)
+    if path is not None:
+        path = uriencode(path, SUB_DELIMS + ':@/', encoding)
+    if query is not None:
+        query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
+    if fragment is not None:
+        fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
     return uriunsplit((scheme, authority, path, query, fragment))
