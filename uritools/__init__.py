@@ -107,17 +107,19 @@ def uriunsplit(parts):
     """
 
     scheme, authority, path, query, fragment = parts
-    uri = ''
+
+    # RFC 3986 5.3 Component Recomposition
+    result = ''
 
     if scheme is not None:
         if any(c in ':/?#' for c in scheme):
             raise ValueError('Reserved character in %r' % scheme)
-        uri += scheme + ':'
+        result += scheme + ':'
 
     if authority is not None:
         if any(c in '/?#' for c in authority):
             raise ValueError('Reserved character in %r' % authority)
-        uri += '//' + authority
+        result += '//' + authority
 
     if path is None:
         raise ValueError('URI path must be present if empty')
@@ -131,17 +133,17 @@ def uriunsplit(parts):
         raise ValueError('Cannot use path %r with authority' % path)
     if not authority and path.startswith('//'):
         raise ValueError('Cannot use path %r without authority' % path)
-    uri += path
+    result += path
 
     if query is not None:
         if '#' in query:
             raise ValueError('Reserved character in %r' % query)
-        uri += '?' + query
+        result += '?' + query
 
     if fragment is not None:
-        uri += '#' + fragment
+        result += '#' + fragment
 
-    return uri
+    return result
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
@@ -161,3 +163,53 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if fragment is not None:
         fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
     return uriunsplit((scheme, authority, path, query, fragment))
+
+
+def urijoin(base, ref, strict=False):
+    """Resolve a URI reference relative to a base URI and return the
+    resulting URI string.
+    """
+    return uriunsplit(_transform_reference(urisplit(base), ref, strict))
+
+
+def _transform_reference(base, ref, strict):
+    scheme, authority, path, query, fragment = urisplit(ref)
+
+    # RFC 3986 5.2.2 Transform References
+    if scheme is not None and (strict or scheme != base.scheme):
+        path = _remove_dot_segments(path)
+    else:
+        if authority is not None:
+            path = _remove_dot_segments(path)
+        else:
+            if not path:
+                path = base.path
+                if query is None:
+                    query = base.query
+            elif path.startswith('/'):
+                path = _remove_dot_segments(path)
+            elif base.authority is not None and not base.path:
+                path = _remove_dot_segments('/' + path)
+            else:
+                basepath = base.path[:base.path.rfind('/') + 1]
+                path = _remove_dot_segments(basepath + path)
+            authority = base.authority
+        scheme = base.scheme
+    return (scheme, authority, path, query, fragment)
+
+
+def _remove_dot_segments(path):
+    seg = path.split('/')
+    out = []
+    for s in seg:
+        if s == '.':
+            continue
+        elif s != '..':
+            out.append(s)
+        elif out:
+            out.pop()
+    if seg and seg[-1] in ('.', '..'):
+        out.append('')
+    if path.startswith('/') and out[0] != '':
+        out.insert(0, '')
+    return '/'.join(out)

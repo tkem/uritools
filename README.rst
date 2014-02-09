@@ -36,37 +36,43 @@ The ``uritools`` module currently defines the following functions:
 
 uritools.\ **urisplit**\ (*uristring*)
 
-    Split a URI string into a named tuple with five components::
+Split a URI string into a named tuple with five components::
 
-        <scheme>://<authority>/<path>?<query>#<fragment>
+    <scheme>://<authority>/<path>?<query>#<fragment>
 
-    The returned object is an instance of ``SplitResult``.
+The returned object is an instance of ``SplitResult``.
 
 
 uritools.\ **uriunsplit**\ (*parts*)
 
-    Combine the elements of a tuple as returned by ``urisplit()`` into
-    a complete URI as a string.
+Combine the elements of a tuple as returned by ``urisplit()`` into
+a complete URI as a string.
 
-    The ``parts`` argument can be any five-item iterable.
+The ``parts`` argument can be any five-item iterable.
+
+
+uritools.\ **urijoin**\ (*base, ref, strict=False*)
+
+Resolve a URI reference relative to a base URI and return the
+resulting URI string.
 
 
 uritools.\ **uricompose**\ (*scheme=None, authority=None, path='',
 query=None, fragment=None, encoding='utf-8'*)
 
-    Compose a URI string from its components.
+Compose a URI string from its components.
 
 
 *class* uritools.\ **SplitResult**\ (*scheme, authority, path, query, fragment*)
 
-    Extend ``namedtuple`` to hold ``urisplit()`` results.
+Extend ``namedtuple`` to hold ``urisplit()`` results.
 
-    Attributes:
-        :scheme: URI scheme or None if not present
-        :authority: URI authority component or None if not present
-        :path: URI path component, always present but may be empty
-        :query: URI query component or None if not present
-        :fragment: URI fragment component or None if not present
+Attributes:
+    :scheme: URI scheme or None if not present
+    :authority: URI authority component or None if not present
+    :path: URI path component, always present but may be empty
+    :query: URI query component or None if not present
+    :fragment: URI fragment component or None if not present
 
 
 Changelog
