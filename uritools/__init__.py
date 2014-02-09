@@ -10,7 +10,7 @@ convenient way to compose URIs.
 from collections import namedtuple
 import re
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 # RFC 3986: 2.2. Reserved Characters
 GEN_DELIMS = ':/?#[]@'

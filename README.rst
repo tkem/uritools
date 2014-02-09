@@ -10,15 +10,10 @@ uritools
     :target: https://pypi.python.org/pypi/uritools/
     :alt: Number of PyPI downloads
 
-
-*RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for
-urlparse.*
-
-For various reasons, the standard library ``urlparse`` module is not
-compliant with current Internet standards, does not provide Unicode
-support, and is generally unusable with proprietary URI schemes.
-
-As stated in `Lib/urlparse.py
+For various reasons, the Python Standard Library ``urlparse`` module
+is not compliant with current Internet standards, does not include
+Unicode support, and is generally unusable with proprietary URI
+schemes.  As stated in `Lib/urlparse.py
 <http://hg.python.org/cpython/file/2.7/Lib/urlparse.py>`_::
 
     RFC 3986 is considered the current standard and any future changes
@@ -31,7 +26,8 @@ This module aims to provide fully RFC 3986 compliant, Unicode-aware
 replacements for the most commonly used functions provided by
 ``urlparse``.
 
-The ``uritools`` module currently defines the following functions:
+The ``uritools`` module currently defines the following classes and
+functions:
 
 
 uritools.\ **urisplit**\ (*uristring*)
@@ -77,6 +73,13 @@ Attributes:
 
 Changelog
 =========
+
+
+v0.0.5 (2014-02-09)
+----------------------------------------
+
+- Add urijoin().
+- Improve unit tests.
 
 
 v0.0.4 (2014-02-09)
