@@ -11,13 +11,62 @@ uritools
     :alt: Number of PyPI downloads
 
 
-RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for
-urlparse.
+*RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for
+urlparse.*
 
-The urlparse module is not compliant with RFC 3986, and is generally
-unusable with custom (private) URI schemes.  This module provides
-compliant replacements for urlsplit and urlunsplit, as well as a
-convenient way to compose URIs.
+For various reasons, the standard library ``urlparse`` module is not
+compliant with current Internet standards, does not provide Unicode
+support, and is generally unusable with proprietary URI schemes.
+
+As stated in `Lib/urlparse.py
+<http://hg.python.org/cpython/file/2.7/Lib/urlparse.py>`_::
+
+    RFC 3986 is considered the current standard and any future changes
+    to urlparse module should conform with it.  The urlparse module is
+    currently not entirely compliant with this RFC due to defacto
+    scenarios for parsing, and for backward compatibility purposes,
+    some parsing quirks from older RFCs are retained.
+
+This module aims to provide fully RFC 3986 compliant, Unicode-aware
+replacements for the most commonly used functions provided by
+``urlparse``.
+
+The ``uritools`` module currently defines the following functions:
+
+
+uritools.\ **urisplit**\ (*uristring*)
+
+    Split a URI string into a named tuple with five components::
+
+        <scheme>://<authority>/<path>?<query>#<fragment>
+
+    The returned object is an instance of ``SplitResult``.
+
+
+uritools.\ **uriunsplit**\ (*parts*)
+
+    Combine the elements of a tuple as returned by ``urisplit()`` into
+    a complete URI as a string.
+
+    The ``parts`` argument can be any five-item iterable.
+
+
+uritools.\ **uricompose**\ (*scheme=None, authority=None, path='',
+query=None, fragment=None, encoding='utf-8'*)
+
+    Compose a URI string from its components.
+
+
+*class* uritools.\ **SplitResult**\ (*scheme, authority, path, query, fragment*)
+
+    Extend ``namedtuple`` to hold ``urisplit()`` results.
+
+    Attributes:
+        :scheme: URI scheme or None if not present
+        :authority: URI authority component or None if not present
+        :path: URI path component, always present but may be empty
+        :query: URI query component or None if not present
+        :fragment: URI fragment component or None if not present
 
 
 Changelog

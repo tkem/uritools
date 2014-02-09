@@ -49,6 +49,16 @@ def uridecode(s, encoding='utf-8'):
 
 
 class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragment')):
+    """Extend `namedtuple` to hold `urisplit()` results.
+
+    Attributes:
+        :scheme: URI scheme or None if not present
+        :authority: URI authority component or None if not present
+        :path: URI path component, always present but may be empty
+        :query: URI query component or None if not present
+        :fragment: URI fragment component or None if not present
+
+    """
 
     def getscheme(self, default=None):
         if self.scheme is None:
@@ -77,24 +87,26 @@ class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragmen
         return uriunsplit(self)
 
 
-def urisplit(uri):
-    """Split a URI into a named tuple with five components:
-    <scheme>://<authority>/<path>?<query>#<fragment>.  Note that
-    %-escapes are not expaneded.
+def urisplit(uristring):
+    """Split a URI string into a named tuple with five components::
+
+      <scheme>://<authority>/<path>?<query>#<fragment>
+
+    The returned object is an instance of `SplitResult`.
 
     """
-    return SplitResult(*RE.match(uri).groups())
+    return SplitResult(*RE.match(uristring).groups())
 
 
-def uriunsplit(data):
-    """Combine the elements of a tuple as returned by urisplit() into a
-    complete URI as a string.  The data argument can be any five-item
-    iterable.  Note that this may result in a slightly different, but
-    equivalent URI string.
+def uriunsplit(parts):
+    """Combine the elements of a tuple as returned by `urisplit()` into a
+    complete URI as a string.
+
+    The `parts` argument can be any five-item iterable.
 
     """
 
-    scheme, authority, path, query, fragment = data
+    scheme, authority, path, query, fragment = parts
     uri = ''
 
     if scheme is not None:
@@ -134,6 +146,10 @@ def uriunsplit(data):
 
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, encoding='utf-8'):
+    """Compose a URI string from its components.
+
+    """
+
     if scheme is not None:
         scheme = uriencode(scheme, encoding='ascii')
     if authority is not None:
