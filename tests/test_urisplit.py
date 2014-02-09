@@ -1,24 +1,31 @@
-from __future__ import unicode_literals
-
 import unittest
 
 from uritools import urisplit
 
 
-class UrisplitTest(unittest.TestCase):
+class UriSplitTest(unittest.TestCase):
 
-    def check_split(self, uri, split):
-        t = urisplit(uri)
-        self.assertEqual(t, split)
-        self.assertEqual(
-            split,
-            (t.scheme, t.authority, t.path, t.query, t.fragment)
+    def check(self, uri, split):
+        result = urisplit(uri)
+        self.assertEqual(result, split)
+        self.assertEqual(result.geturi(), uri)
+
+    def test_rfc3986_3(self):
+        """urisplit test cases from [RFC3986] 3. Syntax Components"""
+
+        self.check(
+            'foo://example.com:8042/over/there?name=ferret#nose',
+            ('foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose')
         )
-        self.assertEqual(uri, t.geturi())
+        self.check(
+            'urn:example:animal:ferret:nose',
+            ('urn', None, 'example:animal:ferret:nose', None, None)
+        )
 
-    def test_roundtrips(self):
-        # adapted from /Lib/test/test_urlparse.py
-        testcases = [
+    def test_urlparse_roundtrips(self):
+        """urlparse roundtrip test cases"""
+
+        for url, split in [
             ('file:///tmp/junk.txt',
              ('file', '', '/tmp/junk.txt', None, None)),
             ('imap://mail.python.org/mbox1',
@@ -43,15 +50,14 @@ class UrisplitTest(unittest.TestCase):
              (None, None, './Python', None, None)),
             ('http://example.com?blahblah=/foo',
              ('http', 'example.com', '', 'blahblah=/foo', None)),
-        ]
-        for url, split in testcases:
-            self.check_split(url, split)
+        ]:
+            self.check(url, split)
 
     def test_attributes(self):
-        # adapted from /Lib/test/test_urlparse.py
+        """urlparse attribute test cases"""
+
         uri = "HTTP://WWW.PYTHON.ORG/doc/#frag"
         p = urisplit(uri)
-        # FIXME: lowercase scheme?
         #self.assertEqual(p.scheme, "http")
         self.assertEqual(p.authority, "WWW.PYTHON.ORG")
         self.assertEqual(p.path, "/doc/")
@@ -97,13 +103,3 @@ class UrisplitTest(unittest.TestCase):
         #self.assertEqual(p.hostname, None)
         #self.assertEqual(p.port, None)
         self.assertEqual(p.geturi(), uri)
-
-    def test_rfc3986(self):
-        self.assertEqual(
-            urisplit('foo://example.com:8042/over/there?name=ferret#nose'),
-            ('foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose')
-        )
-        self.assertEqual(
-            urisplit('urn:example:animal:ferret:nose'),
-            ('urn', None, 'example:animal:ferret:nose', None, None)
-        )
