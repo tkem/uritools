@@ -73,6 +73,15 @@ Changelog
 =========
 
 
+v0.0.4 (2014-02-09)
+----------------------------------------
+
+- Add default parameters.
+- Improve RFC 3986 compliance.
+- Adapt unit tests from urlparse.
+- Write some documentation.
+
+
 v0.0.3 (2014-02-08)
 ----------------------------------------
 
