@@ -17,7 +17,7 @@ class UriJoinTest(unittest.TestCase):
         )
 
     def test_rfc3986_5_4_1(self):
-        """urijoin test cases from [RFC3986] 5.4.1. Normal Examples"""
+        """urijoin test cases from RFC 3986 5.4.1. Normal Examples"""
 
         self.check(RFC3986_BASE, "g:h", "g:h")
         self.check(RFC3986_BASE, "g", "http://a/b/c/g")
@@ -44,7 +44,7 @@ class UriJoinTest(unittest.TestCase):
         self.check(RFC3986_BASE, "../../g", "http://a/g")
 
     def test_rfc3986_5_4_2(self):
-        """urijoin test cases from [RFC3986] 5.4.2. Abnormal Examples"""
+        """urijoin test cases from RFC 3986 5.4.2. Abnormal Examples"""
 
         self.check(RFC3986_BASE, "../../../g", "http://a/g")
         self.check(RFC3986_BASE, "../../../../g", "http://a/g")
@@ -72,7 +72,7 @@ class UriJoinTest(unittest.TestCase):
         self.check(RFC3986_BASE, "http:g", "http://a/b/c/g", False)
 
     def test_urlparse_RFC1808(self):
-        """urlparse test cases from RFC 1808"""
+        """urlparse.urljoin test cases from RFC 1808"""
 
         # "normal" cases from RFC 1808:
         self.check(RFC1808_BASE, 'g:h', 'g:h')
@@ -119,7 +119,7 @@ class UriJoinTest(unittest.TestCase):
         self.check(RFC1808_BASE, 'http:', 'http:', True)
 
     def test_urlparse_RFC2396(self):
-        """urlparse test cases from RFC 2396"""
+        """urlparse.urljoin test cases from RFC 2396"""
 
         self.check(RFC2396_BASE, 'g:h', 'g:h')
         self.check(RFC2396_BASE, 'g', 'http://a/b/c/g')

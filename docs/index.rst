@@ -6,7 +6,7 @@
 
 .. module:: uritools
 
-This module defines fully RFC 3986 compliant replacements for the most
+This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python Standard Library :mod:`urlparse`
 module.
 
@@ -40,37 +40,42 @@ Replacement Functions for :mod:`uriparse`
 ------------------------------------------------------------------------
 
 .. autofunction:: urisplit
+
 .. autofunction:: uriunsplit
+
 .. autofunction:: urijoin
 
+.. autofunction:: uridefrag
 
 Additional URI Functions
 ------------------------------------------------------------------------
 
 .. autofunction:: uriencode
+
+   This function can be used as a Unicode-aware replacement for
+   :func:`urllib.quote`.  Compared to :func:`urllib.quote`, this
+   function never encodes the tilde character (`~`), which is an
+   unreserved character in RFC 3986, and encodes slash characters
+   (`/`) by default.
+
+   Note that this function should not be confused with
+   :func:`urllib.urlencode`, which does something completely
+   different.
+
 .. autofunction:: uridecode
+
+   This function can be used as a Unicode-aware replacement for
+   :func:`urllib.unquote`.
+
 .. autofunction:: urinormpath
+
 .. autofunction:: uricompose
 
 Results of :func:`urisplit()`
 ------------------------------------------------------------------------
 
-Result objects from the :func:`urisplit` function are subclasses of
-the :class:`namedtuple` type from the :mod:`collections` module.
-
-   +-------------------+-------+--------------------------+----------------------+
-   | Attribute         | Index | Value                    | Value if not present |
-   +===================+=======+==========================+======================+
-   | :attr:`scheme`    | 0     | URL scheme specifier     | :const:`None`        |
-   +-------------------+-------+--------------------------+----------------------+
-   | :attr:`authority` | 1     | Network location part    | :const:`None`        |
-   +-------------------+-------+--------------------------+----------------------+
-   | :attr:`path`      | 2     | Hierarchical path        | empty string         |
-   +-------------------+-------+--------------------------+----------------------+
-   | :attr:`query`     | 3     | Query component          | :const:`None`        |
-   +-------------------+-------+--------------------------+----------------------+
-   | :attr:`fragment`  | 4     | Fragment identifier      | :const:`None`        |
-   +-------------------+-------+--------------------------+----------------------+
+Result objects from the :func:`urisplit` function are actually
+instances of subclasses of :class:`collections.namedtuple`.
 
 .. autoclass:: SplitResult 
    :members:
