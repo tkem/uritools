@@ -14,6 +14,24 @@ This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python Standard Library ``urlparse``
 module.
 
+    >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
+    >>> p = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
+    >>> p
+    SplitResult(scheme='foo', authority='example.com:8042', path='/over/there',
+                query='name=ferret', fragment='nose')
+    >>> p.scheme
+    'foo'
+    >>> p.authority
+    'example.com:8042'
+    >>> p.geturi()
+    'foo://example.com:8042/over/there?name=ferret#nose'
+    >>> uriunsplit(['foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose'])
+    'foo://example.com:8042/over/there?name=ferret#nose'
+    >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
+    'http://www.cwi.nl/~guido/FAQ.html'
+    >>> uridefrag('http://pythonhosted.org/uritools/index.html#uritools.uridefrag')
+    ('http://pythonhosted.org/uritools/index.html', 'uritools.uridefrag')
+
 For various reasons, the ``urlparse`` module is not compliant with
 current Internet standards, does not include Unicode support, and is
 generally unusable with proprietary URI schemes.  As stated in
@@ -51,36 +69,7 @@ Project Resources
 Changelog
 ========================================================================
 
-
-v0.0.5 (2014-02-09)
+v0.1.0 (2014-02-14)
 ------------------------------------------------------------------------
 
-- Add urijoin().
-- Improve unit tests.
-
-
-v0.0.4 (2014-02-09)
-------------------------------------------------------------------------
-
-- Add default parameters.
-- Improve RFC 3986 compliance.
-- Adapt unit tests from urlparse.
-- Write some documentation.
-
-
-v0.0.3 (2014-02-08)
-------------------------------------------------------------------------
-
-- Add character encoding parameters.
-
-
-v0.0.2 (2014-02-08)
-------------------------------------------------------------------------
-
-- Add basic unit tests.
-
-
-v0.0.1 (2014-02-08)
-------------------------------------------------------------------------
-
-- Initial alpha release.
+- Initial beta release.

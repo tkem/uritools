@@ -10,6 +10,24 @@ This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python Standard Library :mod:`urlparse`
 module.
 
+    >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
+    >>> p = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
+    >>> p
+    SplitResult(scheme='foo', authority='example.com:8042', path='/over/there',
+                query='name=ferret', fragment='nose')
+    >>> p.scheme
+    'foo'
+    >>> p.authority
+    'example.com:8042'
+    >>> p.geturi()
+    'foo://example.com:8042/over/there?name=ferret#nose'
+    >>> uriunsplit(['foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose'])
+    'foo://example.com:8042/over/there?name=ferret#nose'
+    >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
+    'http://www.cwi.nl/~guido/FAQ.html'
+    >>> uridefrag('http://pythonhosted.org/uritools/index.html#uritools.uridefrag')
+    ('http://pythonhosted.org/uritools/index.html', 'uritools.uridefrag')
+
 For various reasons, the :mod:`urlparse` module is not compliant with
 current Internet standards, does not include Unicode support, and is
 generally unusable with proprietary URI schemes.  As stated in
@@ -36,6 +54,7 @@ individual components.
         deviations are observed, the module's implementation should be
         changed, even if this means breaking backward compatiblity.
 
+
 Replacement Functions for :mod:`uriparse`
 ------------------------------------------------------------------------
 
@@ -47,7 +66,8 @@ Replacement Functions for :mod:`uriparse`
 
 .. autofunction:: uridefrag
 
-Additional URI Functions
+
+Additional Functions
 ------------------------------------------------------------------------
 
 .. autofunction:: uriencode
@@ -71,12 +91,12 @@ Additional URI Functions
 
 .. autofunction:: uricompose
 
-Results of :func:`urisplit()`
+
+Results of :func:`urisplit`
 ------------------------------------------------------------------------
 
 Result objects from the :func:`urisplit` function are actually
 instances of subclasses of :class:`collections.namedtuple`.
 
-.. autoclass:: SplitResult 
+.. autoclass:: SplitResult
    :members:
-..   :undoc-members:

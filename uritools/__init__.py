@@ -70,8 +70,10 @@ def urisplit(uri):
 
 
 def uriunsplit(parts):
-    """Combine the elements of a tuple as returned by `urisplit()` into a
-    complete URI as a string."""
+    """Combine the elements of a five-item iterable as returned by
+    `urisplit()` into a URI string.
+
+    """
 
     scheme, authority, path, query, fragment = parts
 
@@ -128,10 +130,11 @@ def urijoin(base, ref, strict=False):
 
 
 def uridefrag(uri):
-    """Removes an existing fragment from a URI string.
+    """Remove an existing fragment from a URI string.
 
-    Returns a tuple of the defragmented URI and the fragment.  If
-    `uri` contains no fragment, the second element is `None`.
+    Return a tuple of the defragmented URI and the fragment.  If `uri`
+    contains no fragment, the second element is `None`.
+
     """
     scheme, authority, path, query, fragment = urisplit(uri)
     return (uriunsplit((scheme, authority, path, query, None)), fragment)
@@ -139,8 +142,10 @@ def uridefrag(uri):
 
 def uriencode(string, safe='', encoding='utf-8'):
     """Encode `string` using the codec registered for `encoding`,
-    replacing reserved characters not in `safe` with their
-    corresponding percent-encodings."""
+    replacing any unreserved characters not in `safe` with their
+    corresponding percent-encodings.
+
+    """
     from urllib import quote
     return quote(string.encode(encoding), UNRESERVED + safe)
 
@@ -191,15 +196,17 @@ def uricompose(scheme=None, authority=None, path='', query=None,
 
 
 class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragment')):
-    """Extend :class:`namedtuple` to hold :func:`urisplit` results."""
+    """Extend `namedtuple` to hold `urisplit()` results."""
 
     def geturi(self):
-        """Return the re-combined version of the original URL as a string."""
+        """Return the re-combined version of the original URI as a string."""
         return uriunsplit(self)
 
     def transform(self, ref, strict=False):
-        """Convert a URI reference relative to `self` into a
-        five-element tuple representing its target."""
+        """Convert a URI reference relative to `self` into a `SplitResult`
+        representing its target.
+
+        """
         scheme, authority, path, query, fragment = urisplit(ref)
 
         # RFC 3986 5.2.2. Transform References

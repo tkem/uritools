@@ -19,7 +19,7 @@ setup(
     description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',
     long_description=open('README.rst').read(),
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Other Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
