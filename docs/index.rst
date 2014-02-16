@@ -91,6 +91,21 @@ Additional Functions
 .. autofunction:: uricompose
 
 
+Constants
+------------------------------------------------------------------------
+
+.. data:: RE
+
+.. autodata:: UNRESERVED
+
+.. autodata:: RESERVED
+
+.. autodata:: GEN_DELIMS
+
+.. autodata:: SUB_DELIMS
+
+
+
 Results of :func:`urisplit`
 ------------------------------------------------------------------------
 

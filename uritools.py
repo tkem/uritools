@@ -7,31 +7,9 @@ module.
 """
 from collections import namedtuple
 import re
+import urllib
 
 __version__ = '0.2.0'
-
-# RFC 3986 2.2. Reserved Characters
-
-GEN_DELIMS = ':/?#[]@'
-"""General delimiter characters"""
-
-SUB_DELIMS = "!$&'()*+,;="
-"""Sub-component delimiter characters"""
-
-RESERVED = GEN_DELIMS + SUB_DELIMS
-"""Reserved characters"""
-
-# RFC 3986 2.3. Unreserved Characters
-
-UNRESERVED = (
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    'abcdefghijklmnopqrstuvwxyz'
-    '0123456789'
-    '_.-~'
-)
-"""Unreserved characters"""
-
-# RFC 3986 Appendix B
 
 RE = re.compile(r"""
 (?:([^:/?#]+):)?  # scheme
@@ -41,6 +19,25 @@ RE = re.compile(r"""
 (?:\#(.*))?       # fragment
 """, flags=(re.VERBOSE))
 """Regular expression to split URIs into components."""
+
+GEN_DELIMS = ':/?#[]@'
+"""RFC 3986 General delimiter characters"""
+
+SUB_DELIMS = "!$&'()*+,;="
+"""RFC 3986 Sub-component delimiter characters"""
+
+RESERVED = GEN_DELIMS + SUB_DELIMS
+"""RFC 3986 Reserved characters"""
+
+UNRESERVED = (
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    'abcdefghijklmnopqrstuvwxyz'
+    '0123456789'
+    '_.-~'
+)
+"""RFC 3986 Unreserved characters"""
+
+URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
 
 def urisplit(uri):
@@ -99,8 +96,11 @@ def uriunsplit(parts):
         raise ValueError('Cannot use path %r with authority' % path)
     if authority is None and path.startswith('//'):
         raise ValueError('Cannot use path %r without authority' % path)
-    if scheme is None and ':' in path.split('/', 1)[0]:
-        raise ValueError('Cannot use path %r without scheme' % path)
+    if scheme is None and authority is None and ':' in path.split('/', 1)[0]:
+        # Allow paths starting with ':', since the RE will parse
+        # strings starting with ':' as relative-path references
+        if not path.startswith(':'):
+            raise ValueError('Cannot use path %r without scheme' % path)
 
     # Prevent some reserved characters within parts, so that for all
     # parts, uri: urisplit(uriunsplit(parts)) == parts and
@@ -142,19 +142,17 @@ def uridefrag(uri):
 
 def uriencode(string, safe='', encoding='utf-8'):
     """Encode `string` using the codec registered for `encoding`,
-    replacing any unreserved characters not in `safe` with their
+    replacing any characters not in `UNRESERVED` or `safe` with their
     corresponding percent-encodings.
 
     """
-    from urllib import quote
-    return quote(string.encode(encoding), UNRESERVED + safe)
+    return urllib.quote(string.encode(encoding), UNRESERVED + safe)
 
 
 def uridecode(string, encoding='utf-8'):
     """Replace percent-encodings in `string`, and decode the resulting
     string using the codec registered for `encoding`."""
-    from urllib import unquote
-    return unquote(string).decode(encoding)
+    return urllib.unquote(string).decode(encoding)
 
 
 def urinormpath(path):
@@ -182,20 +180,20 @@ def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, encoding='utf-8'):
     """Compose a URI string from its components."""
 
-    if scheme is not None:
-        scheme = uriencode(scheme, encoding='ascii')
-    if authority is not None:
+    if scheme:
+        scheme = scheme.lower()
+    if authority:
         authority = uriencode(authority, SUB_DELIMS + ':@', encoding)
-    if path is not None:
+    if path:
         path = uriencode(path, SUB_DELIMS + ':@/', encoding)
-    if query is not None:
+    if query:
         query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
-    if fragment is not None:
+    if fragment:
         fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
     return uriunsplit((scheme, authority, path, query, fragment))
 
 
-class SplitResult(namedtuple('SplitResult', 'scheme authority path query fragment')):
+class SplitResult(namedtuple('SplitResult', URI_COMPONENTS)):
     """Extend `namedtuple` to hold `urisplit()` results."""
 
     def geturi(self):

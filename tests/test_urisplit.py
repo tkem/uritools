@@ -5,22 +5,55 @@ from uritools import urisplit
 
 class UriSplitTest(unittest.TestCase):
 
-    def check(self, uri, split):
+    def check(self, uri, parts):
         result = urisplit(uri)
-        self.assertEqual(result, split)
+        self.assertEqual(result, parts)
         self.assertEqual(result.geturi(), uri)
+        for r, s in zip(result, parts):
+            self.assertIsInstance(r, type(s))
+        self.assertIsInstance(result.geturi(), type(uri))
 
     def test_rfc3986_3(self):
         """urisplit test cases from [RFC3986] 3. Syntax Components"""
+        self.check(
+            b'foo://example.com:8042/over/there?name=ferret#nose',
+            (b'foo', b'example.com:8042', b'/over/there', b'name=ferret', b'nose')
+        )
+        self.check(
+            u'foo://example.com:8042/over/there?name=ferret#nose',
+            (u'foo', u'example.com:8042', u'/over/there', u'name=ferret', u'nose')
+        )
+        self.check(
+            b'urn:example:animal:ferret:nose',
+            (b'urn', None, b'example:animal:ferret:nose', None, None)
+        )
+        self.check(
+            u'urn:example:animal:ferret:nose',
+            (u'urn', None, u'example:animal:ferret:nose', None, None)
+        )
 
-        self.check(
-            'foo://example.com:8042/over/there?name=ferret#nose',
-            ('foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose')
-        )
-        self.check(
-            'urn:example:animal:ferret:nose',
-            ('urn', None, 'example:animal:ferret:nose', None, None)
-        )
+    def test_pathologic(self):
+        """urisplit edge cases"""
+        for uri, parts in [
+            ('', (None, None, '', None, None)),
+            (':', (None, None, ':', None, None)),
+            (':/', (None, None, ':/', None, None)),
+            ('://', (None, None, '://', None, None)),
+            ('://?', (None, None, '://', '', None)),
+            ('://#', (None, None, '://', None, '')),
+            ('://?#', (None, None, '://', '', '')),
+            ('//', (None, '', '', None, None)),
+            ('///', (None, '', '/', None, None)),
+            ('//?', (None, '', '', '', None)),
+            ('//#', (None, '', '', None, '')),
+            ('//?#', (None, '', '', '', '')),
+            ('?', (None, None, '', '', None)),
+            ('??', (None, None, '', '?', None)),
+            ('?#', (None, None, '', '', '')),
+            ('#', (None, None, '', None, '')),
+            ('##', (None, None, '', None, '#')),
+        ]:
+            self.check(uri, parts)
 
     def test_urlparse_roundtrips(self):
         """urlparse roundtrip test cases"""
