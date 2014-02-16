@@ -10,7 +10,7 @@ def get_version(filename):
 
 setup(
     name='uritools',
-    version=get_version('uritools/__init__.py'),
+    version=get_version('uritools.py'),
     author='Thomas Kemmer',
     author_email='tkemmer@computer.org',
     url='https://github.com/tkem/uritools',
@@ -18,6 +18,7 @@ setup(
 
     description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',
     long_description=open('README.rst').read(),
+    keywords='URI URL urlparse urlsplit urljoin',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Other Environment',
@@ -30,10 +31,8 @@ setup(
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    keywords='URI URL urlparse urlsplit urljoin',
 
-    packages=find_packages(exclude=['tests']),
-    include_package_data=True,
+    py_modules=['uritools'],
 
     test_suite='nose.collector',
     tests_require=['nose']

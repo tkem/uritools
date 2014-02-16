@@ -16,8 +16,6 @@ module.
 
 .. code-block:: pycon
 
-          
-
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
     >>> p = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
     >>> p

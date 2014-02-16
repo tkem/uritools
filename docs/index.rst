@@ -1,6 +1,3 @@
-.. uritools documentation master file, created by
-   sphinx-quickstart on Mon Feb 10 09:15:34 2014.
-
 :mod:`uritools` --- RFC 3986 compliant replacement for :mod:`urlparse`
 =======================================================================
 
@@ -9,6 +6,8 @@
 This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python Standard Library :mod:`urlparse`
 module.
+
+.. code-block:: pycon
 
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
     >>> p = urisplit('foo://example.com:8042/over/there?name=ferret#nose')

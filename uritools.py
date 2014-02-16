@@ -8,7 +8,7 @@ module.
 from collections import namedtuple
 import re
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 # RFC 3986 2.2. Reserved Characters
 
