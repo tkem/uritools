@@ -68,9 +68,8 @@ def urisplit(uri):
     +===================+=======+=============================================+
     | :attr:`scheme`    | 0     | URI scheme, or :const:`None` if not present |
     +-------------------+-------+---------------------------------------------+
-    | :attr:`authority` | 1     | Authority component, or :const:`None` if    |
+    | :attr:`authority` | 1     | Authority component,                        |
     |                   |       | or :const:`None` if not present             |
-    |                   |       |                                             |
     +-------------------+-------+---------------------------------------------+
     | :attr:`path`      | 2     | Path component, always present but may be   |
     |                   |       | empty                                       |
