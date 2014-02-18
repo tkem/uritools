@@ -221,7 +221,10 @@ def uricompose(scheme=None, authority=None, path='', query=None,
 
 
 class SplitResult(namedtuple('SplitResult', _URI_COMPONENTS)):
-    """Extend :class:`namedtuple` to hold :func:`urisplit` results."""
+    """Extend :class:`collections.namedtuple` to hold :func:`urisplit`
+    results.
+
+    """
 
     @property
     def _splitauth(self):
@@ -274,12 +277,15 @@ class SplitResult(namedtuple('SplitResult', _URI_COMPONENTS)):
         return SplitResult(self.scheme, self.authority, path, query, fragment)
 
 
-class DefragResult(namedtuple('DefragResult', 'defrag fragment')):
-    """Extend :class:`namedtuple` to hold :func:`uridefrag` results."""
+class DefragResult(namedtuple('DefragResult', 'uri fragment')):
+    """Extend :class:`collectionsnamedtuple` to hold :func:`uridefrag`
+    results.
+
+    """
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
         if self.fragment is not None:
-            return self.defrag + '#' + self.fragment
+            return self.uri + '#' + self.fragment
         else:
-            return self.defrag
+            return self.uri

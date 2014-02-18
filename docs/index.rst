@@ -12,20 +12,23 @@ module.
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
     >>> p = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
     >>> p
-    SplitResult(scheme='foo', authority='example.com:8042', path='/over/there',
-                query='name=ferret', fragment='nose')
+    SplitResult(scheme='foo', authority='example.com:8042',
+                path='/over/there', query='name=ferret', fragment='nose')
     >>> p.scheme
     'foo'
     >>> p.authority
     'example.com:8042'
+    >>> p.port
+    8042
     >>> p.geturi()
     'foo://example.com:8042/over/there?name=ferret#nose'
-    >>> uriunsplit(['foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose'])
-    'foo://example.com:8042/over/there?name=ferret#nose'
+    >>> uriunsplit(['foo', 'example.com:8042', '/over/there', None, None])
+    'foo://example.com:8042/over/there'
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
-    >>> uridefrag('http://pythonhosted.org/uritools/index.html#uritools.uridefrag')
-    ('http://pythonhosted.org/uritools/index.html', 'uritools.uridefrag')
+    >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
+    DefragResult(uri='http://pythonhosted.org/uritools/index.html',
+                 fragment='constants')
 
 For various reasons, the :mod:`urlparse` module is not compliant with
 current Internet standards, does not include Unicode support, and is

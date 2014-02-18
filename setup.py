@@ -18,7 +18,7 @@ setup(
 
     description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',
     long_description=open('README.rst').read(),
-    keywords='URI URL urlparse urlsplit urljoin',
+    keywords='uri url urlparse urlsplit urljoin urldefrag',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Other Environment',
