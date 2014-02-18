@@ -92,14 +92,17 @@ class UriSplitTest(unittest.TestCase):
         uri = "HTTP://WWW.PYTHON.ORG/doc/#frag"
         p = urisplit(uri)
         #self.assertEqual(p.scheme, "http")
+        self.assertEqual(p.scheme.lower(), "http")
         self.assertEqual(p.authority, "WWW.PYTHON.ORG")
         self.assertEqual(p.path, "/doc/")
         self.assertEqual(p.query, None)
         self.assertEqual(p.fragment, "frag")
         #self.assertEqual(p.username, None)
         #self.assertEqual(p.password, None)
-        #self.assertEqual(p.hostname, "www.python.org")
-        #self.assertEqual(p.port, None)
+        self.assertEqual(p.userinfo, None)
+        #self.assertEqual(p.host, "www.python.org")
+        self.assertEqual(p.host.lower(), "www.python.org")
+        self.assertEqual(p.port, None)
         self.assertEqual(p.geturi(), uri)
 
         uri = "http://User:Pass@www.python.org:080/doc/?query=yes#frag"
@@ -111,8 +114,9 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(p.fragment, "frag")
         #self.assertEqual(p.username, "User")
         #self.assertEqual(p.password, "Pass")
-        #self.assertEqual(p.hostname, "www.python.org")
-        #self.assertEqual(p.port, 80)
+        self.assertEqual(p.userinfo, 'User:Pass')
+        self.assertEqual(p.host, "www.python.org")
+        self.assertEqual(p.port, 80)
         self.assertEqual(p.geturi(), uri)
 
         uri = "http://User@example.com:Pass@www.python.org:080/doc/?query=yes#frag"
@@ -124,8 +128,9 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(p.fragment, "frag")
         #self.assertEqual(p.username, "User@example.com")
         #self.assertEqual(p.password, "Pass")
-        #self.assertEqual(p.hostname, "www.python.org")
-        #self.assertEqual(p.port, 80)
+        self.assertEqual(p.userinfo, 'User@example.com:Pass')
+        self.assertEqual(p.host, "www.python.org")
+        self.assertEqual(p.port, 80)
         self.assertEqual(p.geturi(), uri)
 
         uri = "sip:alice@atlanta.com;maddr=239.255.255.1;ttl=15"
@@ -133,6 +138,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(p.authority, None)
         #self.assertEqual(p.username, None)
         #self.assertEqual(p.password, None)
-        #self.assertEqual(p.hostname, None)
-        #self.assertEqual(p.port, None)
+        self.assertEqual(p.userinfo, None)
+        self.assertEqual(p.host, None)
+        self.assertEqual(p.port, None)
         self.assertEqual(p.geturi(), uri)

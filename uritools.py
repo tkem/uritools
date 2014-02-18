@@ -2,8 +2,9 @@
 urlparse.
 
 This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python Standard Library `urlparse`
+commonly used functions of the Python Standard Library :mod:`urlparse`
 module.
+
 """
 from collections import namedtuple
 import re
@@ -24,10 +25,10 @@ components.
 """
 
 GEN_DELIMS = ':/?#[]@'
-"""General delimiter characters."""
+"""General delimiting characters."""
 
 SUB_DELIMS = "!$&'()*+,;="
-"""Sub-component delimiter characters."""
+"""Subcomponent delimiting characters."""
 
 RESERVED = GEN_DELIMS + SUB_DELIMS
 """Reserved characters."""
@@ -42,30 +43,53 @@ UNRESERVED = (
 
 _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
-_SCHEME_RE = re.compile(r"[a-zA-Z][a-zA-Z0-9.+-]*$")
+_SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9.+-]*$")
+
+_AUTHORITY_RE = re.compile(r"""
+\A
+(?:(.*)\@)?     # userinfo
+(.*?)           # host
+(?:\:(\d+))?    # port
+\Z
+""", flags=(re.VERBOSE))
 
 
 def urisplit(uri):
-    """Split a well-formed URI string into a tuple with five components,
-    according to a URI's general structure::
+    """Split a well-formed URI string into a tuple with five components
+    corresponding to a URI's general structure::
 
       <scheme>://<authority>/<path>?<query>#<fragment>
 
-    The return value is a named tuple with the following fields:
+    The return value is an instance of a subclass of :class:`tuple`
+    with the following additional read-only attributes:
 
-    +-------+-------------+-------------------------------------------------+
-    | Index | Attribute   | Value                                           |
-    +=======+=============+=================================================+
-    | 0     | `scheme`    | URI scheme or `None` if not present             |
-    +-------+-------------+-------------------------------------------------+
-    | 1     | `authority` | authority component or `None` if not present    |
-    +-------+-------------+-------------------------------------------------+
-    | 2     | `path`      | path component, always present but may be empty |
-    +-------+-------------+-------------------------------------------------+
-    | 3     | `query`     | query component or `None` if not present        |
-    +-------+-------------+-------------------------------------------------+
-    | 4     | `fragment`  | fragment component or `None` if not present     |
-    +-------+-------------+-------------------------------------------------+
+    +-------------------+-------+---------------------------------------------+
+    | Attribute         | Index | Value                                       |
+    +===================+=======+=============================================+
+    | :attr:`scheme`    | 0     | URI scheme, or :const:`None` if not present |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`authority` | 1     | Authority component, or :const:`None` if    |
+    |                   |       | or :const:`None` if not present             |
+    |                   |       |                                             |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`path`      | 2     | Path component, always present but may be   |
+    |                   |       | empty                                       |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`query`     | 3     | Query component,                            |
+    |                   |       | or :const:`None` if not present             |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`fragment`  | 4     | Fragment identifier,                        |
+    |                   |       | or :const:`None` if not present             |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`userinfo`  |       | Userinfo subcomponent of authority,         |
+    |                   |       | or :const:`None` if not present             |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`host`      |       | Host subcomponent of authority,             |
+    |                   |       | or :const:`None` if not present             |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`port`      |       | Port subcomponent of authority as integer,  |
+    |                   |       | or :const:`None` if not present             |
+    +-------------------+-------+---------------------------------------------+
 
     """
     return SplitResult(*RE.match(uri).groups())
@@ -76,9 +100,6 @@ def uriunsplit(parts):
 
     """
     scheme, authority, path, query, fragment = parts
-
-    if path is None:
-        raise ValueError('URI path component must be present if empty')
 
     # RFC 3986 5.3. Component Recomposition
     result = ''
@@ -104,7 +125,7 @@ def uridefrag(uri):
     """Remove an existing fragment from a URI string.
 
     Return a tuple of the defragmented URI and the fragment.  If `uri`
-    contains no fragment, the second element is `None`.
+    contains no fragment, the second element is :const:`None`.
 
     """
     if '#' in uri:
@@ -115,16 +136,18 @@ def uridefrag(uri):
 
 def uriencode(string, safe='', encoding='utf-8'):
     """Encode `string` using the codec registered for `encoding`,
-    replacing any characters not in `UNRESERVED` or `safe` with their
-    corresponding percent-encodings.
+    replacing any characters not in :const:`UNRESERVED` or `safe` with
+    their corresponding percent-encodings.
 
     """
     return urllib.quote(string.encode(encoding), UNRESERVED + safe)
 
 
 def uridecode(string, encoding='utf-8'):
-    """Replace percent-encodings in `string`, and decode the resulting
-    string using the codec registered for `encoding`."""
+    """Replace any percent-encodings in `string`, and decode the resulting
+    string using the codec registered for `encoding`.
+
+    """
     return urllib.unquote(string).decode(encoding)
 
 
@@ -184,10 +207,8 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if authority is None and path.startswith('//'):
         raise ValueError('Invalid path %r without authority' % path)
     if scheme is None and authority is None and ':' in path.split('/', 1)[0]:
-        # TODO: encode ':' only in first path segment
-        path = uriencode(path, SUB_DELIMS + '@/', encoding)
-    else:
-        path = uriencode(path, SUB_DELIMS + ':@/', encoding)
+        raise ValueError('Invalid path %r without scheme' % path)
+    path = uriencode(path, SUB_DELIMS + ':@/', encoding)
 
     # TODO querylist, querydict
     if query:
@@ -195,19 +216,40 @@ def uricompose(scheme=None, authority=None, path='', query=None,
 
     if fragment:
         fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
+
     return uriunsplit((scheme, authority, path, query, fragment))
 
 
 class SplitResult(namedtuple('SplitResult', _URI_COMPONENTS)):
-    """Extend `namedtuple` to hold `urisplit()` results."""
+    """Extend :class:`namedtuple` to hold :func:`urisplit` results."""
+
+    @property
+    def _splitauth(self):
+        if self.authority is None:
+            return (None, None, None)
+        else:
+            return _AUTHORITY_RE.match(self.authority).groups()
+
+    @property
+    def userinfo(self):
+        return self._splitauth[0]
+
+    @property
+    def host(self):
+        return self._splitauth[1]
+
+    @property
+    def port(self):
+        port = self._splitauth[2]
+        return int(port, 10) if port is not None else None
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
         return uriunsplit(self)
 
     def transform(self, ref, strict=False):
-        """Convert a URI reference relative to `self` into a `SplitResult`
-        representing its target.
+        """Convert a URI reference relative to `self` into a
+        :class:`SplitResult` representing its target.
 
         """
         scheme, authority, path, query, fragment = urisplit(ref)
@@ -233,7 +275,7 @@ class SplitResult(namedtuple('SplitResult', _URI_COMPONENTS)):
 
 
 class DefragResult(namedtuple('DefragResult', 'defrag fragment')):
-    """Extend `namedtuple` to hold `uridefrag()` results."""
+    """Extend :class:`namedtuple` to hold :func:`uridefrag` results."""
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""

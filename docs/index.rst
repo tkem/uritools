@@ -74,8 +74,8 @@ Additional Functions
    This function can be used as a Unicode-aware replacement for
    :func:`urllib.quote`.  Compared to :func:`urllib.quote`, this
    function never encodes the tilde character (`~`), which is an
-   unreserved character in RFC 3986, and encodes slash characters
-   (`/`) by default.
+   unreserved character in RFC 3986, and encodes slash characters by
+   default.
 
    Note that this function should not be confused with
    :func:`urllib.urlencode`, which does something completely
@@ -95,6 +95,9 @@ Constants
 ------------------------------------------------------------------------
 
 .. data:: RE
+
+   Regular expression for splitting a well-formed URI into its
+   components.
 
 .. autodata:: UNRESERVED
 
