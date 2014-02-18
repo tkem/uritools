@@ -57,7 +57,7 @@ individual components.
         changed, even if this means breaking backward compatiblity.
 
 
-Replacement Functions for :mod:`uriparse`
+Replacement Functions for :mod:`urlparse`
 ------------------------------------------------------------------------
 
 .. autofunction:: urisplit
