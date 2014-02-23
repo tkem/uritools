@@ -163,7 +163,7 @@ def urinormpath(path):
         elif out:
             out.pop()
     # Fix leading/trailing slashes
-    if path.startswith('/') and out[0] != '':
+    if path.startswith('/') and (not out or out[0] != ''):
         out.insert(0, '')
     if path.endswith('/.') or path.endswith('/..'):
         out.append('')
