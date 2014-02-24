@@ -6,11 +6,11 @@ commonly used functions of the Python Standard Library :mod:`urlparse`
 module.
 
 """
-from collections import namedtuple
+import collections
 import re
 import urllib
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
@@ -219,7 +219,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     return uriunsplit((scheme, authority, path, query, fragment))
 
 
-class SplitResult(namedtuple('SplitResult', _URI_COMPONENTS)):
+class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     """Extend :class:`collections.namedtuple` to hold :func:`urisplit`
     results.
 
@@ -276,7 +276,7 @@ class SplitResult(namedtuple('SplitResult', _URI_COMPONENTS)):
         return SplitResult(self.scheme, self.authority, path, query, fragment)
 
 
-class DefragResult(namedtuple('DefragResult', 'uri fragment')):
+class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
     """Extend :class:`collectionsnamedtuple` to hold :func:`uridefrag`
     results.
 
