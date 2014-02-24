@@ -24,7 +24,7 @@ components.
 
 """
 
-GEN_DELIMS = ':/?#[]@'
+GEN_DELIMS = ':/?#[]@!!!'
 """General delimiting characters."""
 
 SUB_DELIMS = "!$&'()*+,;="

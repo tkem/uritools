@@ -2,16 +2,8 @@
 uritools
 ************************************************************************
 
-.. image:: https://pypip.in/v/uritools/badge.png
-    :target: https://pypi.python.org/pypi/uritools/
-    :alt: Latest PyPI version
-
-.. image:: https://pypip.in/d/uritools/badge.png
-    :target: https://pypi.python.org/pypi/uritools/
-    :alt: Number of PyPI downloads
-
 This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python Standard Library ``urlparse``
+commonly used functions of the Python 2.7 Standard Library urlparse_
 module.
 
 .. code-block:: pycon
@@ -37,7 +29,7 @@ module.
     DefragResult(uri='http://pythonhosted.org/uritools/index.html',
                  fragment='constants')
 
-For various reasons, the ``urlparse`` module is not compliant with
+For various reasons, the urlparse_ module is not compliant with
 current Internet standards, does not include Unicode support, and is
 generally unusable with proprietary URI schemes.  As stated in
 `Lib/urlparse.py
@@ -49,16 +41,16 @@ generally unusable with proprietary URI schemes.  As stated in
     scenarios for parsing, and for backward compatibility purposes,
     some parsing quirks from older RFCs are retained.
 
-The ``uritools`` module aims to provide fully RFC 3986 compliant
-replacements for some commonly used functions found in ``urlparse``,
-plus additional functions for handling Unicode, normalizing URI paths,
-and conveniently composing URIs from their individual components.
+This module aims to provide fully RFC 3986 compliant replacements for
+some commonly used functions found in urlparse_, plus additional
+functions for handling Unicode, normalizing URI paths, and
+conveniently composing URIs from their individual components.
 
 
 Installation
 ========================================================================
 
-To install uritools using pip::
+Install uritools using pip::
 
     pip install uritools
 
@@ -67,30 +59,17 @@ Project Resources
 ========================================================================
 
 - `Documentation <http://pythonhosted.org/uritools/>`_
-- `Source code <https://github.com/tkem/uritools>`_
-- `Issue tracker <https://github.com/tkem/uritools/issues>`_
+- `Issue Tracker <https://github.com/tkem/uritools/issues>`_
+- `Source Code <https://github.com/tkem/uritools>`_
+- `Change Log <https://github.com/tkem/uritools/CHANGELOG.rst>`_
 
 
-Changelog
-========================================================================
+.. image:: https://pypip.in/v/uritools/badge.png
+    :target: https://pypi.python.org/pypi/uritools/
+    :alt: Latest PyPI version
 
-v0.2.1 (2014-02-24)
-------------------------------------------------------------------------
+.. image:: https://pypip.in/d/uritools/badge.png
+    :target: https://pypi.python.org/pypi/uritools/
+    :alt: Number of PyPI downloads
 
-- Fix `Issue #1 <https://github.com/tkem/uritools/issues/1>`_:
-  uritools.urinormpath() raises IndexError.
-- Integrate Python 2.7.6 `urlparse` unit tests.
-
-
-v0.2.0 (2014-02-18)
-------------------------------------------------------------------------
-
-- Add authority subcomponent attributes.
-- Return DefragResult from uridefrag().
-- Improve urisplit/uriunsplit edge case behavior.
-
-
-v0.1.0 (2014-02-14)
-------------------------------------------------------------------------
-
-- Initial beta release.
+.. _urlparse: http://docs.python.org/2/library/urlparse.html
