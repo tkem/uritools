@@ -8,9 +8,14 @@ class UriSplitTest(unittest.TestCase):
     def check(self, uri, parts):
         result = urisplit(uri)
         self.assertEqual(result, parts)
+        self.assertEqual(result.geturi(), uri)
+        self.assertEqual(result.getscheme(), parts[0])
+        self.assertEqual(result.getauthority(), parts[1])
+        self.assertEqual(result.getpath(), parts[2])
+        self.assertEqual(result.getquery(), parts[3])
+        self.assertEqual(result.getfragment(), parts[4])
         for r, p in zip(result, parts):
             self.assertIsInstance(r, type(p))
-        self.assertEqual(result.geturi(), uri)
         self.assertIsInstance(result.geturi(), type(uri))
 
     def test_rfc3986(self):

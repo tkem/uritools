@@ -10,7 +10,7 @@ import collections
 import re
 import urllib
 
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
@@ -46,11 +46,10 @@ _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 _SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9.+-]*$")
 
 _AUTHORITY_RE = re.compile(r"""
-\A
 (?:(.*)\@)?     # userinfo
-(.*?)           # host
+(.*?)           # host -- FIXME: lookahead?
 (?:\:(\d+))?    # port
-\Z
+$
 """, flags=(re.VERBOSE))
 
 
@@ -123,8 +122,18 @@ def urijoin(base, ref, strict=False):
 def uridefrag(uri):
     """Remove an existing fragment from a URI string.
 
-    Return a tuple of the defragmented URI and the fragment.  If `uri`
-    contains no fragment, the second element is :const:`None`.
+    The return value is an instance of a subclass of :class:`tuple`
+    with the following additional read-only attributes:
+
+    +-------------------+-------+---------------------------------------------+
+    | Attribute         | Index | Value                                       |
+    +===================+=======+=============================================+
+    | :attr:`base`      | 0     | The absoulte URI or relative URI reference  |
+    |                   |       | without the fragment identifier             |
+    +-------------------+-------+---------------------------------------------+
+    | :attr:`fragment`  | 1     | The fragment identifier,                    |
+    |                   |       | or :const:`None` if not present             |
+    +-------------------+-------+---------------------------------------------+
 
     """
     if '#' in uri:
@@ -189,7 +198,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         scheme = scheme.lower()
 
     if authority is not None:
-        # TODO: check authority is well-formed, allow '[]' for IPv6
+        # TODO: check authority is well-formed, IPv6 support
         authority = uriencode(authority, SUB_DELIMS + ':@', encoding)
 
     # RFC 3986 3.3: If a URI contains an authority component, then the
@@ -249,6 +258,64 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         """Return the re-combined version of the original URI as a string."""
         return uriunsplit(self)
 
+    def getscheme(self, default=None):
+        if self.scheme is None:
+            return default
+        return uridecode(self.scheme, 'ascii').lower()
+
+    def getauthority(self, default=None, encoding='utf-8'):
+        if self.authority is None:
+            return default
+        return uridecode(self.authority, encoding)
+
+    def getpath(self, encoding='utf-8'):
+        return uridecode(self.path, encoding)
+
+    def getquery(self, default=None, encoding='utf-8'):
+        if self.query is None:
+            return default
+        return uridecode(self.query, encoding)
+
+    def getfragment(self, default=None, encoding='utf-8'):
+        if self.fragment is None:
+            return default
+        return uridecode(self.fragment, encoding)
+
+    def getuserinfo(self, default=None, encoding='utf-8'):
+        if self.userinfo is None:
+            return default
+        return uridecode(self.userinfo, encoding)
+
+    # TODO: urf-8 or idna, IPv6 support
+    def gethost(self, default=None, encoding='utf-8'):
+        if self.host is None:
+            return default
+        return uridecode(self.host, encoding)
+
+    def getport(self, default=None):
+        return self.port if self.port is not None else default
+
+    def getquerylist(self, delims=';&', sep='=', encoding='utf-8'):
+        qsl = [self.query] if self.query else []
+        for delim in delims:
+            qsl = [s for qs in qsl for s in qs.split(delim) if s]
+        list = []
+        for qs in qsl:
+            p = qs.partition(sep)
+            name = uridecode(p[0], encoding)
+            if p[1]:
+                value = uridecode(p[2], encoding)
+            else:
+                value = None
+            list.append((name, value))
+        return list
+
+    def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
+        dict = collections.defaultdict(list)
+        for name, value in self.getquerylist(delims, sep, encoding):
+            dict[name].append(value)
+        return dict
+
     def transform(self, ref, strict=False):
         """Convert a URI reference relative to `self` into a
         :class:`SplitResult` representing its target.
@@ -276,7 +343,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         return SplitResult(self.scheme, self.authority, path, query, fragment)
 
 
-class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
+class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
     """Extend :class:`collectionsnamedtuple` to hold :func:`uridefrag`
     results.
 
@@ -285,6 +352,14 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
         if self.fragment is not None:
-            return self.uri + '#' + self.fragment
+            return self.base + '#' + self.fragment
         else:
-            return self.uri
+            return self.base
+
+    def getbase(self, encoding='utf-8'):
+        return uridecode(self.base, encoding)
+
+    def getfragment(self, default=None, encoding='utf-8'):
+        if self.fragment is None:
+            return default
+        return uridecode(self.fragment, encoding)

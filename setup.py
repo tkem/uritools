@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def get_version(filename):
@@ -6,7 +6,6 @@ def get_version(filename):
     content = open(filename).read()
     metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", content))
     return metadata['version']
-
 
 setup(
     name='uritools',
@@ -16,7 +15,7 @@ setup(
     url='https://github.com/tkem/uritools',
     license='MIT',
 
-    description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',
+    description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',  # noqa
     long_description=open('README.rst').read(),
     keywords='uri url urlparse urlsplit urljoin urldefrag',
     classifiers=[
