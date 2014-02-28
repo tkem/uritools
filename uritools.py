@@ -194,7 +194,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # only produce lowercase scheme names for consistency.
     if scheme is not None:
         if not _SCHEME_RE.match(scheme):
-            raise ValueError('Invalid scheme %r' % scheme)
+            raise ValueError('Invalid scheme: %r' % scheme)
         scheme = scheme.lower()
 
     if authority is not None:
@@ -286,7 +286,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return default
         return uridecode(self.userinfo, encoding)
 
-    # TODO: urf-8 or idna, IPv6 support
+    # TODO: utf-8 or idna, IPv6 support
     def gethost(self, default=None, encoding='utf-8'):
         if self.host is None:
             return default
@@ -299,6 +299,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         qsl = [self.query] if self.query else []
         for delim in delims:
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
+        if not sep:
+            return [uridecode(qs, encoding) for qs in qsl]
         list = []
         for qs in qsl:
             p = qs.partition(sep)
@@ -311,6 +313,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         return list
 
     def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
+        if not sep:
+            raise ValueError("Invalid seperator: %r" % sep)
         dict = collections.defaultdict(list)
         for name, value in self.getquerylist(delims, sep, encoding):
             dict[name].append(value)
