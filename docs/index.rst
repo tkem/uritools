@@ -69,7 +69,7 @@ Replacement Functions for :mod:`urlparse`
 .. autofunction:: uridefrag
 
 
-Additional Functions
+Encoding Functions
 ------------------------------------------------------------------------
 
 .. autofunction:: uriencode
@@ -89,6 +89,10 @@ Additional Functions
    This function can be used as a Unicode-aware replacement for
    :func:`urllib.unquote`.
 
+
+Additional Functions
+------------------------------------------------------------------------
+
 .. autofunction:: urinormpath
 
 .. autofunction:: uricompose
@@ -100,7 +104,7 @@ Constants
 .. data:: RE
 
    Regular expression for splitting a well-formed URI into its
-   components.
+   components as specified in RFC 3986 Appendix B.
 
 .. autodata:: UNRESERVED
 
@@ -112,11 +116,15 @@ Constants
 
 
 
-Results of :func:`urisplit`
+Results of :func:`urisplit` and :func:`uridefrag`
 ------------------------------------------------------------------------
 
-Result objects from the :func:`urisplit` function are actually
-instances of subclasses of :class:`collections.namedtuple`.
+Result objects from the :func:`urisplit` and :func:`uridefrag`
+functions are actually instances of subclasses of
+:class:`collections.namedtuple`.
 
 .. autoclass:: SplitResult
+   :members:
+
+.. autoclass:: DefragResult
    :members:

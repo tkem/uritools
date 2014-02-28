@@ -20,18 +20,18 @@ RE = re.compile(r"""
 (?:\#(?P<fragment>.*))?         # fragment
 """, flags=(re.VERBOSE))
 """Regular expression for splitting a well-formed URI into its
-components.
+components as specified in RFC 3986 Appendix B.
 
 """
 
 GEN_DELIMS = ':/?#[]@'
-"""General delimiting characters."""
+"""General delimiting characters specified in RFC 3986."""
 
 SUB_DELIMS = "!$&'()*+,;="
-"""Subcomponent delimiting characters."""
+"""Subcomponent delimiting characters specified in RFC 3986."""
 
 RESERVED = GEN_DELIMS + SUB_DELIMS
-"""Reserved characters."""
+"""Reserved characters specified in RFC 3986."""
 
 UNRESERVED = (
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -39,7 +39,7 @@ UNRESERVED = (
     '0123456789'
     '_.-~'
 )
-"""Unreserved characters."""
+"""Unreserved characters specified in RFC 3986."""
 
 _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
@@ -259,43 +259,52 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         return uriunsplit(self)
 
     def getscheme(self, default=None):
+        """Return the URI scheme."""
         if self.scheme is None:
             return default
         return uridecode(self.scheme, 'ascii').lower()
 
     def getauthority(self, default=None, encoding='utf-8'):
+        """Return the decoded URI authority."""
         if self.authority is None:
             return default
         return uridecode(self.authority, encoding)
 
     def getpath(self, encoding='utf-8'):
+        """Return the decoded URI path."""
         return uridecode(self.path, encoding)
 
     def getquery(self, default=None, encoding='utf-8'):
+        """Return the decoded URI query component."""
         if self.query is None:
             return default
         return uridecode(self.query, encoding)
 
     def getfragment(self, default=None, encoding='utf-8'):
+        """Return the decoded URI fragment component."""
         if self.fragment is None:
             return default
         return uridecode(self.fragment, encoding)
 
     def getuserinfo(self, default=None, encoding='utf-8'):
+        """Return the decoded URI userinfo."""
         if self.userinfo is None:
             return default
         return uridecode(self.userinfo, encoding)
 
     # TODO: utf-8 or idna, IPv6 support
     def gethost(self, default=None, encoding='utf-8'):
+        """Return the decoded URI host."""
         if self.host is None:
             return default
         return uridecode(self.host, encoding)
 
     def getport(self, default=None):
+        """Return the URI port."""
         return self.port if self.port is not None else default
 
     def getquerylist(self, delims=';&', sep='=', encoding='utf-8'):
+        """Split the URI query component and return a list."""
         qsl = [self.query] if self.query else []
         for delim in delims:
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
@@ -313,6 +322,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         return list
 
     def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
+        """Split the URI query component and return a dictionary."""
         if not sep:
             raise ValueError("Invalid seperator: %r" % sep)
         dict = collections.defaultdict(list)
@@ -361,9 +371,14 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
             return self.base
 
     def getbase(self, encoding='utf-8'):
+        """Return the decoded absolute URI or relative URI reference without
+        the fragment.
+
+        """
         return uridecode(self.base, encoding)
 
     def getfragment(self, default=None, encoding='utf-8'):
+        """Return the decoded fragment component."""
         if self.fragment is None:
             return default
         return uridecode(self.fragment, encoding)
