@@ -10,7 +10,7 @@ import collections
 import re
 import urllib
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
@@ -330,6 +330,33 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
         """
         return int(self.port, 10) if self.port is not None else default
+
+    def getquerylist(self, delims=';&', sep='=', encoding='utf-8'):
+        """Split the URI query component and return a list."""
+        qsl = [self.query] if self.query else []
+        for delim in delims:
+            qsl = [s for qs in qsl for s in qs.split(delim) if s]
+        if not sep:
+            return [uridecode(qs, encoding) for qs in qsl]
+        list = []
+        for qs in qsl:
+            p = qs.partition(sep)
+            name = uridecode(p[0], encoding)
+            if p[1]:
+                value = uridecode(p[2], encoding)
+            else:
+                value = None
+            list.append((name, value))
+        return list
+
+    def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
+        """Split the URI query component and return a dictionary."""
+        if not sep:
+            raise ValueError("Invalid seperator: %r" % sep)
+        dict = collections.defaultdict(list)
+        for name, value in self.getquerylist(delims, sep, encoding):
+            dict[name].append(value)
+        return dict
 
     def transform(self, ref, strict=False):
         """Convert a URI reference relative to `self` into a
