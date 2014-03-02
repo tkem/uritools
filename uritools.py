@@ -53,14 +53,15 @@ $
 """, flags=(re.VERBOSE))
 
 
-def urisplit(uri):
+def urisplit(string):
     """Split a well-formed URI string into a tuple with five components
     corresponding to a URI's general structure::
 
       <scheme>://<authority>/<path>?<query>#<fragment>
 
-    The return value is an instance of a subclass of :class:`tuple`
-    with the following additional read-only attributes:
+    The return value is an instance of a subclass of
+    :class:`collections.namedtuple` with the following read-only
+    attributes:
 
     +-------------------+-------+---------------------------------------------+
     | Attribute         | Index | Value                                       |
@@ -85,12 +86,12 @@ def urisplit(uri):
     | :attr:`host`      |       | Host subcomponent of authority,             |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
-    | :attr:`port`      |       | Port subcomponent of authority as integer,  |
+    | :attr:`port`      |       | Port subcomponent of authority,             |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
 
     """
-    return SplitResult(*RE.match(uri).groups())
+    return SplitResult(*RE.match(string).groups())
 
 
 def uriunsplit(parts):
@@ -119,11 +120,12 @@ def urijoin(base, ref, strict=False):
     return uriunsplit(urisplit(base).transform(ref, strict))
 
 
-def uridefrag(uri):
-    """Remove an existing fragment from a URI string.
+def uridefrag(string):
+    """Remove an existing fragment component from a URI string.
 
-    The return value is an instance of a subclass of :class:`tuple`
-    with the following additional read-only attributes:
+    The return value is an instance of a subclass of
+    :class:`collections.namedtuple` with the following read-only
+    attributes:
 
     +-------------------+-------+---------------------------------------------+
     | Attribute         | Index | Value                                       |
@@ -136,10 +138,11 @@ def uridefrag(uri):
     +-------------------+-------+---------------------------------------------+
 
     """
-    if '#' in uri:
-        return DefragResult(*uri.split('#', 1))
+    parts = string.partition('#')
+    if parts[1]:
+        return DefragResult(parts[0], parts[2])
     else:
-        return DefragResult(uri, None)
+        return DefragResult(parts[0], None)
 
 
 def uriencode(string, safe='', encoding='utf-8'):
@@ -172,7 +175,7 @@ def urinormpath(path):
         elif out:
             out.pop()
     # Fix leading/trailing slashes
-    if path.startswith('/') and (not out or out[0] != ''):
+    if path.startswith('/') and (not out or out[0]):
         out.insert(0, '')
     if path.endswith('/.') or path.endswith('/..'):
         out.append('')
@@ -229,10 +232,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
 
 
 class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
-    """Extend :class:`collections.namedtuple` to hold :func:`urisplit`
-    results.
-
-    """
+    """Class to hold :func:`urisplit` results."""
 
     @property
     def _splitauth(self):
@@ -251,21 +251,29 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     @property
     def port(self):
-        port = self._splitauth[2]
-        return int(port, 10) if port is not None else None
+        return self._splitauth[2]
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
         return uriunsplit(self)
 
     def getscheme(self, default=None):
-        """Return the URI scheme."""
+        """Return the URI scheme in canonical (lowercase) form, or `default`
+        if the original URI did not contain a scheme component.  Raise
+        a :class:`ValueError` if the scheme is not well-formed.
+
+        """
         if self.scheme is None:
             return default
-        return uridecode(self.scheme, 'ascii').lower()
+        if not _SCHEME_RE.match(self.scheme):
+            raise ValueError('Invalid scheme: %r' % self.scheme)
+        return self.scheme.lower()
 
     def getauthority(self, default=None, encoding='utf-8'):
-        """Return the decoded URI authority."""
+        """Return the decoded URI authority, or `default` if the original URI
+        did not contain an authority component.
+
+        """
         if self.authority is None:
             return default
         return uridecode(self.authority, encoding)
@@ -275,60 +283,53 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         return uridecode(self.path, encoding)
 
     def getquery(self, default=None, encoding='utf-8'):
-        """Return the decoded URI query component."""
+        """Return the decoded query string, or `default` if the original URI
+        did not contain a query component.
+
+        """
         if self.query is None:
             return default
         return uridecode(self.query, encoding)
 
     def getfragment(self, default=None, encoding='utf-8'):
-        """Return the decoded URI fragment component."""
+        """Return the decoded fragment identifier, or `default` if the
+        original URI did not contain a fragment component.
+
+        """
         if self.fragment is None:
             return default
         return uridecode(self.fragment, encoding)
 
     def getuserinfo(self, default=None, encoding='utf-8'):
-        """Return the decoded URI userinfo."""
+        """Return the decoded userinfo subcomponent of the URI authority, or
+        `default` if the original URI did not contain a userinfo
+        field.
+
+        """
         if self.userinfo is None:
             return default
         return uridecode(self.userinfo, encoding)
 
-    # TODO: utf-8 or idna, IPv6 support
     def gethost(self, default=None, encoding='utf-8'):
-        """Return the decoded URI host."""
+        """Return the decoded host subcomponent of the URI authority, or
+        `default` if the original URI did not contain a host.
+
+        If the host represents an internationalized domain name
+        intended for resolution via DNS, the :const:`'idna'` encoding
+        must be specified to return a Unicode domain name.
+
+        """
         if self.host is None:
             return default
         return uridecode(self.host, encoding)
 
     def getport(self, default=None):
-        """Return the URI port."""
-        return self.port if self.port is not None else default
+        """Return the port subcomponent of the URI authority as an
+        :class:`int`, or `default` if the original URI did not contain
+        a port.
 
-    def getquerylist(self, delims=';&', sep='=', encoding='utf-8'):
-        """Split the URI query component and return a list."""
-        qsl = [self.query] if self.query else []
-        for delim in delims:
-            qsl = [s for qs in qsl for s in qs.split(delim) if s]
-        if not sep:
-            return [uridecode(qs, encoding) for qs in qsl]
-        list = []
-        for qs in qsl:
-            p = qs.partition(sep)
-            name = uridecode(p[0], encoding)
-            if p[1]:
-                value = uridecode(p[2], encoding)
-            else:
-                value = None
-            list.append((name, value))
-        return list
-
-    def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
-        """Split the URI query component and return a dictionary."""
-        if not sep:
-            raise ValueError("Invalid seperator: %r" % sep)
-        dict = collections.defaultdict(list)
-        for name, value in self.getquerylist(delims, sep, encoding):
-            dict[name].append(value)
-        return dict
+        """
+        return int(self.port, 10) if self.port is not None else default
 
     def transform(self, ref, strict=False):
         """Convert a URI reference relative to `self` into a
@@ -358,10 +359,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
 
 class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
-    """Extend :class:`collectionsnamedtuple` to hold :func:`uridefrag`
-    results.
-
-    """
+    """Class to hold :func:`uridefrag` results."""
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
@@ -378,7 +376,10 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
         return uridecode(self.base, encoding)
 
     def getfragment(self, default=None, encoding='utf-8'):
-        """Return the decoded fragment component."""
+        """Return the decoded fragment identifier, or `default` if the
+        original URI did not contain a fragment component.
+
+        """
         if self.fragment is None:
             return default
         return uridecode(self.fragment, encoding)

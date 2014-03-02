@@ -62,3 +62,7 @@ class UriJoinTest(unittest.TestCase):
         self.check(self.RFC3986_BASE, "g#s/../x", "http://a/b/c/g#s/../x")
         self.check(self.RFC3986_BASE, "http:g", "http:g", True)
         self.check(self.RFC3986_BASE, "http:g", "http://a/b/c/g", False)
+
+    def test_rfc3986_merge(self):
+        """urijoin test cases for RFC 3986 5.2.3. Merge Paths"""
+        self.check('http://a', 'b', 'http://a/b')

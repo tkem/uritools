@@ -10,25 +10,31 @@ module.
 .. code-block:: pycon
 
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
-    >>> p = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
-    >>> p
-    SplitResult(scheme='foo', authority='example.com:8042',
-                path='/over/there', query='name=ferret', fragment='nose')
-    >>> p.scheme
+    >>> uri = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
+    >>> uri
+    SplitResult(scheme='foo', authority='example.com:8042', path='/over/there',
+                query='name=ferret', fragment='nose')
+    >>> uri.scheme
     'foo'
-    >>> p.authority
+    >>> uri.authority
     'example.com:8042'
-    >>> p.port
+    >>> uri.host
+    'example.com'
+    >>> uri.port
     8042
-    >>> p.geturi()
+    >>> uri.geturi()
     'foo://example.com:8042/over/there?name=ferret#nose'
-    >>> uriunsplit(['foo', 'example.com:8042', '/over/there', None, None])
-    'foo://example.com:8042/over/there'
+    >>> uriunsplit(uri[:3] + ('name=swallow&type=African', 'beak'))
+    'foo://example.com:8042/over/there?name=swallow&type=African#beak'
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
-    DefragResult(uri='http://pythonhosted.org/uritools/index.html',
-                 fragment='constants')
+    DefragResult(base='http://pythonhosted.org/uritools/index.html',
+                fragment='constants')
+    >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
+    u'www.\xf6lk\xfcrbis.at'
+    >>> print _
+    www.ölkürbis.at
 
 For various reasons, the :mod:`urlparse` module is not compliant with
 current Internet standards, does not include Unicode support, and is
@@ -119,9 +125,11 @@ Constants
 Results of :func:`urisplit` and :func:`uridefrag`
 ------------------------------------------------------------------------
 
-Result objects from the :func:`urisplit` and :func:`uridefrag`
-functions are actually instances of subclasses of
-:class:`collections.namedtuple`.
+The result objects from the :func:`urisplit` and :func:`uridefrag`
+functions are subclasses of :class:`collections.namedtuple`.  These
+subclasses add the attributes described in those functions, as well as
+some additional methods:
+
 
 .. autoclass:: SplitResult
    :members:
