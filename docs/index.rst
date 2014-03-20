@@ -4,8 +4,8 @@
 .. module:: uritools
 
 This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python Standard Library :mod:`urlparse`
-module.
+commonly used functions of the Python 2.7 Standard Library
+:mod:`urlparse` module.
 
 .. code-block:: pycon
 
@@ -30,7 +30,7 @@ module.
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
     DefragResult(base='http://pythonhosted.org/uritools/index.html',
-                fragment='constants')
+                 fragment='constants')
     >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
     u'www.\xf6lk\xfcrbis.at'
     >>> print _
@@ -110,7 +110,17 @@ Constants
 .. data:: RE
 
    Regular expression for splitting a well-formed URI into its
-   components as specified in RFC 3986 Appendix B.
+   components, as specified in RFC 3986 Appendix B.
+
+   The matched URI components are available by group index and via
+   symbolic group names::
+
+      >>> uri = 'foo://example.com:8042/over/there?name=ferret#nose'
+      >>> uritools.RE.match(uri).groups()
+      ('foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose')
+      >>> uritools.RE.match(uri).groupdict()
+      {'fragment': 'nose', 'path': '/over/there', 'scheme': 'foo',
+       'authority': 'example.com:8042', 'query': 'name=ferret'}
 
 .. autodata:: UNRESERVED
 
@@ -121,15 +131,14 @@ Constants
 .. autodata:: SUB_DELIMS
 
 
-
 Results of :func:`urisplit` and :func:`uridefrag`
 ------------------------------------------------------------------------
 
 The result objects from the :func:`urisplit` and :func:`uridefrag`
-functions are subclasses of :class:`collections.namedtuple`.  These
-subclasses add the attributes described in those functions, as well as
-some additional methods:
-
+functions are instances of subclasses of
+:class:`collections.namedtuple`.  These objects contain the attributes
+described in the function documentation, as well as some additional
+convenience methods:
 
 .. autoclass:: SplitResult
    :members:

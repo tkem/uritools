@@ -1,5 +1,5 @@
 import unittest
-import urlparse_wrappers as urlparse
+import wrappers as urlparse
 
 RFC1808_BASE = "http://a/b/c/d;p?q#f"
 RFC2396_BASE = "http://a/b/c/d;p?q"
@@ -76,7 +76,6 @@ class UrlParseTestCase(unittest.TestCase):
         self.assertEqual(result3.hostname, result.hostname)
         self.assertEqual(result3.port,     result.port)
 
-    @unittest.skip('no parse_qsl')
     def test_qsl(self):
         for orig, expect in parse_qsl_test_cases:
             result = urlparse.parse_qsl(orig, keep_blank_values=True)

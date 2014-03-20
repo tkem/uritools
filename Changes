@@ -1,0 +1,24 @@
+0.4.0 Development
+
+* Fix SplitResult.port to return int (matching urlparse)
+* Add SplitResult.getquerylist(), SplitResult.getquerydict()
+
+0.3.0 2014-03-02
+
+* Add result object accessor methods.
+* Update documentation.
+
+0.2.1 2014-02-24
+
+* Fix issue #1: uritools.urinormpath() raises IndexError.
+* Integrate Python 2.7.6 urlparse unit tests.
+
+0.2.0 2014-02-18
+
+* Add authority subcomponent attributes.
+* Return DefragResult from uridefrag().
+* Improve urisplit/uriunsplit edge case behavior.
+
+0.1.0 2014-02-14
+
+* Initial beta release.

@@ -61,4 +61,8 @@ def urldefrag(url):
 
 
 def parse_qsl(query, keep_blank_values=False):
-    pass
+    split = uritools.urisplit('?' + query.replace('+', ' '))
+    if keep_blank_values:
+        return [v if v[1] else (v[0], '') for v in split.getquerylist()]
+    else:
+        return [v for v in split.getquerylist() if v[1]]

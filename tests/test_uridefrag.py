@@ -18,7 +18,6 @@ class UriJoinTest(unittest.TestCase):
         self.assertEqual(result.getfragment(), fragment)
         self.assertEqual(result.geturi(), uri)
 
-
     def test_uridefrag(self):
         for uri, base, fragment in [
             ('http://a/b/c/d;p?q', 'http://a/b/c/d;p?q', None),

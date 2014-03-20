@@ -22,11 +22,13 @@ class UriSplitTest(unittest.TestCase):
         """urisplit test cases from [RFC3986] 3. Syntax Components"""
         self.check(
             b'foo://example.com:8042/over/there?name=ferret#nose',
-            (b'foo', b'example.com:8042', b'/over/there', b'name=ferret', b'nose')
+            (b'foo', b'example.com:8042', b'/over/there', b'name=ferret',
+             b'nose')
         )
         self.check(
             u'foo://example.com:8042/over/there?name=ferret#nose',
-            (u'foo', u'example.com:8042', u'/over/there', u'name=ferret', u'nose')
+            (u'foo', u'example.com:8042', u'/over/there', u'name=ferret',
+             u'nose')
         )
         self.check(
             b'urn:example:animal:ferret:nose',
@@ -73,8 +75,9 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.fragment, 'nose')
         self.assertEqual(result.userinfo, 'user')
         self.assertEqual(result.host, 'example.com')
-        self.assertEqual(result.port, '8042')
+        self.assertEqual(result.port, 8042)
 
+        self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'foo')
         self.assertEqual(result.getauthority(), 'user@example.com:8042')
         self.assertEqual(result.getpath(), '/over/there')
@@ -83,7 +86,9 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
         self.assertEqual(result.getport(), 8042)
-        self.assertEqual(result.geturi(), uri)
+
+        self.assertItemsEqual(result.getquerydict(), {'name': 'ferret'})
+        self.assertItemsEqual(result.getquerylist(), [('name', 'ferret')])
 
         uri = 'urn:example:animal:ferret:nose'
         result = urisplit(uri)
@@ -96,8 +101,8 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.userinfo, None)
         self.assertEqual(result.host, None)
         self.assertEqual(result.port, None)
-        self.assertEqual(result.geturi(), uri)
 
+        self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'urn')
         self.assertEqual(result.getauthority(), None)
         self.assertEqual(result.getpath(), 'example:animal:ferret:nose')
@@ -106,7 +111,9 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
         self.assertEqual(result.getport(), None)
-        self.assertEqual(result.geturi(), uri)
+
+        self.assertItemsEqual(result.getquerydict(), {})
+        self.assertItemsEqual(result.getquerylist(), [])
 
         uri = 'foo_bar://example.com/'
         result = urisplit(uri)

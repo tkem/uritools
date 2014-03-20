@@ -2,8 +2,8 @@
 urlparse.
 
 This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python Standard Library :mod:`urlparse`
-module.
+commonly used functions of the Python 2.7 Standard Library
+:mod:`urlparse` module.
 
 """
 import collections
@@ -20,7 +20,7 @@ RE = re.compile(r"""
 (?:\#(?P<fragment>.*))?         # fragment
 """, flags=(re.VERBOSE))
 """Regular expression for splitting a well-formed URI into its
-components as specified in RFC 3986 Appendix B.
+components, as specified in RFC 3986 Appendix B.
 
 """
 
@@ -86,8 +86,9 @@ def urisplit(string):
     | :attr:`host`      |       | Host subcomponent of authority,             |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
-    | :attr:`port`      |       | Port subcomponent of authority,             |
-    |                   |       | or :const:`None` if not present             |
+    | :attr:`port`      |       | Port subcomponent of authority as an        |
+    |                   |       | :class:`int`, or :const:`None` if not       |
+    |                   |       | present                                     |
     +-------------------+-------+---------------------------------------------+
 
     """
@@ -251,7 +252,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     @property
     def port(self):
-        return self._splitauth[2]
+        port = self._splitauth[2]
+        return int(port, 10) if port is not None else None
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
@@ -329,10 +331,20 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         a port.
 
         """
-        return int(self.port, 10) if self.port is not None else default
+        return self.port if self.port is not None else default
 
     def getquerylist(self, delims=';&', sep='=', encoding='utf-8'):
-        """Split the URI query component and return a list."""
+        """Split the query string into individual components using the
+        delimiter characters in `delims`.
+
+        If `sep` is not empty, split each component at the first
+        occurence of `sep` and return a list of decoded `(name,
+        value)` pairs.  If `sep` is not found, `value` becomes
+        :const:`None`.
+
+        If `sep` is :const:`None` or empty, return the list of decoded
+        query components.
+        """
         qsl = [self.query] if self.query else []
         for delim in delims:
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
@@ -340,19 +352,21 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return [uridecode(qs, encoding) for qs in qsl]
         list = []
         for qs in qsl:
-            p = qs.partition(sep)
-            name = uridecode(p[0], encoding)
-            if p[1]:
-                value = uridecode(p[2], encoding)
-            else:
-                value = None
+            parts = qs.partition(sep)
+            name = uridecode(parts[0], encoding)
+            value = uridecode(parts[2], encoding) if parts[1] else None
             list.append((name, value))
         return list
 
     def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
-        """Split the URI query component and return a dictionary."""
-        if not sep:
-            raise ValueError("Invalid seperator: %r" % sep)
+        """Split the query string into individual components using the
+        delimiter characters in `delims`, and return a dictionary of
+        query parameters.
+
+        The dictionary keys are the unique decoded query parameter
+        names, and the values are lists of decoded values for each
+        name.  Parameter names and values are seperated by `sep`.
+        """
         dict = collections.defaultdict(list)
         for name, value in self.getquerylist(delims, sep, encoding):
             dict[name].append(value)

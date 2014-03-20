@@ -31,7 +31,7 @@ class UriComposeTest(unittest.TestCase):
             fragment=u'nose'
         )
         self.check(
-            b'urn:example:animal:ferret:nose', 
+            b'urn:example:animal:ferret:nose',
             scheme=b'urn',
             path=b'example:animal:ferret:nose'
         )
