@@ -10,7 +10,7 @@ import collections
 import re
 import urllib
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
