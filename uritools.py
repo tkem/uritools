@@ -53,6 +53,22 @@ $
 """, flags=(re.VERBOSE))
 
 
+def _queryencode(query, delim, sep, encoding):
+    if not delim:
+        delim = ''
+    if not sep:
+        sep = ''
+    safe = (SUB_DELIMS + ':@/?').translate(None, delim + sep)
+    items = []
+    for item in query:
+        if isinstance(item, basestring):
+            parts = (uriencode(item, safe, encoding), )
+        else:
+            parts = (uriencode(part, safe, encoding) for part in item)
+        items.append(sep.join(parts))
+    return delim.join(items)
+
+
 def urisplit(string):
     """Split a well-formed URI string into a tuple with five components
     corresponding to a URI's general structure::
@@ -184,8 +200,15 @@ def urinormpath(path):
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
-               fragment=None, encoding='utf-8'):
-    """Compose a URI string from its components."""
+               fragment=None, delim='&', querysep='=',
+               encoding='utf-8'):
+    """Compose a URI string from its components.
+
+    If `query` is a mapping object or a sequence of two-element
+    tuples, it will be converted to a string of `key=value` pairs
+    seperated by `delim`.
+
+    """
 
     # RFC 3986 3.1: Scheme names consist of a sequence of characters
     # beginning with a letter and followed by any combination of
@@ -222,9 +245,13 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         raise ValueError('Invalid path %r without scheme' % path)
     path = uriencode(path, SUB_DELIMS + ':@/', encoding)
 
-    # TODO querylist, querydict
     if query:
-        query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
+        if isinstance(query, basestring):
+            query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
+        elif hasattr(query, 'items'):
+            query = _queryencode(query.items(), delim, querysep, encoding)
+        else:
+            query = _queryencode(query, delim, querysep, encoding)
 
     if fragment:
         fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
@@ -366,13 +393,13 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
         if not sep:
             return [uridecode(qs, encoding) for qs in qsl]
-        list = []
+        items = []
         for qs in qsl:
             parts = qs.partition(sep)
             name = uridecode(parts[0], encoding)
             value = uridecode(parts[2], encoding) if parts[1] else None
-            list.append((name, value))
-        return list
+            items.append((name, value))
+        return items
 
     def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
         """Split the query string into individual components using the
