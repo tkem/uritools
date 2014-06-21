@@ -94,7 +94,7 @@ This modules does not handle IPv6 host addresses (yet).
 .. _urlparse: http://docs.python.org/2/library/urlparse.html
 
 .. _Documentation: http://pythonhosted.org/uritools/
-.. _Issue Tracker: https://github.com/tkem/uritools/issues>
+.. _Issue Tracker: https://github.com/tkem/uritools/issues/
 .. _Source Code: https://github.com/tkem/uritools
 .. _Change Log: https://github.com/tkem/uritools/blob/master/Changes
 .. _MIT License: http://raw.github.com/tkem/uritools/master/LICENSE
