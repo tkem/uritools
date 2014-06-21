@@ -115,7 +115,28 @@ class UriSplitTest(unittest.TestCase):
         self.assertItemsEqual(result.getquerydict(), {})
         self.assertItemsEqual(result.getquerylist(), [])
 
-        uri = 'foo_bar://example.com/'
-        result = urisplit(uri)
+    def test_getscheme(self):
         with self.assertRaises(ValueError):
-            result.getscheme()
+            urisplit('foo_bar://example.com/').getscheme()
+
+    def test_getaddrinfo(self):
+        import socket
+
+        family = socket.AF_INET
+        socktype = socket.SOCK_STREAM
+        proto = socket.getprotobyname('tcp')
+
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 80)),
+            urisplit('http://localhost/foo').getaddrinfo()
+        )
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 8000)),
+            urisplit('http://localhost:8000/foo').getaddrinfo()
+        )
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 8000)),
+            urisplit('foo://user@localhost:8000/foo').getaddrinfo()
+        )
+        with self.assertRaises(socket.gaierror):
+            urisplit('foo://user@localhost/foo').getaddrinfo()
