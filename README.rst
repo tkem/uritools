@@ -3,7 +3,7 @@ uritools
 
 This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python 2.7 Standard Library urlparse_
-and Python 3 `urllib.parse` modules.
+and Python 3 `urllib.parse`_ modules.
 
 .. code-block:: pycon
 
