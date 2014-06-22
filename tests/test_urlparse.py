@@ -1,5 +1,11 @@
 import unittest
-import wrappers as urlparse
+
+from . import wrappers as urlparse
+
+try:
+    unicode = unicode
+except NameError:
+    unicode = str
 
 RFC1808_BASE = "http://a/b/c/d;p?q#f"
 RFC2396_BASE = "http://a/b/c/d;p?q"

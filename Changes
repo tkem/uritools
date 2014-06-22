@@ -1,3 +1,7 @@
+0.5.1 2014-06-22
+
+* Add basic Python 3 support.
+
 0.5.0 2014-06-21
 
 * Add SplitResult.getaddrinfo().

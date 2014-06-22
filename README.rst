@@ -3,7 +3,7 @@ uritools
 
 This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python 2.7 Standard Library urlparse_
-module.
+and Python 3 `urllib.parse` modules.
 
 .. code-block:: pycon
 
@@ -28,11 +28,9 @@ module.
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
     DefragResult(base='http://pythonhosted.org/uritools/index.html',
-                fragment='constants')
+                 fragment='constants')
     >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
-    u'www.\xf6lk\xfcrbis.at'
-    >>> print _
-    www.ölkürbis.at
+    'www.ölkürbis.at'
 
 For various reasons, the urlparse_ module is not compliant with
 current Internet standards, does not include Unicode support, and is
@@ -92,6 +90,7 @@ This modules does not handle IPv6 host addresses (yet).
 
 
 .. _urlparse: http://docs.python.org/2/library/urlparse.html
+.. _urllib.parse: http://docs.python.org/3/library/urllib.parse.html
 
 .. _Documentation: http://pythonhosted.org/uritools/
 .. _Issue Tracker: https://github.com/tkem/uritools/issues/

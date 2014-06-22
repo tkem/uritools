@@ -1,7 +1,11 @@
 """uritools wrappers for running urlparse unit tests."""
 
 import uritools
-from urlparse import ParseResult, SplitResult
+
+try:
+    from urlparse import ParseResult, SplitResult
+except ImportError:
+    from urllib.parse import ParseResult, SplitResult
 
 
 def urlparse(url):

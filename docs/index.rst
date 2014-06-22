@@ -5,7 +5,7 @@
 
 This module defines RFC 3986 compliant replacements for the most
 commonly used functions of the Python 2.7 Standard Library
-:mod:`urlparse` module.
+:mod:`urlparse` and Python 3 :mod:`urllib.parse` modules.
 
 .. code-block:: pycon
 
@@ -32,9 +32,7 @@ commonly used functions of the Python 2.7 Standard Library
     DefragResult(base='http://pythonhosted.org/uritools/index.html',
                  fragment='constants')
     >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
-    u'www.\xf6lk\xfcrbis.at'
-    >>> print _
-    www.ölkürbis.at
+    'www.ölkürbis.at'
 
 For various reasons, the :mod:`urlparse` module is not compliant with
 current Internet standards, does not include Unicode support, and is

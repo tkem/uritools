@@ -8,9 +8,18 @@ commonly used functions of the Python 2.7 Standard Library
 """
 import collections
 import re
-import urllib
 
-__version__ = '0.5.0'
+try:
+    from urllib import quote as _quote, unquote as _unquote
+except ImportError:
+    from urllib.parse import quote as _quote, unquote_to_bytes as _unquote
+
+try:
+    basestring = basestring
+except NameError:
+    basestring = str
+
+__version__ = '0.5.1'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
@@ -58,7 +67,8 @@ def _queryencode(query, delim, sep, encoding):
         delim = ''
     if not sep:
         sep = ''
-    safe = (SUB_DELIMS + ':@/?').translate(None, delim + sep)
+    # TODO: provide our own quote/unquote implementation?
+    safe = (SUB_DELIMS + ':@/?').replace(delim, '').replace(sep, '')
     items = []
     for item in query:
         if isinstance(item, basestring):
@@ -108,7 +118,13 @@ def urisplit(string):
     +-------------------+-------+---------------------------------------------+
 
     """
-    return SplitResult(*RE.match(string).groups())
+    try:
+        return SplitResult(*RE.match(string).groups())
+    except TypeError:
+        # Python 3: handle string as bytes
+        groups = RE.match(string.decode('ascii')).groups()
+        groups = (None if g is None else g.encode('ascii') for g in groups)
+        return SplitResult(*groups)
 
 
 def uriunsplit(parts):
@@ -118,17 +134,22 @@ def uriunsplit(parts):
     scheme, authority, path, query, fragment = parts
 
     # RFC 3986 5.3. Component Recomposition
-    result = ''
-    if scheme is not None:
-        result += scheme + ':'
-    if authority is not None:
-        result += '//' + authority
-    result += path
-    if query is not None:
-        result += '?' + query
-    if fragment is not None:
-        result += '#' + fragment
-    return result
+    try:
+        result = ''
+        if scheme is not None:
+            result += scheme + ':'
+        if authority is not None:
+            result += '//' + authority
+        result += path
+        if query is not None:
+            result += '?' + query
+        if fragment is not None:
+            result += '#' + fragment
+        return result
+    except TypeError:
+        # Python 3: handle parts as bytes
+        parts = (None if p is None else p.decode('ascii') for p in parts)
+        return uriunsplit(parts).encode('ascii')
 
 
 def urijoin(base, ref, strict=False):
@@ -155,7 +176,11 @@ def uridefrag(string):
     +-------------------+-------+---------------------------------------------+
 
     """
-    parts = string.partition('#')
+    try:
+        parts = string.partition('#')
+    except TypeError:
+        # Python 3: handle string as bytes
+        parts = string.partition(b'#')
     if parts[1]:
         return DefragResult(parts[0], parts[2])
     else:
@@ -168,7 +193,7 @@ def uriencode(string, safe='', encoding='utf-8'):
     their corresponding percent-encodings.
 
     """
-    return urllib.quote(string.encode(encoding), UNRESERVED + safe)
+    return _quote(string.encode(encoding), UNRESERVED + safe)
 
 
 def uridecode(string, encoding='utf-8'):
@@ -176,7 +201,7 @@ def uridecode(string, encoding='utf-8'):
     string using the codec registered for `encoding`.
 
     """
-    return urllib.unquote(string).decode(encoding)
+    return _unquote(string).decode(encoding)
 
 
 def urinormpath(path):
@@ -245,7 +270,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         raise ValueError('Invalid path %r without scheme' % path)
     path = uriencode(path, SUB_DELIMS + ':@/', encoding)
 
-    if query:
+    if query is not None:
         if isinstance(query, basestring):
             query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
         elif hasattr(query, 'items'):
@@ -294,9 +319,13 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         """
         if self.scheme is None:
             return default
-        if not _SCHEME_RE.match(self.scheme):
-            raise ValueError('Invalid scheme: %r' % self.scheme)
-        return self.scheme.lower()
+        try:
+            scheme = self.scheme.decode('ascii')
+        except AttributeError:
+            scheme = self.scheme
+        if not _SCHEME_RE.match(scheme):
+            raise ValueError('Invalid scheme: %r' % scheme)
+        return scheme.lower()
 
     def getauthority(self, default=None, encoding='utf-8'):
         """Return the decoded URI authority, or `default` if the original URI
@@ -448,7 +477,11 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
         if self.fragment is not None:
-            return self.base + '#' + self.fragment
+            try:
+                return self.base + '#' + self.fragment
+            except TypeError:
+                # Python 3: handle string as bytes
+                return self.base + b'#' + self.fragment
         else:
             return self.base
 

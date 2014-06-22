@@ -1,9 +1,10 @@
 import unittest
 
+from . import b, u
 from uritools import uridefrag
 
 
-class UriJoinTest(unittest.TestCase):
+class UriDefragTest(unittest.TestCase):
 
     RFC3986_BASE = "http://a/b/c/d;p?q"
 
@@ -14,13 +15,15 @@ class UriJoinTest(unittest.TestCase):
         self.assertEqual(result.base, base)
         self.assertEqual(result.fragment, fragment)
 
-        self.assertEqual(result.getbase(), base)
-        self.assertEqual(result.getfragment(), fragment)
+        self.assertEqual(result.getbase(), u(base))
+        self.assertEqual(result.getfragment(), u(fragment))
         self.assertEqual(result.geturi(), uri)
 
     def test_uridefrag(self):
         for uri, base, fragment in [
-            ('http://a/b/c/d;p?q', 'http://a/b/c/d;p?q', None),
-            ('http://a/b/c/d;p?q#f', 'http://a/b/c/d;p?q', 'f'),
+            (b('http://a/b/c/d;p?q'), b('http://a/b/c/d;p?q'), None),
+            (b('http://a/b/c/d;p?q#f'), b('http://a/b/c/d;p?q'), b('f')),
+            (u('http://a/b/c/d;p?q'), u('http://a/b/c/d;p?q'), None),
+            (u('http://a/b/c/d;p?q#f'), u('http://a/b/c/d;p?q'), u('f')),
         ]:
             self.check(uri, base, fragment)

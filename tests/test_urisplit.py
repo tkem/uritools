@@ -1,5 +1,6 @@
 import unittest
 
+from . import b, u
 from uritools import urisplit
 
 
@@ -9,11 +10,11 @@ class UriSplitTest(unittest.TestCase):
         result = urisplit(uri)
         self.assertEqual(result, parts)
         self.assertEqual(result.geturi(), uri)
-        self.assertEqual(result.getscheme(), parts[0])
-        self.assertEqual(result.getauthority(), parts[1])
-        self.assertEqual(result.getpath(), parts[2])
-        self.assertEqual(result.getquery(), parts[3])
-        self.assertEqual(result.getfragment(), parts[4])
+        self.assertEqual(result.getscheme(), u(parts[0]))
+        self.assertEqual(result.getauthority(), u(parts[1]))
+        self.assertEqual(result.getpath(), u(parts[2]))
+        self.assertEqual(result.getquery(), u(parts[3]))
+        self.assertEqual(result.getfragment(), u(parts[4]))
         for r, p in zip(result, parts):
             self.assertIsInstance(r, type(p))
         self.assertIsInstance(result.geturi(), type(uri))
@@ -21,22 +22,22 @@ class UriSplitTest(unittest.TestCase):
     def test_rfc3986(self):
         """urisplit test cases from [RFC3986] 3. Syntax Components"""
         self.check(
-            b'foo://example.com:8042/over/there?name=ferret#nose',
-            (b'foo', b'example.com:8042', b'/over/there', b'name=ferret',
-             b'nose')
+            b('foo://example.com:8042/over/there?name=ferret#nose'),
+            (b('foo'), b('example.com:8042'), b('/over/there'),
+             b('name=ferret'), b('nose'))
         )
         self.check(
-            u'foo://example.com:8042/over/there?name=ferret#nose',
-            (u'foo', u'example.com:8042', u'/over/there', u'name=ferret',
-             u'nose')
+            u('foo://example.com:8042/over/there?name=ferret#nose'),
+            (u('foo'), u('example.com:8042'), u('/over/there'),
+             u('name=ferret'), u('nose'))
         )
         self.check(
-            b'urn:example:animal:ferret:nose',
-            (b'urn', None, b'example:animal:ferret:nose', None, None)
+            b('urn:example:animal:ferret:nose'),
+            (b('urn'), None, b('example:animal:ferret:nose'), None, None)
         )
         self.check(
-            u'urn:example:animal:ferret:nose',
-            (u'urn', None, u'example:animal:ferret:nose', None, None)
+            u('urn:example:animal:ferret:nose'),
+            (u('urn'), None, u('example:animal:ferret:nose'), None, None)
         )
 
     def test_abnormal(self):
@@ -87,8 +88,8 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.gethost(), 'example.com')
         self.assertEqual(result.getport(), 8042)
 
-        self.assertItemsEqual(result.getquerydict(), {'name': 'ferret'})
-        self.assertItemsEqual(result.getquerylist(), [('name', 'ferret')])
+        self.assertEqual(dict(result.getquerydict()), {'name': ['ferret']})
+        self.assertEqual(list(result.getquerylist()), [('name', 'ferret')])
 
         uri = 'urn:example:animal:ferret:nose'
         result = urisplit(uri)
@@ -112,8 +113,8 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.gethost(), None)
         self.assertEqual(result.getport(), None)
 
-        self.assertItemsEqual(result.getquerydict(), {})
-        self.assertItemsEqual(result.getquerylist(), [])
+        self.assertEqual(dict(result.getquerydict()), {})
+        self.assertEqual(list(result.getquerylist()), [])
 
     def test_getscheme(self):
         with self.assertRaises(ValueError):
