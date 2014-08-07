@@ -1,3 +1,7 @@
+0.5.2 2014-08-06
+
+* Fix empty port handling.
+
 0.5.1 2014-06-22
 
 * Add basic Python 3 support.

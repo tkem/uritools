@@ -141,3 +141,11 @@ class UriSplitTest(unittest.TestCase):
         )
         with self.assertRaises(socket.gaierror):
             urisplit('foo://user@localhost/foo').getaddrinfo()
+
+    def test_defaultport(self):
+        """urisplit default port test cases"""
+        for uri in ['foo://bar', 'foo://bar:', 'foo://bar/', 'foo://bar:/']:
+            result = urisplit(uri)
+            self.assertEqual(result.host, 'bar')
+            self.assertEqual(result.port, None)
+            self.assertEqual(result.getport(42), 42)

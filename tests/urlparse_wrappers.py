@@ -2,42 +2,87 @@
 
 import uritools
 
-try:
-    from urlparse import ParseResult, SplitResult
-except ImportError:
-    from urllib.parse import ParseResult, SplitResult
+class SplitResult(uritools.SplitResult):
+    """Wrapper class to adapt uritools.SplitResult to
+    urlparse.SplitResult interface."""
+
+    @property
+    def scheme(self):
+        return super(SplitResult, self).scheme.lower()
+
+    @property
+    def netloc(self):
+        return self.authority
+
+    @property
+    def username(self):
+        return self.userinfo.partition(':')[0] if self.userinfo else None
+
+    @property
+    def password(self):
+        return self.userinfo.partition(':')[2] if self.userinfo else None
+
+    @property
+    def hostname(self):
+        return self.host.lower() if self.host else None
+
+    @property
+    def port(self):
+        port = super(SplitResult, self).port
+        if port and port < 65536:
+            return port
+        if self.host and ':' in self.host:
+            return int(self.host.rpartition(':')[2])
+        return None
+
+    def geturl(self):
+        return urlunsplit(self)
 
 
-def urlparse(url):
-    split = urlsplit(url)
-    path, _, params = split[2].partition(';')
-    return ParseResult(split[0], split[1], path, params, *split[3:])
+class ParseResult(SplitResult):
+    """Wrapper class to adapt uritools.SplitResult to
+    urlparse.ParseResult interface."""
 
+    @property
+    def path(self):
+        return super(ParseResult, self).path.partition(';')[0]
 
-def urlunparse(result):
-    if result.params:
-        path = result.path + ';' + result.params
-    else:
-        path = result.path
-    return urlunsplit(result[:2] + (path, ) + result[4:])
+    @property
+    def params(self):
+        return super(ParseResult, self).path.partition(';')[2]
+
+    def __eq__(self, other):
+        return self[:2] + (self.path, self.params) + self[3:] == other
+
+    def __ne__(self, other):
+        return self[:2] + (self.path, self.params) + self[3:] != other
 
 
 def urlsplit(url):
     split = [s or '' for s in uritools.urisplit(url)]
-    # workaround for urlparse Issue 754016: "path:80"
+    # urlparse Issue 754016: "path:80" (not RFC3986 compliant)
     if split[0] and not split[1] and split[2].isdigit():
         split[0], split[2] = '', split[0] + ':' + split[2]
-    return SplitResult(split[0].lower(), *split[1:])
+    return SplitResult(*split)
 
 
 def urlunsplit(result):
     scheme, authority, path = result[:3]
+    # special handling for "file" scheme
     if scheme == 'file':
         split = [scheme, authority, path]
     else:
         split = [scheme or None, authority or None, path]
     split += [s or None for s in result[3:]]
     return uritools.uriunsplit(split)
+
+
+def urlparse(url):
+    return ParseResult(*urlsplit(url))
+
+
+def urlunparse(result):
+    return urlunsplit(result)
 
 
 def urljoin(base, url, allow_fragments=True):

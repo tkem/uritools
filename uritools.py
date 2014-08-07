@@ -19,7 +19,7 @@ try:
 except NameError:
     basestring = str
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
@@ -56,8 +56,8 @@ _SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9.+-]*$")
 
 _AUTHORITY_RE = re.compile(r"""
 (?:(.*)\@)?     # userinfo
-(.*?)           # host -- FIXME: lookahead?
-(?:\:(\d+))?    # port
+(.*?)           # host
+(?:\:(\d*))?    # port
 $
 """, flags=(re.VERBOSE))
 
@@ -305,7 +305,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     @property
     def port(self):
         port = self._splitauth[2]
-        return int(port, 10) if port is not None else None
+        return int(port, 10) if port else None
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
