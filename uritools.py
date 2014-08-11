@@ -112,9 +112,8 @@ def urisplit(string):
     | :attr:`host`      |       | Host subcomponent of authority,             |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
-    | :attr:`port`      |       | Port subcomponent of authority as an        |
-    |                   |       | :class:`int`, or :const:`None` if not       |
-    |                   |       | present                                     |
+    | :attr:`port`      |       | Port subcomponent of authority,             |
+    |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
 
     """
@@ -304,8 +303,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     @property
     def port(self):
-        port = self._splitauth[2]
-        return int(port, 10) if port else None
+        return self._splitauth[2]
 
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
@@ -384,10 +382,10 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
         :class:`int`, or `default` if the original URI did not contain
-        a port.
+        a port, or the port was empty.
 
         """
-        return self.port if self.port is not None else default
+        return int(self.port) if self.port else default
 
     def getaddrinfo(self, family=0, type=0, proto=0, flags=0):
         """Translate the host and port subcomponents of the URI authority into

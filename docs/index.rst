@@ -21,7 +21,7 @@ commonly used functions of the Python 2.7 Standard Library
     >>> uri.host
     'example.com'
     >>> uri.port
-    8042
+    '8042'
     >>> uri.geturi()
     'foo://example.com:8042/over/there?name=ferret#nose'
     >>> uriunsplit(uri[:3] + ('name=swallow&type=African', 'beak'))

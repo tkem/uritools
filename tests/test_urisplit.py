@@ -76,7 +76,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.fragment, 'nose')
         self.assertEqual(result.userinfo, 'user')
         self.assertEqual(result.host, 'example.com')
-        self.assertEqual(result.port, 8042)
+        self.assertEqual(result.port, '8042')
 
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'foo')
@@ -146,6 +146,9 @@ class UriSplitTest(unittest.TestCase):
         """urisplit default port test cases"""
         for uri in ['foo://bar', 'foo://bar:', 'foo://bar/', 'foo://bar:/']:
             result = urisplit(uri)
-            self.assertEqual(result.host, 'bar')
-            self.assertEqual(result.port, None)
-            self.assertEqual(result.getport(42), 42)
+            if result.authority.endswith(':'):
+                self.assertEqual(result.port, '')
+            else:
+                self.assertEqual(result.port, None)
+            self.assertEqual(result.gethost(), 'bar')
+            self.assertEqual(result.getport(8000), 8000)

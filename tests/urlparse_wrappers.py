@@ -29,8 +29,8 @@ class SplitResult(uritools.SplitResult):
     @property
     def port(self):
         port = super(SplitResult, self).port
-        if port and port < 65536:
-            return port
+        if port and int(port) < 65536:
+            return int(port)
         if self.host and ':' in self.host:
             return int(self.host.rpartition(':')[2])
         return None
