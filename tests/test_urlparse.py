@@ -347,50 +347,48 @@ class UrlParseTestCase(unittest.TestCase):
         self.checkJoin('svn+ssh://pathtorepo/dir1','dir2','svn+ssh://pathtorepo/dir2')
 
     def test_RFC2732(self):
-        # FIXME: uritools IPv6 support
         for url, hostname, port in [
             ('http://Test.python.org:5432/foo/', 'test.python.org', 5432),
             ('http://12.34.56.78:5432/foo/', '12.34.56.78', 5432),
-            #('http://[::1]:5432/foo/', '::1', 5432),
-            #('http://[dead:beef::1]:5432/foo/', 'dead:beef::1', 5432),
-            #('http://[dead:beef::]:5432/foo/', 'dead:beef::', 5432),
-            #('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:5432/foo/',
-            # 'dead:beef:cafe:5417:affe:8fa3:deaf:feed', 5432),
-            #('http://[::12.34.56.78]:5432/foo/', '::12.34.56.78', 5432),
-            #('http://[::ffff:12.34.56.78]:5432/foo/',
-            # '::ffff:12.34.56.78', 5432),
+            ('http://[::1]:5432/foo/', '::1', 5432),
+            ('http://[dead:beef::1]:5432/foo/', 'dead:beef::1', 5432),
+            ('http://[dead:beef::]:5432/foo/', 'dead:beef::', 5432),
+            ('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:5432/foo/',
+             'dead:beef:cafe:5417:affe:8fa3:deaf:feed', 5432),
+            ('http://[::12.34.56.78]:5432/foo/', '::12.34.56.78', 5432),
+            ('http://[::ffff:12.34.56.78]:5432/foo/',
+             '::ffff:12.34.56.78', 5432),
             ('http://Test.python.org/foo/', 'test.python.org', None),
             ('http://12.34.56.78/foo/', '12.34.56.78', None),
-            #('http://[::1]/foo/', '::1', None),
-            #('http://[dead:beef::1]/foo/', 'dead:beef::1', None),
-            #('http://[dead:beef::]/foo/', 'dead:beef::', None),
-            #('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]/foo/',
-            # 'dead:beef:cafe:5417:affe:8fa3:deaf:feed', None),
-            #('http://[::12.34.56.78]/foo/', '::12.34.56.78', None),
-            #('http://[::ffff:12.34.56.78]/foo/',
-            # '::ffff:12.34.56.78', None),
+            ('http://[::1]/foo/', '::1', None),
+            ('http://[dead:beef::1]/foo/', 'dead:beef::1', None),
+            ('http://[dead:beef::]/foo/', 'dead:beef::', None),
+            ('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]/foo/',
+             'dead:beef:cafe:5417:affe:8fa3:deaf:feed', None),
+            ('http://[::12.34.56.78]/foo/', '::12.34.56.78', None),
+            ('http://[::ffff:12.34.56.78]/foo/',
+             '::ffff:12.34.56.78', None),
             ('http://Test.python.org:/foo/', 'test.python.org', None),
             ('http://12.34.56.78:/foo/', '12.34.56.78', None),
-            #('http://[::1]:/foo/', '::1', None),
-            #('http://[dead:beef::1]:/foo/', 'dead:beef::1', None),
-            #('http://[dead:beef::]:/foo/', 'dead:beef::', None),
-            #('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:/foo/',
-            # 'dead:beef:cafe:5417:affe:8fa3:deaf:feed', None),
-            #('http://[::12.34.56.78]:/foo/', '::12.34.56.78', None),
-            #('http://[::ffff:12.34.56.78]:/foo/',
-            # '::ffff:12.34.56.78', None),
+            ('http://[::1]:/foo/', '::1', None),
+            ('http://[dead:beef::1]:/foo/', 'dead:beef::1', None),
+            ('http://[dead:beef::]:/foo/', 'dead:beef::', None),
+            ('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:/foo/',
+             'dead:beef:cafe:5417:affe:8fa3:deaf:feed', None),
+            ('http://[::12.34.56.78]:/foo/', '::12.34.56.78', None),
+            ('http://[::ffff:12.34.56.78]:/foo/',
+             '::ffff:12.34.56.78', None),
             ]:
             urlparsed = urlparse.urlparse(url)
             self.assertEqual((urlparsed.hostname, urlparsed.port) , (hostname, port))
 
-        # FIXME: uritools IPv6 support
-        #for invalid_url in [
-        #        'http://::12.34.56.78]/',
-        #        'http://[::1/foo/',
-        #        'ftp://[::1/foo/bad]/bad',
-        #        'http://[::1/foo/bad]/bad',
-        #        'http://[::ffff:12.34.56.78']:
-        #    self.assertRaises(ValueError, urlparse.urlparse, invalid_url)
+        for invalid_url in [
+                'http://::12.34.56.78]/',
+                'http://[::1/foo/',
+                'ftp://[::1/foo/bad]/bad',
+                'http://[::1/foo/bad]/bad',
+                'http://[::ffff:12.34.56.78']:
+            self.assertRaises(ValueError, urlparse.urlparse, invalid_url)
 
     def test_urldefrag(self):
         for url, defrag, frag in [
@@ -421,7 +419,7 @@ class UrlParseTestCase(unittest.TestCase):
         self.assertEqual(p.port, None)
         # geturl() won't return exactly the original URL in this case
         # since the scheme is always case-normalized
-        #self.assertEqual(p.geturl(), url)
+        self.assertEqual(p.geturl(), url)
 
         url = "http://User:Pass@www.python.org:080/doc/?query=yes#frag"
         p = urlparse.urlsplit(url)
@@ -499,16 +497,6 @@ class UrlParseTestCase(unittest.TestCase):
         self.assertEqual(p1.params, 'phone-context=+1-914-555')
 
 
-    def test_attributes_bad_port(self):
-        """Check handling of non-integer ports."""
-        p = urlparse.urlsplit("http://www.example.net:foo")
-        self.assertEqual(p.netloc, "www.example.net:foo")
-        self.assertRaises(ValueError, lambda: p.port)
-
-        p = urlparse.urlparse("http://www.example.net:foo")
-        self.assertEqual(p.netloc, "www.example.net:foo")
-        self.assertRaises(ValueError, lambda: p.port)
-
     def test_attributes_without_netloc(self):
         # This example is straight from RFC 3261.  It looks like it
         # should allow the username, hostname, and port to be filled
@@ -573,8 +561,6 @@ class UrlParseTestCase(unittest.TestCase):
 
     def test_portseparator(self):
         # Issue 754016 makes changes for port separator ':' from scheme separator
-        self.assertEqual(urlparse.urlparse("path:80"),
-                ('','','path:80','','',''))
         self.assertEqual(urlparse.urlparse("http:"),('http','','','','',''))
         self.assertEqual(urlparse.urlparse("https:"),('https','','','','',''))
         self.assertEqual(urlparse.urlparse("http://www.python.org:80"),

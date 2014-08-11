@@ -2,6 +2,7 @@
 
 import uritools
 
+
 class SplitResult(uritools.SplitResult):
     """Wrapper class to adapt uritools.SplitResult to
     urlparse.SplitResult interface."""
@@ -24,16 +25,12 @@ class SplitResult(uritools.SplitResult):
 
     @property
     def hostname(self):
-        return self.host.lower() if self.host else None
+        return str(self.gethost().lower()) if self.host else None
 
     @property
     def port(self):
         port = super(SplitResult, self).port
-        if port and int(port) < 65536:
-            return int(port)
-        if self.host and ':' in self.host:
-            return int(self.host.rpartition(':')[2])
-        return None
+        return int(port) if port and int(port) < 65536 else None
 
     def geturl(self):
         return urlunsplit(self)
@@ -59,11 +56,7 @@ class ParseResult(SplitResult):
 
 
 def urlsplit(url):
-    split = [s or '' for s in uritools.urisplit(url)]
-    # urlparse Issue 754016: "path:80" (not RFC3986 compliant)
-    if split[0] and not split[1] and split[2].isdigit():
-        split[0], split[2] = '', split[0] + ':' + split[2]
-    return SplitResult(*split)
+    return SplitResult(*(s or '' for s in uritools.urisplit(url)))
 
 
 def urlunsplit(result):
@@ -78,7 +71,10 @@ def urlunsplit(result):
 
 
 def urlparse(url):
-    return ParseResult(*urlsplit(url))
+    split = urlsplit(url)
+    if '[' in split.gethost() or ']' in split.gethost():
+        raise ValueError('Invalid IP literal')
+    return ParseResult(*split)
 
 
 def urlunparse(result):

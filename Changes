@@ -1,6 +1,8 @@
 0.6.0 UNRELEASED
 
-* Change SplitResult.port to string.
+* Add basic IPv6 support.
+* Change `SplitResult.port` back to string.
+* Improve Python 3 bytes/unicode handling.
 
 0.5.2 2014-08-06
 
@@ -12,13 +14,13 @@
 
 0.5.0 2014-06-21
 
-* Add SplitResult.getaddrinfo().
-* Support query mappings and sequences in uricompose().
+* Add `SplitResult.getaddrinfo()`.
+* Support query mappings and sequences in `uricompose()`.
 
 0.4.0 2014-03-20
 
-* Fix SplitResult.port to return int (matching urlparse).
-* Add SplitResult.getquerylist(), SplitResult.getquerydict().
+* Fix `SplitResult.port` to return int (matching urlparse).
+* Add `SplitResult.getquerylist(), SplitResult.getquerydict()`.
 
 0.3.0 2014-03-02
 
@@ -27,14 +29,14 @@
 
 0.2.1 2014-02-24
 
-* Fix issue #1: uritools.urinormpath() raises IndexError.
+* Fix IndexError in `urinormpath()`.
 * Integrate Python 2.7.6 urlparse unit tests.
 
 0.2.0 2014-02-18
 
 * Add authority subcomponent attributes.
-* Return DefragResult from uridefrag().
-* Improve urisplit/uriunsplit edge case behavior.
+* Return `DefragResult` from `uridefrag()`.
+* Improve edge case behavior.
 
 0.1.0 2014-02-14
 

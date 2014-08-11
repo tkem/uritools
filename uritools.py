@@ -27,7 +27,7 @@ RE = re.compile(r"""
 (?P<path>[^?#]*)                # path
 (?:\?(?P<query>[^#]*))?         # query
 (?:\#(?P<fragment>.*))?         # fragment
-""", flags=(re.VERBOSE))
+""", flags=re.VERBOSE)
 """Regular expression for splitting a well-formed URI into its
 components, as specified in RFC 3986 Appendix B.
 
@@ -52,14 +52,60 @@ UNRESERVED = (
 
 _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
-_SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9.+-]*$")
+# RFC 3986 3.2: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+_SCHEME_RE = re.compile(r"\A[A-Z][A-Z0-9+.-]*\Z", flags=re.IGNORECASE)
 
+# RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
 _AUTHORITY_RE = re.compile(r"""
-(?:(.*)\@)?     # userinfo
+\A
+(?:(.*)@)?      # userinfo
 (.*?)           # host
-(?:\:(\d*))?    # port
-$
-""", flags=(re.VERBOSE))
+(?::(\d*))?     # port
+\Z
+""", flags=re.VERBOSE)
+
+# RFC 3986 3.2.2: A host identified by an IPv6 literal address is
+# represented inside the square brackets without a preceding version
+# flag.  The ABNF provided here is a translation of the text
+# definition of an IPv6 literal address provided in [RFC3513].  This
+# syntax does not support IPv6 scoped addressing zone identifiers.
+#
+# IPv6address =                            6( h16 ":" ) ls32
+#             /                       "::" 5( h16 ":" ) ls32
+#             / [               h16 ] "::" 4( h16 ":" ) ls32
+#             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+#             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+#             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+#             / [ *4( h16 ":" ) h16 ] "::"              ls32
+#             / [ *5( h16 ":" ) h16 ] "::"              h16
+#             / [ *6( h16 ":" ) h16 ] "::"
+#
+# ls32        = ( h16 ":" h16 ) / IPv4address
+#             ; least-significant 32 bits of address
+#
+# h16         = 1*4HEXDIG
+#             ; 16 bits of address represented in hexadecimal
+_IPV6_ADDRESS_RE = re.compile(r"""
+\A
+(?:
+  (?:
+                                              (?:[0-9A-F]{1,4}:){6}
+  |                                         ::(?:[0-9A-F]{1,4}:){5}
+  | (?:                      [0-9A-F]{1,4})?::(?:[0-9A-F]{1,4}:){4}
+  | (?:(?:[0-9A-F]{1,4}:){,1}[0-9A-F]{1,4})?::(?:[0-9A-F]{1,4}:){3}
+  | (?:(?:[0-9A-F]{1,4}:){,2}[0-9A-F]{1,4})?::(?:[0-9A-F]{1,4}:){2}
+  | (?:(?:[0-9A-F]{1,4}:){,3}[0-9A-F]{1,4})?::   [0-9A-F]{1,4}:
+  | (?:(?:[0-9A-F]{1,4}:){,4}[0-9A-F]{1,4})?::
+  )
+  (?:
+    [0-9A-F]{1,4}:[0-9A-F]{1,4}                            # h16 ":" h16
+  | (?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.?\b){4}  # IPv4address
+  )
+| (?:(?:[0-9A-F]{1,4}:){,5}[0-9A-F]{1,4})?::[0-9A-F]{1,4}
+| (?:(?:[0-9A-F]{1,4}:){,6}[0-9A-F]{1,4})?::
+)
+\Z
+""", flags=(re.IGNORECASE | re.VERBOSE))
 
 
 def _queryencode(query, delim, sep, encoding):
@@ -175,11 +221,7 @@ def uridefrag(string):
     +-------------------+-------+---------------------------------------------+
 
     """
-    try:
-        parts = string.partition('#')
-    except TypeError:
-        # Python 3: handle string as bytes
-        parts = string.partition(b'#')
+    parts = string.partition(b'#' if isinstance(string, bytes) else '#')
     if parts[1]:
         return DefragResult(parts[0], parts[2])
     else:
@@ -249,8 +291,39 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         scheme = scheme.lower()
 
     if authority is not None:
-        # TODO: check authority is well-formed, IPv6 support
-        authority = uriencode(authority, SUB_DELIMS + ':@', encoding)
+        if isinstance(authority, basestring):
+            userinfo, host, port = _AUTHORITY_RE.match(authority).groups()
+        else:
+            userinfo, host, port = authority
+        # RFC 3986 3.2.1: The user information, if present, is
+        # followed by a commercial at-sign ("@") that delimits it from
+        # the host.
+        if userinfo is not None:
+            authority = uriencode(userinfo, SUB_DELIMS + ':', encoding) + '@'
+        else:
+            authority = ''
+        # RFC 3986 3.2.3: Although host is case-insensitive, producers
+        # and normalizers should use lowercase for registered names
+        # and hexadecimal addresses for the sake of uniformity, while
+        # only using uppercase letters for percent-encodings.
+        if host is None:
+            raise ValueError('Host subcomponent must be present if empty')
+        host = host.lower()
+        if host.startswith('[') and host.endswith(']'):
+            authority += host  # TODO: check IPv6
+        elif _IPV6_ADDRESS_RE.match(host):
+            authority += '[' + host + ']'
+        else:
+            authority += uriencode(host, SUB_DELIMS, encoding)
+        # RFC 3986 3.2.3: URI producers and normalizers should omit
+        # the port component and its ":" delimiter if port is empty or
+        # if its value would be the same as that of the scheme's
+        # default.
+        port = str(port) if port is not None else ''
+        if port.isdigit():
+            authority += ':' + port
+        elif port:
+            raise ValueError('Non-decimal port: %s' % port)
 
     # RFC 3986 3.3: If a URI contains an authority component, then the
     # path component must either be empty or begin with a slash ("/")
@@ -262,11 +335,11 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if path is None:
         raise ValueError('URI path component must be present if empty')
     if authority is not None and path and not path.startswith('/'):
-        raise ValueError('Invalid path %r with authority' % path)
+        raise ValueError('Invalid path %r with authority component' % path)
     if authority is None and path.startswith('//'):
-        raise ValueError('Invalid path %r without authority' % path)
+        raise ValueError('Invalid path %r without authority component' % path)
     if scheme is None and authority is None and ':' in path.split('/', 1)[0]:
-        raise ValueError('Invalid path %r without scheme' % path)
+        raise ValueError('Invalid path %r without scheme component' % path)
     path = uriencode(path, SUB_DELIMS + ':@/', encoding)
 
     if query is not None:
@@ -330,9 +403,10 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         did not contain an authority component.
 
         """
-        if self.authority is None:
+        if self.authority is not None:
+            return uridecode(self.authority, encoding)
+        else:
             return default
-        return uridecode(self.authority, encoding)
 
     def getpath(self, encoding='utf-8'):
         """Return the decoded URI path."""
@@ -343,18 +417,20 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         did not contain a query component.
 
         """
-        if self.query is None:
+        if self.query is not None:
+            return uridecode(self.query, encoding)
+        else:
             return default
-        return uridecode(self.query, encoding)
 
     def getfragment(self, default=None, encoding='utf-8'):
         """Return the decoded fragment identifier, or `default` if the
         original URI did not contain a fragment component.
 
         """
-        if self.fragment is None:
+        if self.fragment is not None:
+            return uridecode(self.fragment, encoding)
+        else:
             return default
-        return uridecode(self.fragment, encoding)
 
     def getuserinfo(self, default=None, encoding='utf-8'):
         """Return the decoded userinfo subcomponent of the URI authority, or
@@ -362,9 +438,10 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         field.
 
         """
-        if self.userinfo is None:
+        if self.userinfo is not None:
+            return uridecode(self.userinfo, encoding)
+        else:
             return default
-        return uridecode(self.userinfo, encoding)
 
     def gethost(self, default=None, encoding='utf-8'):
         """Return the decoded host subcomponent of the URI authority, or
@@ -375,14 +452,24 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         must be specified to return a Unicode domain name.
 
         """
-        if self.host is None:
+        host = self.host
+        # RFC 3986 3.2.2: If the URI scheme defines a default for
+        # host, then that default applies when the host subcomponent
+        # is undefined or when the registered name is empty (zero
+        # length).
+        if host is None or (default is not None and not host):
             return default
-        return uridecode(self.host, encoding)
+        elif not host.startswith('[') or not host.endswith(']'):
+            return uridecode(host, encoding)
+        elif _IPV6_ADDRESS_RE.match(host[1:-1]):
+            return host[1:-1]
+        else:
+            raise ValueError('Invalid IP literal: %s' % host)
 
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
         :class:`int`, or `default` if the original URI did not contain
-        a port, or the port was empty.
+        a port, or if the port was empty.
 
         """
         return int(self.port) if self.port else default
@@ -473,15 +560,13 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
     """Class to hold :func:`uridefrag` results."""
 
     def geturi(self):
-        """Return the re-combined version of the original URI as a string."""
-        if self.fragment is not None:
-            try:
-                return self.base + '#' + self.fragment
-            except TypeError:
-                # Python 3: handle string as bytes
-                return self.base + b'#' + self.fragment
-        else:
+        """Return the recombined version of the original URI as a string."""
+        if self.fragment is None:
             return self.base
+        elif isinstance(self.fragment, bytes):
+            return b'#'.join((self.base, self.fragment))
+        else:
+            return '#'.join((self.base, self.fragment))
 
     def getbase(self, encoding='utf-8'):
         """Return the decoded absolute URI or relative URI reference without
@@ -495,6 +580,7 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
         original URI did not contain a fragment component.
 
         """
-        if self.fragment is None:
+        if self.fragment is not None:
+            return uridecode(self.fragment, encoding)
+        else:
             return default
-        return uridecode(self.fragment, encoding)
