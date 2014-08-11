@@ -19,7 +19,7 @@ try:
 except NameError:
     basestring = str
 
-__version__ = '0.5.2'
+__version__ = '0.6.0'
 
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
