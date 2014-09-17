@@ -1,7 +1,9 @@
 0.6.0 UNRELEASED
 
 * Add basic IPv6 support.
-* Change `SplitResult.port` back to string.
+* Change `SplitResult.port` back to string, to distinguish between empty
+  and absent port components.
+* Remove `querysep`/`sep` parameters.
 * Improve Python 3 bytes/unicode handling.
 
 0.5.2 2014-08-06

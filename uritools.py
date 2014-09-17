@@ -108,20 +108,18 @@ _IPV6_ADDRESS_RE = re.compile(r"""
 """, flags=(re.IGNORECASE | re.VERBOSE))
 
 
-def _queryencode(query, delim, sep, encoding):
+def _queryencode(query, delim, encoding):
     if not delim:
         delim = ''
-    if not sep:
-        sep = ''
     # TODO: provide our own quote/unquote implementation?
-    safe = (SUB_DELIMS + ':@/?').replace(delim, '').replace(sep, '')
+    safe = (SUB_DELIMS + ':@/?').replace(delim, '')
     items = []
     for item in query:
         if isinstance(item, basestring):
             parts = (uriencode(item, safe, encoding), )
         else:
             parts = (uriencode(part, safe, encoding) for part in item)
-        items.append(sep.join(parts))
+        items.append('='.join(parts))
     return delim.join(items)
 
 
@@ -266,8 +264,7 @@ def urinormpath(path):
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
-               fragment=None, delim='&', querysep='=',
-               encoding='utf-8'):
+               fragment=None, delim='&', encoding='utf-8'):
     """Compose a URI string from its components.
 
     If `query` is a mapping object or a sequence of two-element
@@ -346,9 +343,9 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         if isinstance(query, basestring):
             query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
         elif hasattr(query, 'items'):
-            query = _queryencode(query.items(), delim, querysep, encoding)
+            query = _queryencode(query.items(), delim, encoding)
         else:
-            query = _queryencode(query, delim, querysep, encoding)
+            query = _queryencode(query, delim, encoding)
 
     if fragment:
         fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
@@ -361,10 +358,15 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     @property
     def _splitauth(self):
-        if self.authority is None:
+        authority = self.authority
+        if authority is None:
             return (None, None, None)
-        else:
-            return _AUTHORITY_RE.match(self.authority).groups()
+        try:
+            return _AUTHORITY_RE.match(authority).groups()
+        except TypeError:
+            # Python 3: handle authority as bytes
+            groups = _AUTHORITY_RE.match(authority.decode('ascii')).groups()
+            return [None if g is None else g.encode('ascii') for g in groups]
 
     @property
     def userinfo(self):
@@ -393,7 +395,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         try:
             scheme = self.scheme.decode('ascii')
         except AttributeError:
-            scheme = self.scheme
+            scheme = self.scheme  # Python 3: already unicode
         if not _SCHEME_RE.match(scheme):
             raise ValueError('Invalid scheme: %r' % scheme)
         return scheme.lower()
@@ -453,6 +455,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
         """
         host = self.host
+        if isinstance(host, bytes):
+            host = host.decode(encoding)
         # RFC 3986 3.2.2: If the URI scheme defines a default for
         # host, then that default applies when the host subcomponent
         # is undefined or when the registered name is empty (zero
@@ -490,42 +494,35 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         port = self.port or self.scheme
         return socket.getaddrinfo(host, port, family, type, proto, flags)
 
-    def getquerylist(self, delims=';&', sep='=', encoding='utf-8'):
+    def getquerylist(self, delims=';&', encoding='utf-8'):
         """Split the query string into individual components using the
-        delimiter characters in `delims`.
-
-        If `sep` is not empty, split each component at the first
-        occurence of `sep` and return a list of decoded `(name,
-        value)` pairs.  If `sep` is not found, `value` becomes
-        :const:`None`.
-
-        If `sep` is :const:`None` or empty, return the list of decoded
-        query components.
+        delimiter characters in `delims`, and return a list of (name,
+        value) pairs.
         """
         qsl = [self.query] if self.query else []
         for delim in delims:
+            if isinstance(self.query, bytes) and isinstance(delim, str):
+                delim = delim.encode(encoding)
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
-        if not sep:
-            return [uridecode(qs, encoding) for qs in qsl]
         items = []
         for qs in qsl:
-            parts = qs.partition(sep)
+            parts = qs.partition(b'=' if isinstance(qs, bytes) else '=')
             name = uridecode(parts[0], encoding)
             value = uridecode(parts[2], encoding) if parts[1] else None
             items.append((name, value))
         return items
 
-    def getquerydict(self, delims=';&', sep='=', encoding='utf-8'):
+    def getquerydict(self, delims=';&', encoding='utf-8'):
         """Split the query string into individual components using the
         delimiter characters in `delims`, and return a dictionary of
         query parameters.
 
         The dictionary keys are the unique decoded query parameter
         names, and the values are lists of decoded values for each
-        name.  Parameter names and values are seperated by `sep`.
+        name, with names and values seperated by `=`.
         """
         dict = collections.defaultdict(list)
-        for name, value in self.getquerylist(delims, sep, encoding):
+        for name, value in self.getquerylist(delims, encoding):
             dict[name].append(value)
         return dict
 

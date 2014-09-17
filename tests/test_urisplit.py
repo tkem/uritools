@@ -63,12 +63,11 @@ class UriSplitTest(unittest.TestCase):
         ]:
             self.check(uri, parts)
 
-    def test_attributes(self):
-        """urisplit attributes test cases"""
+    def test_unicode(self):
+        """urisplit test cases for unicode string URIs"""
 
         uri = 'foo://user@example.com:8042/over/there?name=ferret#nose'
         result = urisplit(uri)
-
         self.assertEqual(result.scheme, 'foo')
         self.assertEqual(result.authority, 'user@example.com:8042')
         self.assertEqual(result.path, '/over/there')
@@ -77,7 +76,6 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.userinfo, 'user')
         self.assertEqual(result.host, 'example.com')
         self.assertEqual(result.port, '8042')
-
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'foo')
         self.assertEqual(result.getauthority(), 'user@example.com:8042')
@@ -87,13 +85,11 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
         self.assertEqual(result.getport(), 8042)
-
         self.assertEqual(dict(result.getquerydict()), {'name': ['ferret']})
         self.assertEqual(list(result.getquerylist()), [('name', 'ferret')])
 
         uri = 'urn:example:animal:ferret:nose'
         result = urisplit(uri)
-
         self.assertEqual(result.scheme, 'urn')
         self.assertEqual(result.authority, None)
         self.assertEqual(result.path, 'example:animal:ferret:nose')
@@ -102,7 +98,6 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.userinfo, None)
         self.assertEqual(result.host, None)
         self.assertEqual(result.port, None)
-
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'urn')
         self.assertEqual(result.getauthority(), None)
@@ -112,7 +107,53 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
         self.assertEqual(result.getport(), None)
+        self.assertEqual(dict(result.getquerydict()), {})
+        self.assertEqual(list(result.getquerylist()), [])
 
+    def test_bytes(self):
+        """urisplit test cases for byte string URIs"""
+
+        uri = b'foo://user@example.com:8042/over/there?name=ferret#nose'
+        result = urisplit(uri)
+        self.assertEqual(result.scheme, b'foo')
+        self.assertEqual(result.authority, b'user@example.com:8042')
+        self.assertEqual(result.path, b'/over/there')
+        self.assertEqual(result.query, b'name=ferret')
+        self.assertEqual(result.fragment, b'nose')
+        self.assertEqual(result.userinfo, b'user')
+        self.assertEqual(result.host, b'example.com')
+        self.assertEqual(result.port, b'8042')
+        self.assertEqual(result.geturi(), uri)
+        self.assertEqual(result.getscheme(), 'foo')
+        self.assertEqual(result.getauthority(), 'user@example.com:8042')
+        self.assertEqual(result.getpath(), '/over/there')
+        self.assertEqual(result.getquery(), 'name=ferret')
+        self.assertEqual(result.getfragment(), 'nose')
+        self.assertEqual(result.getuserinfo(), 'user')
+        self.assertEqual(result.gethost(), 'example.com')
+        self.assertEqual(result.getport(), 8042)
+        self.assertEqual(dict(result.getquerydict()), {'name': ['ferret']})
+        self.assertEqual(list(result.getquerylist()), [('name', 'ferret')])
+
+        uri = b'urn:example:animal:ferret:nose'
+        result = urisplit(uri)
+        self.assertEqual(result.scheme, b'urn')
+        self.assertEqual(result.authority, None)
+        self.assertEqual(result.path, b'example:animal:ferret:nose')
+        self.assertEqual(result.query, None)
+        self.assertEqual(result.fragment, None)
+        self.assertEqual(result.userinfo, None)
+        self.assertEqual(result.host, None)
+        self.assertEqual(result.port, None)
+        self.assertEqual(result.geturi(), uri)
+        self.assertEqual(result.getscheme(), 'urn')
+        self.assertEqual(result.getauthority(), None)
+        self.assertEqual(result.getpath(), 'example:animal:ferret:nose')
+        self.assertEqual(result.getquery(), None)
+        self.assertEqual(result.getfragment(), None)
+        self.assertEqual(result.getuserinfo(), None)
+        self.assertEqual(result.gethost(), None)
+        self.assertEqual(result.getport(), None)
         self.assertEqual(dict(result.getquerydict()), {})
         self.assertEqual(list(result.getquerylist()), [])
 

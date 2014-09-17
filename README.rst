@@ -83,12 +83,6 @@ Copyright (c) 2014 Thomas Kemmer.
 Licensed under the `MIT License`_.
 
 
-Known Bugs and Limitations
-------------------------------------------------------------------------
-
-This modules does not handle IPv6 host addresses (yet).
-
-
 .. _urlparse: http://docs.python.org/2/library/urlparse.html
 .. _urllib.parse: http://docs.python.org/3/library/urllib.parse.html
 

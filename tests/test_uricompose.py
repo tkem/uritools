@@ -52,8 +52,7 @@ class UriComposeTest(unittest.TestCase):
             authority='example.com:8042',
             path='/over/there',
             query=['name=ferret'],
-            fragment='nose',
-            querysep=None
+            fragment='nose'
         )
         self.check(
             'foo://example.com:8042/over/there?name=swallow&type=African#beak',
