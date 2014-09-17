@@ -34,13 +34,13 @@ components, as specified in RFC 3986 Appendix B.
 """
 
 GEN_DELIMS = ':/?#[]@'
-"""General delimiting characters specified in RFC 3986."""
+"""General delimiting characters as specified in RFC 3986."""
 
 SUB_DELIMS = "!$&'()*+,;="
-"""Subcomponent delimiting characters specified in RFC 3986."""
+"""Subcomponent delimiting characters as specified in RFC 3986."""
 
 RESERVED = GEN_DELIMS + SUB_DELIMS
-"""Reserved characters specified in RFC 3986."""
+"""Reserved characters as specified in RFC 3986."""
 
 UNRESERVED = (
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -48,7 +48,7 @@ UNRESERVED = (
     '0123456789'
     '_.-~'
 )
-"""Unreserved characters specified in RFC 3986."""
+"""Unreserved characters as specified in RFC 3986."""
 
 _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
@@ -156,7 +156,8 @@ def urisplit(string):
     | :attr:`host`      |       | Host subcomponent of authority,             |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
-    | :attr:`port`      |       | Port subcomponent of authority,             |
+    | :attr:`port`      |       | Port subcomponent of authority as a         |
+    |                   |       | (possibly empty) string,                    |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
 
@@ -211,10 +212,10 @@ def uridefrag(string):
     +-------------------+-------+---------------------------------------------+
     | Attribute         | Index | Value                                       |
     +===================+=======+=============================================+
-    | :attr:`base`      | 0     | The absoulte URI or relative URI reference  |
+    | :attr:`base`      | 0     | Absoulte URI or relative URI reference      |
     |                   |       | without the fragment identifier             |
     +-------------------+-------+---------------------------------------------+
-    | :attr:`fragment`  | 1     | The fragment identifier,                    |
+    | :attr:`fragment`  | 1     | Fragment identifier,                        |
     |                   |       | or :const:`None` if not present             |
     +-------------------+-------+---------------------------------------------+
 
@@ -386,19 +387,15 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getscheme(self, default=None):
         """Return the URI scheme in canonical (lowercase) form, or `default`
-        if the original URI did not contain a scheme component.  Raise
-        a :class:`ValueError` if the scheme is not well-formed.
+        if the original URI did not contain a scheme component.
 
         """
         if self.scheme is None:
             return default
-        try:
-            scheme = self.scheme.decode('ascii')
-        except AttributeError:
-            scheme = self.scheme  # Python 3: already unicode
-        if not _SCHEME_RE.match(scheme):
-            raise ValueError('Invalid scheme: %r' % scheme)
-        return scheme.lower()
+        elif isinstance(self.scheme, bytes):
+            return self.scheme.decode('ascii').lower()
+        else:
+            return self.scheme.lower()
 
     def getauthority(self, default=None, encoding='utf-8'):
         """Return the decoded URI authority, or `default` if the original URI
@@ -496,8 +493,9 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getquerylist(self, delims=';&', encoding='utf-8'):
         """Split the query string into individual components using the
-        delimiter characters in `delims`, and return a list of (name,
-        value) pairs.
+        delimiter characters in `delims`, and return a list of `(name,
+        value)` pairs.
+
         """
         qsl = [self.query] if self.query else []
         for delim in delims:
@@ -519,7 +517,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
         The dictionary keys are the unique decoded query parameter
         names, and the values are lists of decoded values for each
-        name, with names and values seperated by `=`.
+        name, with names and values seperated by :const:`'='`.
         """
         dict = collections.defaultdict(list)
         for name, value in self.getquerylist(delims, encoding):

@@ -158,8 +158,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(list(result.getquerylist()), [])
 
     def test_getscheme(self):
-        with self.assertRaises(ValueError):
-            urisplit('foo_bar://example.com/').getscheme()
+        self.assertEqual(urisplit('FOO_BAR:/').getscheme(), 'foo_bar')
 
     def test_getaddrinfo(self):
         import socket
