@@ -8,20 +8,27 @@ import collections
 _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
 
+def _splitauth(authority):
+    if authority is None:
+        return (None, None, None)
+    try:
+        return _AUTHORITY_RE.match(authority).groups()
+    except TypeError:
+        # Python 3: handle authority as bytes
+        groups = _AUTHORITY_RE.match(authority.decode('ascii')).groups()
+        return[None if g is None else g.encode('ascii') for g in groups]
+
+
 class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     """Class to hold :func:`urisplit` results."""
 
+    __splitauth = None
+
     @property
     def _splitauth(self):
-        authority = self.authority
-        if authority is None:
-            return (None, None, None)
-        try:
-            return _AUTHORITY_RE.match(authority).groups()
-        except TypeError:
-            # Python 3: handle authority as bytes
-            groups = _AUTHORITY_RE.match(authority.decode('ascii')).groups()
-            return [None if g is None else g.encode('ascii') for g in groups]
+        if self.__splitauth is None:
+            self.__splitauth = _splitauth(self.authority)
+        return self.__splitauth
 
     @property
     def userinfo(self):
