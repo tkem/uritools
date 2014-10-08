@@ -1,5 +1,9 @@
 import re
 
+# RFC 3986 Appendix B: The following line is the regular expression
+# for breaking-down a well-formed URI reference into its components.
+#
+#   ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?
 RE = re.compile(r"""
 (?:(?P<scheme>[^:/?#]+):)?      # scheme
 (?://(?P<authority>[^/?#]*))?   # authority
@@ -7,10 +11,6 @@ RE = re.compile(r"""
 (?:\?(?P<query>[^#]*))?         # query
 (?:\#(?P<fragment>.*))?         # fragment
 """, flags=re.VERBOSE)
-"""Regular expression for splitting a well-formed URI into its
-components, as specified in RFC 3986 Appendix B.
-
-"""
 
 # RFC 3986 3.2: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 _SCHEME_RE = re.compile(r"\A[A-Z][A-Z0-9+.-]*\Z", flags=re.IGNORECASE)

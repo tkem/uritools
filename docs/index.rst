@@ -120,13 +120,22 @@ Constants
       {'fragment': 'nose', 'path': '/over/there', 'scheme': 'foo',
        'authority': 'example.com:8042', 'query': 'name=ferret'}
 
-.. autodata:: UNRESERVED
+.. data:: UNRESERVED
 
-.. autodata:: RESERVED
+   Unreserved characters specified in RFC 3986 as a string.
 
-.. autodata:: GEN_DELIMS
+.. data:: RESERVED
 
-.. autodata:: SUB_DELIMS
+   Reserved characters specified in RFC 3986 as a string.
+
+.. data:: GEN_DELIMS
+
+   General delimiting characters specified in RFC 3986 as a string.
+
+.. data:: SUB_DELIMS
+
+   Subcomponent delimiting characters specified in RFC 3986 as a
+   string.
 
 
 Results of :func:`urisplit` and :func:`uridefrag`

@@ -1,16 +1,17 @@
+# RFC 3986 2.2: gen-delims = ":" / "/" / "?" / "#" / "[" / "]" / "@"
 GEN_DELIMS = ':/?#[]@'
-"""General delimiting characters as specified in RFC 3986."""
 
+# RFC 3986 2.2: sub-delims = "!" / "$" / "&" / "'" / "(" / ")"
+#                          / "*" / "+" / "," / ";" / "="
 SUB_DELIMS = "!$&'()*+,;="
-"""Subcomponent delimiting characters as specified in RFC 3986."""
 
+# RFC 3986 2.2: reserved = gen-delims / sub-delims
 RESERVED = GEN_DELIMS + SUB_DELIMS
-"""Reserved characters as specified in RFC 3986."""
 
+# RFC 3986 2.3: unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
 UNRESERVED = (
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     'abcdefghijklmnopqrstuvwxyz'
     '0123456789'
     '_.-~'
 )
-"""Unreserved characters as specified in RFC 3986."""

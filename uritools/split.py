@@ -200,6 +200,9 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         """Convert a URI reference relative to `self` into a
         :class:`SplitResult` representing its target.
 
+        If `strict` is :const:`False`, a scheme in the reference is
+        ignored if it is identical to :attr:`self.scheme`.
+
         """
         scheme, authority, path, query, fragment = urisplit(ref)
 
@@ -297,6 +300,11 @@ def uriunsplit(parts):
 
 
 def urijoin(base, ref, strict=False):
-    """Convert a URI reference relative to a base URI to its target
-    URI string."""
+    """Convert a URI reference relative to a base URI to its target URI
+    string.
+
+    If `strict` is :const:`False`, a scheme in the reference is
+    ignored if it is identical to the base URI's scheme.
+
+    """
     return uriunsplit(urisplit(base).transform(ref, strict))
