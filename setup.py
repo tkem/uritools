@@ -9,10 +9,10 @@ def get_version(filename):
 
 setup(
     name='uritools',
-    version=get_version('uritools.py'),
+    version=get_version('uritools/__init__.py'),
     author='Thomas Kemmer',
     author_email='tkemmer@computer.org',
-    url='https://github.com/tkem/uritools',
+    url='https://github.com/tkem/uritools/',
     license='MIT',
     description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',  # noqa
     long_description=open('README.rst').read(),
@@ -33,7 +33,6 @@ setup(
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    py_modules=['uritools'],
-    test_suite='nose.collector',
-    tests_require=['nose']
+    packages=['uritools'],
+    test_suite='tests'
 )
