@@ -136,20 +136,31 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         """
         return int(self.port) if self.port else default
 
-    def getaddrinfo(self, family=0, type=0, proto=0, flags=0):
-        """Translate the host and port subcomponents of the URI authority into
-        a sequence of 5-tuples as reported by
+    def getaddrinfo(self, port=None, family=0, type=0, proto=0, flags=0):
+        """Translate the host and port subcomponents of the URI
+        authority into a sequence of 5-tuples as reported by
         :func:`socket.getaddrinfo`.
 
-        If the URI authority does not contain a port subcomponent, the
-        URI scheme is interpreted as a service name.  The optional
-        `family`, `type`, `proto` and `flags` arguments are passed to
-        :func:`socket.getaddrinfo` as-is,
+        If the URI authority does not contain a port subcomponent, or
+        the port subcomponent is empty, the optional `port` argument
+        is used.  If no `port` argument is given, the URI scheme is
+        interpreted as a service name, and the port number for that
+        service is used.  If no matching service is found,
+        :const:`None` is passed to :func:`socket.getaddrinfo` for the
+        port value.
+
+        The optional `family`, `type`, `proto` and `flags` arguments
+        are passed to :func:`socket.getaddrinfo` unchanged.
 
         """
         import socket
         host = self.host
-        port = self.port or self.scheme
+        port = self.port or port
+        if port is None:
+            try:
+                port = socket.getservbyname(self.scheme)
+            except socket.error:
+                pass
         return socket.getaddrinfo(host, port, family, type, proto, flags)
 
     def getquerylist(self, delims=';&', encoding='utf-8'):

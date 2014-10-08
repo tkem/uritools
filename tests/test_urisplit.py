@@ -172,15 +172,34 @@ class UriSplitTest(unittest.TestCase):
             urisplit('http://localhost/foo').getaddrinfo()
         )
         self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 8080)),
+            urisplit('http://localhost/foo').getaddrinfo(port=8080)
+        )
+        self.assertIn(
             (family, socktype, proto, '', ('127.0.0.1', 8000)),
             urisplit('http://localhost:8000/foo').getaddrinfo()
         )
         self.assertIn(
             (family, socktype, proto, '', ('127.0.0.1', 8000)),
+            urisplit('http://localhost:8000/foo').getaddrinfo(port=8080)
+        )
+
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 0)),
+            urisplit('foo://user@localhost/foo').getaddrinfo()
+        )
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 8080)),
+            urisplit('foo://user@localhost/foo').getaddrinfo(port=8080)
+        )
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 8000)),
             urisplit('foo://user@localhost:8000/foo').getaddrinfo()
         )
-        with self.assertRaises(socket.gaierror):
-            urisplit('foo://user@localhost/foo').getaddrinfo()
+        self.assertIn(
+            (family, socktype, proto, '', ('127.0.0.1', 8000)),
+            urisplit('foo://user@localhost:8000/foo').getaddrinfo(port=8080)
+        )
 
     def test_defaultport(self):
         """urisplit default port test cases"""
