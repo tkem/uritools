@@ -61,13 +61,17 @@ Install uritools using pip::
 Project Resources
 ------------------------------------------------------------------------
 
-.. image:: http://img.shields.io/pypi/v/uritools.svg
+.. image:: http://img.shields.io/pypi/v/uritools.svg?style=flat
     :target: https://pypi.python.org/pypi/uritools/
     :alt: Latest PyPI version
 
-.. image:: http://img.shields.io/pypi/dm/uritools.svg
+.. image:: http://img.shields.io/pypi/dm/uritools.svg?style=flat
     :target: https://pypi.python.org/pypi/uritools/
     :alt: Number of PyPI downloads
+
+.. image:: http://img.shields.io/travis/tkem/uritools.svg?style=flat
+    :target: https://travis-ci.org/tkem/uritools/
+    :alt: Travis CI build status
 
 - `Documentation`_
 - `Issue Tracker`_
