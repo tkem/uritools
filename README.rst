@@ -73,6 +73,10 @@ Project Resources
     :target: https://travis-ci.org/tkem/uritools/
     :alt: Travis CI build status
 
+.. image:: http://img.shields.io/coveralls/tkem/uritools.svg?style=flat
+   :target: https://coveralls.io/r/tkem/uritools
+   :alt: Test coverage
+
 - `Documentation`_
 - `Issue Tracker`_
 - `Source Code`_
@@ -93,6 +97,5 @@ Licensed under the `MIT License`_.
 .. _Documentation: http://pythonhosted.org/uritools/
 .. _Issue Tracker: https://github.com/tkem/uritools/issues/
 .. _Source Code: https://github.com/tkem/uritools/
-.. _Change Log: https://raw.github.com/tkem/uritools/master/Changes
-
+.. _Change Log: http://raw.github.com/tkem/uritools/master/Changes
 .. _MIT License: http://raw.github.com/tkem/uritools/master/LICENSE
