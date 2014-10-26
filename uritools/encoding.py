@@ -28,11 +28,11 @@ decoded = {
 
 def uridecode(string, encoding='utf-8'):
     """Replace any percent-encodings in `string`, and return a decoded
-    version of the string as a :class:`bytes` object, using the codec
-    registered for `encoding`.
+    version of the string, using the codec registered for `encoding`.
 
     """
     try:
+        # FIXME: have to explicitly convert to bytes in Python 2.7 (???)
         parts = memoryview(string).tobytes().split(b'%')
     except TypeError:
         parts = string.encode(encoding).split(b'%')

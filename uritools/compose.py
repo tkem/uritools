@@ -1,7 +1,6 @@
 from .const import SUB_DELIMS
+from .parse import uriunsplit
 from .encoding import uriencode
-from .regex import _SCHEME_RE, _AUTHORITY_RE, _IPV6_ADDRESS_RE
-from .split import uriunsplit
 
 from collections import Iterable, Mapping
 
@@ -9,6 +8,31 @@ try:
     String = basestring
 except NameError:
     String = (str, bytes, bytearray)
+
+import re
+
+# RFC 3986 3.2: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+_SCHEME_RE = re.compile(r"\A[A-Z][A-Z0-9+.-]*\Z", flags=re.IGNORECASE)
+
+
+def splitauth(authority):
+    if authority is None:
+        return (None, None, None)
+    elif isinstance(authority, type('')):
+        atsign, colon, digits = '@', ':', '0123456789'
+    else:
+        atsign, colon, digits = b'@', b':', b'0123456789'
+    # RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
+    parts = authority.partition(atsign)
+    if parts[1]:
+        userinfo, host = parts[0], parts[2]
+    else:
+        userinfo, host = None, parts[0]
+    if host.rstrip(digits).endswith(colon):
+        host, _, port = host.rpartition(colon)
+    else:
+        port = None
+    return (userinfo, host, port)
 
 
 def querylist(items, delim, encoding):
@@ -64,7 +88,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
 
     if authority is not None:
         if isinstance(authority, String):
-            userinfo, host, port = _AUTHORITY_RE.match(authority).groups()
+            userinfo, host, port = splitauth(authority)
         else:
             userinfo, host, port = authority
         # RFC 3986 3.2.1: The user information, if present, is
@@ -83,8 +107,8 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         host = host.lower()
         if host.startswith('[') and host.endswith(']'):
             authority += uriencode(host, SUB_DELIMS + b':')  # TODO: check IPv6
-        elif _IPV6_ADDRESS_RE.match(host):
-            authority += b'[' + uriencode(host, SUB_DELIMS + b':') + b']'
+        #elif _IPV6_ADDRESS_RE.match(host):
+        #    authority += b'[' + uriencode(host, SUB_DELIMS + b':') + b']'
         else:
             authority += uriencode(host, SUB_DELIMS, encoding)
         # RFC 3986 3.2.3: URI producers and normalizers should omit

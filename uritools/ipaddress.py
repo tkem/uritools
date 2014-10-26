@@ -1,29 +1,5 @@
 import re
 
-# RFC 3986 Appendix B: The following line is the regular expression
-# for breaking-down a well-formed URI reference into its components.
-#
-#   ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?
-RE = re.compile(r"""
-(?:(?P<scheme>[^:/?#]+):)?      # scheme
-(?://(?P<authority>[^/?#]*))?   # authority
-(?P<path>[^?#]*)                # path
-(?:\?(?P<query>[^#]*))?         # query
-(?:\#(?P<fragment>.*))?         # fragment
-""", flags=re.VERBOSE)
-
-# RFC 3986 3.2: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-_SCHEME_RE = re.compile(r"\A[A-Z][A-Z0-9+.-]*\Z", flags=re.IGNORECASE)
-
-# RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
-_AUTHORITY_RE = re.compile(r"""
-\A
-(?:(.*)@)?      # userinfo
-(.*?)           # host
-(?::(\d*))?     # port
-\Z
-""", flags=re.VERBOSE)
-
 # RFC 3986 3.2.2: A host identified by an IPv6 literal address is
 # represented inside the square brackets without a preceding version
 # flag.  The ABNF provided here is a translation of the text
@@ -45,7 +21,7 @@ _AUTHORITY_RE = re.compile(r"""
 #
 # h16         = 1*4HEXDIG
 #             ; 16 bits of address represented in hexadecimal
-_IPV6_ADDRESS_RE = re.compile(r"""
+IPV6_ADDRESS_RE = re.compile(r"""
 \A
 (?:
   (?:
@@ -66,3 +42,30 @@ _IPV6_ADDRESS_RE = re.compile(r"""
 )
 \Z
 """, flags=(re.IGNORECASE | re.VERBOSE))
+
+
+def ip_address(address):
+    # RFC 3986 3.2.2: In anticipation of future, as-yet-undefined IP
+    # literal address formats, an implementation may use an optional
+    # version flag to indicate such a format explicitly rather than
+    # rely on heuristic determination.
+    #
+    #  IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+    #
+    #  IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+    #
+    # The version flag does not indicate the IP version; rather, it
+    # indicates future versions of the literal format.  As such,
+    # implementations must not provide the version flag for the
+    # existing IPv4 and IPv6 literal address forms described below.
+    # If a URI containing an IP-literal that starts with "v"
+    # (case-insensitive), indicating that the version flag is present,
+    # is dereferenced by an application that does not know the meaning
+    # of that version flag, then the application should return an
+    # appropriate error for "address mechanism not supported".
+    if address.startswith('v'):
+        raise ValueError('%r address mechanism not supported' % address)
+    if IPV6_ADDRESS_RE.match(address):
+        return address
+    else:
+        raise ValueError('%r does not appear to be an IPv6 address' % address)

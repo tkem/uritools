@@ -15,9 +15,8 @@ class UriDefragTest(unittest.TestCase):
         self.assertEqual(result.base, base)
         self.assertEqual(result.fragment, fragment)
 
-        self.assertEqual(result.getbase(), u(base))
-        self.assertEqual(result.getfragment(), u(fragment))
         self.assertEqual(result.geturi(), uri)
+        self.assertEqual(result.getfragment(), u(fragment))
 
     def test_uridefrag(self):
         for uri, base, fragment in [

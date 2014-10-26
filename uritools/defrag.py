@@ -1,36 +1,33 @@
+from __future__ import unicode_literals
+
 from .encoding import uridecode
 
 import collections
-import warnings
 
 
 class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
     """Class to hold :func:`uridefrag` results."""
 
+    __slots__ = ()  # prevent creation of instance dictionary
+
     def geturi(self):
         """Return the recombined version of the original URI as a string."""
-        if self.fragment is None:
+        fragment = self.fragment
+        if fragment is None:
             return self.base
-        elif isinstance(self.fragment, bytes):
-            return b'#'.join((self.base, self.fragment))
+        elif isinstance(fragment, type('')):
+            return self.base + '#' + fragment
         else:
-            return '#'.join((self.base, self.fragment))
-
-    def getbase(self, encoding='utf-8'):
-        """Return the decoded absolute URI or relative URI reference without
-        the fragment.
-
-        """
-        warnings.warn("deprecated", DeprecationWarning)
-        return uridecode(self.base, encoding)
+            return self.base + b'#' + fragment
 
     def getfragment(self, default=None, encoding='utf-8'):
         """Return the decoded fragment identifier, or `default` if the
         original URI did not contain a fragment component.
 
         """
-        if self.fragment is not None:
-            return uridecode(self.fragment, encoding)
+        fragment = self.fragment
+        if fragment is not None:
+            return uridecode(fragment, encoding)
         else:
             return default
 
@@ -53,8 +50,8 @@ def uridefrag(string):
     +-------------------+-------+---------------------------------------------+
 
     """
-    parts = string.partition(b'#' if isinstance(string, bytes) else '#')
-    if parts[1]:
-        return DefragResult(parts[0], parts[2])
+    if isinstance(string, type('')):
+        parts = string.partition('#')
     else:
-        return DefragResult(parts[0], None)
+        parts = string.partition(b'#')
+    return DefragResult(parts[0], parts[2] if parts[1] else None)

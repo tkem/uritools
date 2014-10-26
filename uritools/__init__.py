@@ -8,21 +8,17 @@ commonly used functions of the Python 2.7 Standard Library
 """
 
 from .const import GEN_DELIMS, SUB_DELIMS, RESERVED, UNRESERVED
-from .split import SplitResult, urisplit, uriunsplit, urijoin
+from .parse import SplitResult, urisplit, uriunsplit, urijoin
 from .defrag import DefragResult, uridefrag
 from .encoding import uriencode, uridecode
 from .compose import uricompose
-from .normpath import urinormpath
-from .regex import RE
 
 __all__ = (
     'GEN_DELIMS', 'SUB_DELIMS', 'RESERVED', 'UNRESERVED',
     'SplitResult', 'urisplit', 'uriunsplit', 'urijoin',
     'DefragResult', 'uridefrag',
     'uriencode', 'uridecode',
-    'uricompose',
-    'urinormpath',
-    'RE'
+    'uricompose'
 )
 
-__version__ = '0.8.0'
+__version__ = '0.9.0'
