@@ -69,11 +69,11 @@ Project Resources
     :target: https://pypi.python.org/pypi/uritools/
     :alt: Number of PyPI downloads
 
-.. image:: http://img.shields.io/travis/tkem/uritools.svg?style=flat
+.. image:: http://img.shields.io/travis/tkem/uritools/master.svg?style=flat
     :target: https://travis-ci.org/tkem/uritools/
     :alt: Travis CI build status
 
-.. image:: http://img.shields.io/coveralls/tkem/uritools.svg?style=flat
+.. image:: http://img.shields.io/coveralls/tkem/uritools/master.svg?style=flat
    :target: https://coveralls.io/r/tkem/uritools
    :alt: Test coverage
 
