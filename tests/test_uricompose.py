@@ -15,7 +15,7 @@ class UriComposeTest(unittest.TestCase):
     def test_rfc3986(self):
         """uricompose test cases from [RFC3986] 3. Syntax Components"""
         self.check(
-            'foo://example.com:8042/over/there?name=ferret#nose',
+            b'foo://example.com:8042/over/there?name=ferret#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
@@ -23,7 +23,7 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            'urn:example:animal:ferret:nose',
+            b'urn:example:animal:ferret:nose',
             scheme='urn',
             path='example:animal:ferret:nose'
         )
@@ -31,7 +31,7 @@ class UriComposeTest(unittest.TestCase):
     def test_querylist(self):
         # FIXME: empty query?
         self.check(
-            'foo://example.com:8042/over/there?#nose',
+            b'foo://example.com:8042/over/there?#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
@@ -39,7 +39,7 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            'foo://example.com:8042/over/there?name=ferret#nose',
+            b'foo://example.com:8042/over/there?name=ferret#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
@@ -47,7 +47,7 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            'foo://example.com:8042/over/there?name=ferret#nose',
+            b'foo://example.com:8042/over/there?name=ferret#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
@@ -55,7 +55,7 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            'foo://example.com:8042/over/there?name=swallow&type=African#beak',
+            b'foo://example.com:8042/over/there?name=swallow&type=African#beak',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
@@ -66,7 +66,7 @@ class UriComposeTest(unittest.TestCase):
     def test_querydict(self):
         # FIXME: empty query?
         self.check(
-            'foo://example.com:8042/over/there?#nose',
+            b'foo://example.com:8042/over/there?#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
@@ -74,7 +74,7 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            'foo://example.com:8042/over/there?name=ferret#nose',
+            b'foo://example.com:8042/over/there?name=ferret#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',

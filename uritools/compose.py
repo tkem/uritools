@@ -11,21 +11,21 @@ except NameError:
 
 def _queryencode(query, delim, encoding):
     if not delim:
-        delim = ''
+        delim = b''
     # TODO: provide our own quote/unquote implementation?
-    safe = (SUB_DELIMS + ':@/?').replace(delim, '')
+    safe = (SUB_DELIMS + b':@/?').replace(delim, b'')
     items = []
     for item in query:
         if isinstance(item, basestring):
             parts = (uriencode(item, safe, encoding), )
         else:
             parts = (uriencode(part, safe, encoding) for part in item)
-        items.append('='.join(parts))
+        items.append(b'='.join(parts))
     return delim.join(items)
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
-               fragment=None, delim='&', encoding='utf-8'):
+               fragment=None, delim=b'&', encoding='utf-8'):
     """Compose a URI string from its components.
 
     If `query` is a mapping object or a sequence of two-element
@@ -46,7 +46,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if scheme is not None:
         if not _SCHEME_RE.match(scheme):
             raise ValueError('Invalid scheme: %r' % scheme)
-        scheme = scheme.lower()
+        scheme = scheme.lower().encode()
 
     if authority is not None:
         if isinstance(authority, basestring):
@@ -57,9 +57,9 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         # followed by a commercial at-sign ("@") that delimits it from
         # the host.
         if userinfo is not None:
-            authority = uriencode(userinfo, SUB_DELIMS + ':', encoding) + '@'
+            authority = uriencode(userinfo, SUB_DELIMS + b':', encoding) + b'@'
         else:
-            authority = ''
+            authority = b''
         # RFC 3986 3.2.3: Although host is case-insensitive, producers
         # and normalizers should use lowercase for registered names
         # and hexadecimal addresses for the sake of uniformity, while
@@ -68,18 +68,18 @@ def uricompose(scheme=None, authority=None, path='', query=None,
             raise ValueError('Host subcomponent must be present if empty')
         host = host.lower()
         if host.startswith('[') and host.endswith(']'):
-            authority += host  # TODO: check IPv6
+            authority += uriencode(host, SUB_DELIMS + b':')  # TODO: check IPv6
         elif _IPV6_ADDRESS_RE.match(host):
-            authority += '[' + host + ']'
+            authority += b'[' + uriencode(host, SUB_DELIMS + b':') + b']'
         else:
             authority += uriencode(host, SUB_DELIMS, encoding)
         # RFC 3986 3.2.3: URI producers and normalizers should omit
         # the port component and its ":" delimiter if port is empty or
         # if its value would be the same as that of the scheme's
         # default.
-        port = str(port) if port is not None else ''
+        port = str(port).encode(encoding) if port is not None else b''
         if port.isdigit():
-            authority += ':' + port
+            authority += b':' + port
         elif port:
             raise ValueError('Non-decimal port: %s' % port)
 
@@ -98,17 +98,17 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         raise ValueError('Invalid path %r without authority component' % path)
     if scheme is None and authority is None and ':' in path.split('/', 1)[0]:
         raise ValueError('Invalid path %r without scheme component' % path)
-    path = uriencode(path, SUB_DELIMS + ':@/', encoding)
+    path = uriencode(path, SUB_DELIMS + b':@/', encoding)
 
     if query is not None:
         if isinstance(query, basestring):
-            query = uriencode(query, SUB_DELIMS + ':@/?', encoding)
+            query = uriencode(query, SUB_DELIMS + b':@/?', encoding)
         elif hasattr(query, 'items'):
             query = _queryencode(query.items(), delim, encoding)
         else:
             query = _queryencode(query, delim, encoding)
 
     if fragment:
-        fragment = uriencode(fragment, SUB_DELIMS + ':@/?', encoding)
+        fragment = uriencode(fragment, SUB_DELIMS + b':@/?', encoding)
 
     return uriunsplit((scheme, authority, path, query, fragment))

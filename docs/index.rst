@@ -61,7 +61,7 @@ individual components.
         changed, even if this means breaking backward compatiblity.
 
 
-Replacement Functions for :mod:`urlparse`
+URI Parsing
 ------------------------------------------------------------------------
 
 .. autofunction:: urisplit
@@ -73,7 +73,7 @@ Replacement Functions for :mod:`urlparse`
 .. autofunction:: uridefrag
 
 
-Encoding Functions
+URI Encoding
 ------------------------------------------------------------------------
 
 .. autofunction:: uriencode
@@ -122,23 +122,24 @@ Constants
 
 .. data:: UNRESERVED
 
-   Unreserved characters specified in RFC 3986 as a string.
+   Unreserved characters specified in RFC 3986 as a byte string.
 
 .. data:: RESERVED
 
-   Reserved characters specified in RFC 3986 as a string.
+   Reserved characters specified in RFC 3986 as a byte string.
 
 .. data:: GEN_DELIMS
 
-   General delimiting characters specified in RFC 3986 as a string.
+   General delimiting characters specified in RFC 3986 as a byte
+   string.
 
 .. data:: SUB_DELIMS
 
-   Subcomponent delimiting characters specified in RFC 3986 as a
+   Subcomponent delimiting characters specified in RFC 3986 as a byte
    string.
 
 
-Results of :func:`urisplit` and :func:`uridefrag`
+Structured Parse Results
 ------------------------------------------------------------------------
 
 The result objects from the :func:`urisplit` and :func:`uridefrag`
