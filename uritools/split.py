@@ -1,11 +1,30 @@
 from .encoding import uridecode
-from .normpath import urinormpath
 from .regex import RE, _AUTHORITY_RE, _IPV6_ADDRESS_RE
 
 import collections
 
 
 _URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
+
+
+def _normpath(path):
+    """Remove '.' and '..' path segments from a URI path."""
+
+    # RFC 3986 5.2.4. Remove Dot Segments
+    out = []
+    for s in path.split('/'):
+        if s == '.':
+            continue
+        elif s != '..':
+            out.append(s)
+        elif out:
+            out.pop()
+    # Fix leading/trailing slashes
+    if path.startswith('/') and (not out or out[0]):
+        out.insert(0, '')
+    if path.endswith('/.') or path.endswith('/..'):
+        out.append('')
+    return '/'.join(out)
 
 
 def _splitauth(authority):
@@ -208,21 +227,21 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
         # RFC 3986 5.2.2. Transform References
         if scheme is not None and (strict or scheme != self.scheme):
-            path = urinormpath(path)
+            path = _normpath(path)
             return SplitResult(scheme, authority, path, query, fragment)
         if authority is not None:
-            path = urinormpath(path)
+            path = _normpath(path)
             return SplitResult(self.scheme, authority, path, query, fragment)
         if not path:
             path = self.path
             if query is None:
                 query = self.query
         elif path.startswith('/'):
-            path = urinormpath(path)
+            path = _normpath(path)
         elif self.authority is not None and not self.path:
-            path = urinormpath('/' + path)
+            path = _normpath('/' + path)
         else:
-            path = urinormpath(self.path[:self.path.rfind('/') + 1] + path)
+            path = _normpath(self.path[:self.path.rfind('/') + 1] + path)
         return SplitResult(self.scheme, self.authority, path, query, fragment)
 
 

@@ -3,6 +3,8 @@
 
 - Refactor ``uriencode()`` and ``uridecode()``.
 
+- Deprecate ``RE``, ``urinormpath()``, ``DefragResult.getbase()``.
+
 
 0.7.0 2014-10-12
 ----------------

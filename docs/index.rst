@@ -94,10 +94,8 @@ URI Encoding
    :func:`urllib.unquote`.
 
 
-Additional Functions
+URI Composition
 ------------------------------------------------------------------------
-
-.. autofunction:: urinormpath
 
 .. autofunction:: uricompose
 
@@ -107,18 +105,7 @@ Constants
 
 .. data:: RE
 
-   Regular expression for splitting a well-formed URI into its
-   components, as specified in RFC 3986 Appendix B.
-
-   The matched URI components are available by group index and via
-   symbolic group names::
-
-      >>> uri = 'foo://example.com:8042/over/there?name=ferret#nose'
-      >>> uritools.RE.match(uri).groups()
-      ('foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose')
-      >>> uritools.RE.match(uri).groupdict()
-      {'fragment': 'nose', 'path': '/over/there', 'scheme': 'foo',
-       'authority': 'example.com:8042', 'query': 'name=ferret'}
+   .. deprecated:: 0.8
 
 .. data:: UNRESERVED
 
@@ -152,4 +139,8 @@ convenience methods:
    :members:
 
 .. autoclass:: DefragResult
-   :members:
+   :members: geturi, getfragment
+
+   .. method:: getbase(self, encoding='utf-8'):
+
+      .. deprecated:: 0.8

@@ -55,7 +55,7 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            b'foo://example.com:8042/over/there?name=swallow&type=African#beak',
+            b'foo://example.com:8042/over/there?name=swallow&type=African#beak',  # noqa
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',

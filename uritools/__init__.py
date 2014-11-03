@@ -19,7 +19,7 @@ __all__ = (
     'GEN_DELIMS', 'SUB_DELIMS', 'RESERVED', 'UNRESERVED',
     'SplitResult', 'urisplit', 'uriunsplit', 'urijoin',
     'DefragResult', 'uridefrag',
-    'uriencode', 'uridecode'
+    'uriencode', 'uridecode',
     'uricompose',
     'urinormpath',
     'RE'

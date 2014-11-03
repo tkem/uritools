@@ -1,5 +1,9 @@
+import warnings
+
+
 def urinormpath(path):
     """Remove '.' and '..' path segments from a URI path."""
+    warnings.warn("deprecated", DeprecationWarning)
 
     # RFC 3986 5.2.4. Remove Dot Segments
     out = []

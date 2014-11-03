@@ -1,6 +1,7 @@
 from .encoding import uridecode
 
 import collections
+import warnings
 
 
 class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
@@ -20,6 +21,7 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
         the fragment.
 
         """
+        warnings.warn("deprecated", DeprecationWarning)
         return uridecode(self.base, encoding)
 
     def getfragment(self, default=None, encoding='utf-8'):
