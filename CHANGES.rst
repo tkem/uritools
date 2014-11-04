@@ -1,4 +1,4 @@
-0.8.0 UNRELEASED
+0.8.0 2014-11-04
 ----------------
 
 - Fix ``uriencode()`` and ``uridecode()``.
