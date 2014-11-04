@@ -1,15 +1,15 @@
 import unittest
 
-from uritools import uricompose
+from uritools import uricompose, urisplit
 
 
 class UriComposeTest(unittest.TestCase):
 
     def check(self, expected, **kwargs):
-        result = uricompose(**kwargs)
+        uri = uricompose(**kwargs)
         self.assertEqual(
-            result, expected,
-            '%r -> %r != %r' % (kwargs, result, expected)
+            expected, uri,
+            '%r -> %r != %r' % (kwargs, uri, expected)
         )
 
     def test_rfc3986(self):
@@ -29,7 +29,6 @@ class UriComposeTest(unittest.TestCase):
         )
 
     def test_querylist(self):
-        # FIXME: empty query?
         self.check(
             b'foo://example.com:8042/over/there?#nose',
             scheme='foo',
@@ -47,11 +46,19 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            b'foo://example.com:8042/over/there?name=ferret#nose',
+            b'foo://example.com:8042/over/there?id=42#nose',
             scheme='foo',
             authority='example.com:8042',
             path='/over/there',
-            query=['name=ferret'],
+            query=[('id', 42)],
+            fragment='nose'
+        )
+        self.check(
+            b'foo://example.com:8042/over/there?none#nose',
+            scheme='foo',
+            authority='example.com:8042',
+            path='/over/there',
+            query=[('none', None)],
             fragment='nose'
         )
         self.check(
@@ -64,7 +71,6 @@ class UriComposeTest(unittest.TestCase):
         )
 
     def test_querydict(self):
-        # FIXME: empty query?
         self.check(
             b'foo://example.com:8042/over/there?#nose',
             scheme='foo',
@@ -80,4 +86,40 @@ class UriComposeTest(unittest.TestCase):
             path='/over/there',
             query={'name': 'ferret'},
             fragment='nose'
+        )
+        self.check(
+            b'foo://example.com:8042/over/there?id=42#nose',
+            scheme='foo',
+            authority='example.com:8042',
+            path='/over/there',
+            query={'id': 42},
+            fragment='nose'
+        )
+        self.check(
+            b'foo://example.com:8042/over/there?none#nose',
+            scheme='foo',
+            authority='example.com:8042',
+            path='/over/there',
+            query={'none': None},
+            fragment='nose'
+        )
+        self.assertEqual(
+            {'name': ['swallow'], 'type': ['African']},
+            urisplit(uricompose(
+                scheme='foo',
+                authority='example.com:8042',
+                path='/over/there',
+                query={'name': 'swallow', 'type': 'African'},
+                fragment='beak'
+            )).getquerydict()
+        )
+        self.assertEqual(
+            {'name': ['swallow'], 'type': ['African']},
+            urisplit(uricompose(
+                scheme='foo',
+                authority='example.com:8042',
+                path='/over/there',
+                query={'name': ['swallow'], 'type': ['African']},
+                fragment='beak'
+            )).getquerydict()
         )

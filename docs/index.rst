@@ -22,6 +22,8 @@ commonly used functions of the Python 2.7 Standard Library
     'example.com'
     >>> uri.port
     '8042'
+    >>> uri.getport(default=80)
+    8042
     >>> uri.geturi()
     'foo://example.com:8042/over/there?name=ferret#nose'
     >>> uriunsplit(uri[:3] + ('name=swallow&type=African', 'beak'))
@@ -36,20 +38,19 @@ commonly used functions of the Python 2.7 Standard Library
 
 For various reasons, the :mod:`urlparse` module is not compliant with
 current Internet standards, does not include Unicode support, and is
-generally unusable with proprietary URI schemes.  As stated in
-`Lib/urlparse.py
-<http://hg.python.org/cpython/file/2.7/Lib/urlparse.py>`_::
+generally unusable with proprietary URI schemes.  Python 3's
+:mod:`urllib.parse` improves on Unicode support, but the other issues
+still remain.  As stated in `Lib/urllib/parse.py`_::
 
-    RFC 3986 is considered the current standard and any future changes
+    FC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
     currently not entirely compliant with this RFC due to defacto
     scenarios for parsing, and for backward compatibility purposes,
     some parsing quirks from older RFCs are retained.
 
-The :mod:`uritools` module aims to provide fully RFC 3986 compliant
-replacements for some commonly used functions found in
-:mod:`urlparse`, plus additional functions for handling Unicode,
-normalizing URI paths, and conveniently composing URIs from their
+This module aims to provide fully RFC 3986 compliant replacements for
+the most commonly used functions found in :mod:`urlparse`, plus
+additional functions for conveniently composing URIs from their
 individual components.
 
 .. seealso::
@@ -66,38 +67,34 @@ URI Parsing
 
 .. autofunction:: urisplit
 
-.. autofunction:: uriunsplit
-
-.. autofunction:: urijoin
-
 .. autofunction:: uridefrag
-
-
-URI Encoding
-------------------------------------------------------------------------
-
-.. autofunction:: uriencode
-
-   This function can be used as a Unicode-aware replacement for
-   :func:`urllib.quote`.  Compared to :func:`urllib.quote`, this
-   function never encodes the tilde character (`~`), which is an
-   unreserved character in RFC 3986, and encodes slash characters by
-   default.
-
-   Note that this function should not be confused with
-   :func:`urllib.urlencode`, which does something completely
-   different.
-
-.. autofunction:: uridecode
-
-   This function can be used as a Unicode-aware replacement for
-   :func:`urllib.unquote`.
 
 
 URI Composition
 ------------------------------------------------------------------------
 
 .. autofunction:: uricompose
+
+.. autofunction:: urijoin
+
+.. autofunction:: uriunsplit
+
+
+URI Encoding
+------------------------------------------------------------------------
+
+.. autofunction:: uridecode
+
+   `string` may be either a Unicode string or a `bytes-like object`_.
+
+.. autofunction:: uriencode
+
+   `string` may be either a Unicode string or a `bytes-like object`_,
+   while `safe` must be a :class:`bytes` object containg ASCII
+   characters only.
+
+   This function should not be confused with :func:`urllib.urlencode`,
+   which does something completely different.
 
 
 Constants
@@ -109,21 +106,23 @@ Constants
 
 .. data:: UNRESERVED
 
-   Unreserved characters specified in RFC 3986 as a byte string.
+   Unreserved characters specified in RFC 3986 as a :class:`bytes`
+   object.
 
 .. data:: RESERVED
 
-   Reserved characters specified in RFC 3986 as a byte string.
+   Reserved characters specified in RFC 3986 as a :class:`bytes`
+   object.
 
 .. data:: GEN_DELIMS
 
-   General delimiting characters specified in RFC 3986 as a byte
-   string.
+   General delimiting characters specified in RFC 3986 as a
+   :class:`bytes` object.
 
 .. data:: SUB_DELIMS
 
-   Subcomponent delimiting characters specified in RFC 3986 as a byte
-   string.
+   Subcomponent delimiting characters specified in RFC 3986 as a
+   :class:`bytes` object.
 
 
 Structured Parse Results
@@ -144,3 +143,7 @@ convenience methods:
    .. method:: getbase(self, encoding='utf-8'):
 
       .. deprecated:: 0.8
+
+
+.. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py
+.. _bytes-like object: http://docs.python.org/3/glossary.html#term-bytes-like-object

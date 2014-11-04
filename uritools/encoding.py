@@ -1,21 +1,24 @@
 from .const import UNRESERVED
-from .util import byte, iterbytes, unicode
-
 from string import hexdigits
-
-
-# RFC 3986 2.1: For consistency, URI producers and normalizers should
-# use uppercase hexadecimal digits for all percent-encodings.
-def encode(byte):
-    return ('%%%02X' % byte).encode()
 
 try:
     fromhex = bytes.fromhex
 except AttributeError:
     fromhex = lambda x: chr(int(x, 16))
+if isinstance(chr(0), bytes):
+    fromint = chr
+else:
+    fromint = lambda x: bytes([x])
+unreserved = frozenset(memoryview(UNRESERVED).tolist())
+
+
+# RFC 3986 2.1: For consistency, URI producers and normalizers should
+# use uppercase hexadecimal digits for all percent-encodings.
+def pctenc(byte):
+    return ('%%%02X' % byte).encode()
 
 encoded = {
-    b'': [byte(i) if byte(i) in UNRESERVED else encode(i) for i in range(256)]
+    b'': [fromint(i) if i in unreserved else pctenc(i) for i in range(256)]
 }
 
 decoded = {
@@ -24,15 +27,15 @@ decoded = {
 
 
 def uridecode(string, encoding='utf-8'):
-    """Replace any percent-encodings in `string`, and decode the resulting
-    string using the codec registered for `encoding`.
-
-    `string` may be a Unicode or byte string.
+    """Replace any percent-encodings in `string`, and return a decoded
+    version of the string as a :class:`bytes` object, using the codec
+    registered for `encoding`.
 
     """
-    if isinstance(string, unicode):
-        string = string.encode(encoding)
-    parts = string.split(b'%')
+    try:
+        parts = memoryview(string).tobytes().split(b'%')
+    except TypeError:
+        parts = string.encode(encoding).split(b'%')
     result = [parts[0]]
     append = result.append
     decode = decoded.get
@@ -47,17 +50,17 @@ def uriencode(string, safe=b'', encoding='utf-8'):
     replacing any characters not in :const:`UNRESERVED` or `safe` with
     their corresponding percent-encodings.
 
-    `string` may be a Unicode or byte string, while `safe` must be a
-    bytes-like object containg ASCII characters only.
-
     """
-    if isinstance(string, unicode):
-        string = string.encode(encoding)
     try:
-        encode = encoded[safe]
+        bytelist = memoryview(string).tolist()
+    except TypeError:
+        bytelist = memoryview(string.encode(encoding)).tolist()
+    try:
+        encode = encoded[safe].__getitem__
     except KeyError:
-        encode = encoded[b''][:]
-        for i in iterbytes(safe):
-            encode[i] = byte(i)
-        encoded[safe] = encode
-    return b''.join(map(encode.__getitem__, iterbytes(string)))
+        enclist = encoded[b''][:]
+        for i in memoryview(safe).tolist():
+            enclist[i] = fromint(i)
+        encoded[safe] = enclist
+        encode = enclist.__getitem__
+    return b''.join(map(encode, bytelist))

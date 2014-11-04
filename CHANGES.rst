@@ -1,9 +1,11 @@
 0.8.0 UNRELEASED
 ----------------
 
-- Refactor ``uriencode()`` and ``uridecode()``.
+- Fix ``uriencode()`` and ``uridecode()``.
 
 - Deprecate ``RE``, ``urinormpath()``, ``DefragResult.getbase()``.
+
+- Support non-string query values in ``uricompose()``.
 
 
 0.7.0 2014-10-12

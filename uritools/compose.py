@@ -3,25 +3,39 @@ from .encoding import uriencode
 from .regex import _SCHEME_RE, _AUTHORITY_RE, _IPV6_ADDRESS_RE
 from .split import uriunsplit
 
+from collections import Iterable, Mapping
+
 try:
-    basestring = basestring
+    String = basestring
 except NameError:
-    basestring = str
+    String = (str, bytes, bytearray)
 
 
-def _queryencode(query, delim, encoding):
-    if not delim:
-        delim = b''
-    # TODO: provide our own quote/unquote implementation?
+def querylist(items, delim, encoding):
     safe = (SUB_DELIMS + b':@/?').replace(delim, b'')
-    items = []
-    for item in query:
-        if isinstance(item, basestring):
-            parts = (uriencode(item, safe, encoding), )
+    terms = []
+    append = terms.append
+    for key, value in items:
+        name = uriencode(key, safe, encoding)
+        if value is None:
+            append(name)
+        elif isinstance(value, String):
+            append(name + b'=' + uriencode(value, safe, encoding))
         else:
-            parts = (uriencode(part, safe, encoding) for part in item)
-        items.append(b'='.join(parts))
-    return delim.join(items)
+            append(name + b'=' + uriencode(str(value), safe, encoding))
+    return delim.join(terms)
+
+
+def querydict(mapping, delim, encoding):
+    items = []
+    append = items.append
+    extend = items.extend
+    for key, value in mapping.items():
+        if isinstance(value, Iterable) and not isinstance(value, String):
+            extend([(key, v) for v in value])
+        else:
+            append((key, value))
+    return querylist(items, delim, encoding)
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
@@ -49,7 +63,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         scheme = scheme.lower().encode()
 
     if authority is not None:
-        if isinstance(authority, basestring):
+        if isinstance(authority, String):
             userinfo, host, port = _AUTHORITY_RE.match(authority).groups()
         else:
             userinfo, host, port = authority
@@ -101,12 +115,12 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     path = uriencode(path, SUB_DELIMS + b':@/', encoding)
 
     if query is not None:
-        if isinstance(query, basestring):
+        if isinstance(query, String):
             query = uriencode(query, SUB_DELIMS + b':@/?', encoding)
-        elif hasattr(query, 'items'):
-            query = _queryencode(query.items(), delim, encoding)
+        elif isinstance(query, Mapping):
+            query = querydict(query, delim, encoding)
         else:
-            query = _queryencode(query, delim, encoding)
+            query = querylist(query, delim, encoding)
 
     if fragment:
         fragment = uriencode(fragment, SUB_DELIMS + b':@/?', encoding)
