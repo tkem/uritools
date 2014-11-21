@@ -6,7 +6,12 @@ import collections
 
 
 class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
-    """Class to hold :func:`uridefrag` results."""
+    """Class to hold :func:`uridefrag` results.
+
+    Do not try to create instances of this class directly.  Use the
+    :func:`uridefrag` factory function instead.
+
+    """
 
     __slots__ = ()  # prevent creation of instance dictionary
 

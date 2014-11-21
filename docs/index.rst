@@ -10,24 +10,22 @@ commonly used functions of the Python 2.7 Standard Library
 .. code-block:: pycon
 
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
-    >>> uri = urisplit('foo://example.com:8042/over/there?name=ferret#nose')
-    >>> uri
-    SplitResult(scheme='foo', authority='example.com:8042', path='/over/there',
-                query='name=ferret', fragment='nose')
-    >>> uri.scheme
+    >>> parts = urisplit('foo://tkem@example.com:8042/over/there?name=ferret#nose')
+    >>> parts
+    SplitResultString(scheme='foo', authority='tkem@example.com:8042',
+                      path='/over/there', query='name=ferret', fragment='nose')
+    >>> parts.scheme
     'foo'
-    >>> uri.authority
-    'example.com:8042'
-    >>> uri.host
+    >>> parts.authority
+    'tkem@example.com:8042'
+    >>> parts.userinfo
+    'tkem'
+    >>> parts.host
     'example.com'
-    >>> uri.port
+    >>> parts.port
     '8042'
-    >>> uri.getport(default=80)
-    8042
-    >>> uri.geturi()
-    'foo://example.com:8042/over/there?name=ferret#nose'
-    >>> uriunsplit(uri[:3] + ('name=swallow&type=African', 'beak'))
-    'foo://example.com:8042/over/there?name=swallow&type=African#beak'
+    >>> uriunsplit(parts[:3] + ('name=swallow&type=African', 'beak'))
+    'foo://tkem@example.com:8042/over/there?name=swallow&type=African#beak'
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
@@ -36,11 +34,11 @@ commonly used functions of the Python 2.7 Standard Library
     >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
     'www.ölkürbis.at'
 
-For various reasons, the :mod:`urlparse` module is not compliant with
-current Internet standards, does not include Unicode support, and is
-generally unusable with proprietary URI schemes.  Python 3's
-:mod:`urllib.parse` improves on Unicode support, but the other issues
-still remain.  As stated in `Lib/urllib/parse.py`_::
+For various reasons, the Python 2 :mod:`urlparse` module is not
+compliant with current Internet standards, does not include Unicode
+support, and is generally unusable with proprietary URI schemes.
+Python 3's :mod:`urllib.parse` improves on Unicode support, but the
+other issues still remain.  As stated in `Lib/urllib/parse.py`_::
 
     FC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
@@ -100,10 +98,6 @@ URI Encoding
 Constants
 ------------------------------------------------------------------------
 
-.. data:: RE
-
-   .. deprecated:: 0.8
-
 .. data:: UNRESERVED
 
    Unreserved characters specified in RFC 3986 as a :class:`bytes`
@@ -138,11 +132,7 @@ convenience methods:
    :members:
 
 .. autoclass:: DefragResult
-   :members: geturi, getfragment
-
-   .. method:: getbase(self, encoding='utf-8'):
-
-      .. deprecated:: 0.8
+   :members:
 
 
 .. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py

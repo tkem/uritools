@@ -10,7 +10,12 @@ URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
 
 
 class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
-    """Class to hold :func:`urisplit` results."""
+    """Base class to hold :func:`urisplit` results.
+
+    Do not try to create instances of this class directly.  Use the
+    :func:`urisplit` factory function instead.
+
+    """
 
     __slots__ = ()  # prevent creation of instance dictionary
 
