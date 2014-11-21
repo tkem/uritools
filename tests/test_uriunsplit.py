@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unittest
 
 from uritools import uriunsplit
@@ -11,12 +13,17 @@ class UriUnsplitTest(unittest.TestCase):
 
     def test_rfc3986_3(self):
         """uriunsplit test cases from [RFC3986] 3. Syntax Components"""
-
-        self.check(
-            ('foo', 'example.com:8042', '/over/there', 'name=ferret', 'nose'),
-            'foo://example.com:8042/over/there?name=ferret#nose'
-        )
-        self.check(
-            ('urn', None, 'example:animal:ferret:nose', None, None),
-            'urn:example:animal:ferret:nose'
-        )
+        cases = [
+            (('foo', 'example.com:8042', '/over/there', 'name=ferret',
+              'nose'),
+             'foo://example.com:8042/over/there?name=ferret#nose'),
+            (('urn', None, 'example:animal:ferret:nose', None, None),
+             'urn:example:animal:ferret:nose'),
+            ((b'foo', b'example.com:8042', b'/over/there', b'name=ferret',
+              b'nose'),
+             b'foo://example.com:8042/over/there?name=ferret#nose'),
+            ((b'urn', None, b'example:animal:ferret:nose', None, None),
+             b'urn:example:animal:ferret:nose'),
+        ]
+        for uri, parts in cases:
+            self.check(uri, parts)

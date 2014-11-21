@@ -65,7 +65,7 @@ def ip_address(address):
     # appropriate error for "address mechanism not supported".
     if address.startswith('v'):
         raise ValueError('%r address mechanism not supported' % address)
-    if IPV6_ADDRESS_RE.match(address):
-        return address
+    elif IPV6_ADDRESS_RE.match(address):
+        return address.lower()
     else:
         raise ValueError('%r does not appear to be an IPv6 address' % address)

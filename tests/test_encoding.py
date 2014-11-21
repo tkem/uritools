@@ -10,9 +10,8 @@ class EncodingTest(unittest.TestCase):
     def check(self, decoded, encoded, safe=b'', encoding='utf-8'):
         self.assertEqual(uriencode(decoded, safe, encoding), encoded)
         self.assertEqual(uridecode(encoded, encoding), decoded)
-
-        e = encoding
-        self.assertEqual(uriencode(decoded.encode(e), safe, encoding), encoded)
+        # swap bytes/string types
+        self.assertEqual(uriencode(decoded.encode(encoding), safe, encoding), encoded)  # noqa
         self.assertEqual(uridecode(encoded.decode('ascii'), encoding), decoded)
 
     def test_encoding(self):
@@ -56,3 +55,17 @@ class EncodingTest(unittest.TestCase):
         ]
         for decoded, encoded in cases:
             self.check(decoded, encoded, encoding='idna')
+
+    def test_decode_errors(self):
+        cases = [
+            (UnicodeError, b'%FF', 'utf-8'),
+        ]
+        for exception, string, encoding in cases:
+            self.assertRaises(exception, uridecode, string, encoding)
+
+    def test_encode_errors(self):
+        cases = [
+            (UnicodeError, '\xff', b'', 'ascii'),
+        ]
+        for exception, string, safe, encoding in cases:
+            self.assertRaises(exception, uriencode, string, safe, encoding)

@@ -1,48 +1,37 @@
+from __future__ import unicode_literals
+
 import unittest
 
-from . import b, u
 from uritools import urisplit
 
 
 class UriSplitTest(unittest.TestCase):
 
-    def check(self, uri, parts):
+    def check(self, uri, parts, decoded=None):
         result = urisplit(uri)
-        self.assertEqual(result, parts)
-        self.assertEqual(result.geturi(), uri)
-        self.assertEqual(result.getscheme(), u(parts[0]))
-        self.assertEqual(result.getauthority(), u(parts[1]))
-        self.assertEqual(result.getpath(), u(parts[2]))
-        self.assertEqual(result.getquery(), u(parts[3]))
-        self.assertEqual(result.getfragment(), u(parts[4]))
-        for r, p in zip(result, parts):
-            self.assertIsInstance(r, type(p))
-        self.assertIsInstance(result.geturi(), type(uri))
+        self.assertEqual(result, parts, 'Error parsing %r' % uri)
+        self.assertEqual(result.geturi(), uri, 'Error recomposing %r' % uri)
 
     def test_rfc3986(self):
         """urisplit test cases from [RFC3986] 3. Syntax Components"""
-        self.check(
-            b('foo://example.com:8042/over/there?name=ferret#nose'),
-            (b('foo'), b('example.com:8042'), b('/over/there'),
-             b('name=ferret'), b('nose'))
-        )
-        self.check(
-            u('foo://example.com:8042/over/there?name=ferret#nose'),
-            (u('foo'), u('example.com:8042'), u('/over/there'),
-             u('name=ferret'), u('nose'))
-        )
-        self.check(
-            b('urn:example:animal:ferret:nose'),
-            (b('urn'), None, b('example:animal:ferret:nose'), None, None)
-        )
-        self.check(
-            u('urn:example:animal:ferret:nose'),
-            (u('urn'), None, u('example:animal:ferret:nose'), None, None)
-        )
+        cases = [
+            ('foo://example.com:8042/over/there?name=ferret#nose',
+             ('foo', 'example.com:8042', '/over/there', 'name=ferret',
+              'nose')),
+            ('urn:example:animal:ferret:nose',
+             ('urn', None, 'example:animal:ferret:nose', None, None)),
+            (b'foo://example.com:8042/over/there?name=ferret#nose',
+             (b'foo', b'example.com:8042', b'/over/there', b'name=ferret',
+              b'nose')),
+            (b'urn:example:animal:ferret:nose',
+             (b'urn', None, b'example:animal:ferret:nose', None, None)),
+        ]
+        for uri, parts in cases:
+            self.check(uri, parts)
 
     def test_abnormal(self):
         """urisplit edge cases"""
-        for uri, parts in [
+        cases = [
             ('', (None, None, '', None, None)),
             (':', (None, None, ':', None, None)),
             (':/', (None, None, ':/', None, None)),
@@ -60,11 +49,29 @@ class UriSplitTest(unittest.TestCase):
             ('?#', (None, None, '', '', '')),
             ('#', (None, None, '', None, '')),
             ('##', (None, None, '', None, '#')),
-        ]:
+            (b'', (None, None, b'', None, None)),
+            (b':', (None, None, b':', None, None)),
+            (b':/', (None, None, b':/', None, None)),
+            (b'://', (None, None, b'://', None, None)),
+            (b'://?', (None, None, b'://', b'', None)),
+            (b'://#', (None, None, b'://', None, b'')),
+            (b'://?#', (None, None, b'://', b'', b'')),
+            (b'//', (None, b'', b'', None, None)),
+            (b'///', (None, b'', b'/', None, None)),
+            (b'//?', (None, b'', b'', b'', None)),
+            (b'//#', (None, b'', b'', None, b'')),
+            (b'//?#', (None, b'', b'', b'', b'')),
+            (b'?', (None, None, b'', b'', None)),
+            (b'??', (None, None, b'', b'?', None)),
+            (b'?#', (None, None, b'', b'', b'')),
+            (b'#', (None, None, b'', None, b'')),
+            (b'##', (None, None, b'', None, b'#')),
+        ]
+        for uri, parts in cases:
             self.check(uri, parts)
 
-    def test_unicode(self):
-        """urisplit test cases for unicode string URIs"""
+    def test_attributes(self):
+        """urisplit attribute test cases"""
 
         uri = 'foo://user@example.com:8042/over/there?name=ferret#nose'
         result = urisplit(uri)
@@ -109,9 +116,6 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getport(), None)
         self.assertEqual(dict(result.getquerydict()), {})
         self.assertEqual(list(result.getquerylist()), [])
-
-    def test_bytes(self):
-        """urisplit test cases for byte string URIs"""
 
         uri = b'foo://user@example.com:8042/over/there?name=ferret#nose'
         result = urisplit(uri)
@@ -158,48 +162,46 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(list(result.getquerylist()), [])
 
     def test_getscheme(self):
+        self.assertEqual(urisplit('foo').getscheme(default='bar'), 'bar')
         self.assertEqual(urisplit('FOO_BAR:/').getscheme(), 'foo_bar')
+        self.assertEqual(urisplit(b'foo').getscheme(default='bar'), 'bar')
+        self.assertEqual(urisplit(b'FOO_BAR:/').getscheme(), 'foo_bar')
 
     def test_getaddrinfo(self):
         import socket
-
         family = socket.AF_INET
         socktype = socket.SOCK_STREAM
         proto = socket.getprotobyname('tcp')
 
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 80)),
-            urisplit('http://localhost/foo').getaddrinfo()
-        )
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 8080)),
-            urisplit('http://localhost/foo').getaddrinfo(port=8080)
-        )
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 8000)),
-            urisplit('http://localhost:8000/foo').getaddrinfo()
-        )
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 8000)),
-            urisplit('http://localhost:8000/foo').getaddrinfo(port=8080)
-        )
+        cases = [
+            ((family, socktype, proto, '', ('127.0.0.1', 80)),
+             'http://localhost/foo',
+             None),
+            ((family, socktype, proto, '', ('127.0.0.1', 8080)),
+             'http://localhost/foo',
+             8080),
+            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
+             'http://localhost:8000/foo',
+             None),
+            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
+             'http://localhost:8000/foo',
+             8080),
+            ((family, socktype, proto, '', ('127.0.0.1', 0)),
+             'foo://user@localhost/foo',
+             None),
+            ((family, socktype, proto, '', ('127.0.0.1', 8080)),
+             'foo://user@localhost/foo',
+             8080),
+            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
+             'foo://user@localhost:8000/foo',
+             None),
+            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
+             'foo://user@localhost:8000/foo',
+             8080),
+        ]
 
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 0)),
-            urisplit('foo://user@localhost/foo').getaddrinfo()
-        )
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 8080)),
-            urisplit('foo://user@localhost/foo').getaddrinfo(port=8080)
-        )
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 8000)),
-            urisplit('foo://user@localhost:8000/foo').getaddrinfo()
-        )
-        self.assertIn(
-            (family, socktype, proto, '', ('127.0.0.1', 8000)),
-            urisplit('foo://user@localhost:8000/foo').getaddrinfo(port=8080)
-        )
+        for addrinfo, uri, port in cases:
+            self.assertIn(addrinfo, urisplit(uri).getaddrinfo(port=port))
 
     def test_defaultport(self):
         """urisplit default port test cases"""
@@ -211,3 +213,95 @@ class UriSplitTest(unittest.TestCase):
                 self.assertEqual(result.port, None)
             self.assertEqual(result.gethost(), 'bar')
             self.assertEqual(result.getport(8000), 8000)
+
+    def test_getquery(self):
+        cases = [
+            ("?", [], {}),
+            ("?&", [], {}),
+            ("?&&", [], {}),
+            ("?=",
+             [('', '')],
+             {'': ['']}),
+            ("?=a",
+             [('', 'a')],
+             {'': ['a']}),
+            ("?a",
+             [('a', None)],
+             {'a': [None]}),
+            ("?a=",
+             [('a', '')],
+             {'a': ['']}),
+            ("?&a=b",
+             [('a', 'b')],
+             {'a': ['b']}),
+            ("?a=a+b&b=b+c",
+             [('a', 'a+b'), ('b', 'b+c')],
+             {'a': ['a+b'], 'b': ['b+c']}),
+            ("?a=a%20b&b=b%20c",
+             [('a', 'a b'), ('b', 'b c')],
+             {'a': ['a b'], 'b': ['b c']}),
+            ("?a=1&a=2",
+             [('a', '1'), ('a', '2')],
+             {'a': ['1', '2']}),
+        ]
+        for query, querylist, querydict in cases:
+            self.assertEqual(urisplit(query).getquerylist(), querylist,
+                             'Error parsing query dict for %r' % query)
+            self.assertEqual(urisplit(query).getquerydict(), querydict,
+                             'Error parsing query list for %r' % query)
+
+    def test_ip_literal(self):
+        """urisplit literal host address test cases"""
+        cases = [
+            ('http://Test.python.org:5432/foo/', 'test.python.org', 5432),
+            ('http://12.34.56.78:5432/foo/', '12.34.56.78', 5432),
+            ('http://[::1]:5432/foo/', '::1', 5432),
+            ('http://[dead:beef::1]:5432/foo/', 'dead:beef::1', 5432),
+            ('http://[dead:beef::]:5432/foo/', 'dead:beef::', 5432),
+            ('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:5432/foo/',
+             'dead:beef:cafe:5417:affe:8fa3:deaf:feed', 5432),
+            ('http://[::12.34.56.78]:5432/foo/', '::12.34.56.78', 5432),
+            ('http://[::ffff:12.34.56.78]:5432/foo/',
+             '::ffff:12.34.56.78', 5432),
+            ('http://Test.python.org/foo/', 'test.python.org', None),
+            ('http://12.34.56.78/foo/', '12.34.56.78', None),
+            ('http://[::1]/foo/', '::1', None),
+            ('http://[dead:beef::1]/foo/', 'dead:beef::1', None),
+            ('http://[dead:beef::]/foo/', 'dead:beef::', None),
+            ('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]/foo/',
+             'dead:beef:cafe:5417:affe:8fa3:deaf:feed', None),
+            ('http://[::12.34.56.78]/foo/', '::12.34.56.78', None),
+            ('http://[::ffff:12.34.56.78]/foo/',
+             '::ffff:12.34.56.78', None),
+            ('http://Test.python.org:/foo/', 'test.python.org', None),
+            ('http://12.34.56.78:/foo/', '12.34.56.78', None),
+            ('http://[::1]:/foo/', '::1', None),
+            ('http://[dead:beef::1]:/foo/', 'dead:beef::1', None),
+            ('http://[dead:beef::]:/foo/', 'dead:beef::', None),
+            ('http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:/foo/',
+             'dead:beef:cafe:5417:affe:8fa3:deaf:feed', None),
+            ('http://[::12.34.56.78]:/foo/', '::12.34.56.78', None),
+            ('http://[::ffff:12.34.56.78]:/foo/',
+             '::ffff:12.34.56.78', None),
+            ]
+        for uri, host, port in cases:
+            parts = urisplit(uri)
+            self.assertEqual((host, port), (parts.gethost(), parts.getport()))
+            parts = urisplit(uri.encode('ascii'))
+            self.assertEqual((host, port), (parts.gethost(), parts.getport()))
+
+    def test_invalid_ip_literal(self):
+        """urisplit invalid literal host address test cases"""
+        uris = [
+            'http://::12.34.56.78]/',
+            'http://[::1/foo/',
+            'ftp://[::1/foo/bad]/bad',
+            'http://[::1/foo/bad]/bad',
+            'http://[foo]/',
+            'http://[v7.future]'
+        ]
+        for uri in uris:
+            with self.assertRaises(ValueError, msg='%r' % uri):
+                urisplit(uri).gethost()
+            with self.assertRaises(ValueError, msg='%r' % uri.encode('ascii')):
+                urisplit(uri.encode('ascii')).gethost()

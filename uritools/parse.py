@@ -230,8 +230,10 @@ class SplitResultBytes(SplitResult):
             return default
         elif host.startswith(b'[') and host.endswith(b']'):
             return ip_address(host[1:-1].decode(encoding))
+        elif host.startswith(b'[') or host.endswith(b']'):
+            raise ValueError('Invalid host %r' % host)
         else:
-            return uridecode(host, encoding)
+            return uridecode(host, encoding).lower()
 
     def getquerylist(self, delims=b';&', encoding='utf-8'):
         qsl = [self.query] if self.query else []
@@ -348,8 +350,10 @@ class SplitResultString(SplitResult):
             return default
         elif host.startswith('[') and host.endswith(']'):
             return ip_address(host[1:-1])
+        elif host.startswith('[') or host.endswith(']'):
+            raise ValueError('Invalid host %r' % host)
         else:
-            return uridecode(host, encoding)
+            return uridecode(host, encoding).lower()
 
     def getquerylist(self, delims=b';&', encoding='utf-8'):
         qsl = [self.query] if self.query else []

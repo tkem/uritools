@@ -1,28 +1,45 @@
+from __future__ import unicode_literals
+
 import unittest
 
-from . import b, u
 from uritools import uridefrag
 
 
 class UriDefragTest(unittest.TestCase):
 
-    RFC3986_BASE = "http://a/b/c/d;p?q"
-
-    def check(self, uri, base, fragment):
-        result = uridefrag(uri)
-
-        self.assertEqual(result, (base, fragment))
-        self.assertEqual(result.base, base)
-        self.assertEqual(result.fragment, fragment)
-
-        self.assertEqual(result.geturi(), uri)
-        self.assertEqual(result.getfragment(), u(fragment))
-
     def test_uridefrag(self):
-        for uri, base, fragment in [
-            (b('http://a/b/c/d;p?q'), b('http://a/b/c/d;p?q'), None),
-            (b('http://a/b/c/d;p?q#f'), b('http://a/b/c/d;p?q'), b('f')),
-            (u('http://a/b/c/d;p?q'), u('http://a/b/c/d;p?q'), None),
-            (u('http://a/b/c/d;p?q#f'), u('http://a/b/c/d;p?q'), u('f')),
-        ]:
-            self.check(uri, base, fragment)
+        cases = [
+            ('http://python.org#frag', 'http://python.org', 'frag'),
+            ('http://python.org', 'http://python.org', None),
+            ('http://python.org/#frag', 'http://python.org/', 'frag'),
+            ('http://python.org/', 'http://python.org/', None),
+            ('http://python.org/?q#frag', 'http://python.org/?q', 'frag'),
+            ('http://python.org/?q', 'http://python.org/?q', None),
+            ('http://python.org/p#frag', 'http://python.org/p', 'frag'),
+            ('http://python.org/p?q', 'http://python.org/p?q', None),
+            ('http://python.org#', 'http://python.org', ''),
+            ('http://python.org/#', 'http://python.org/', ''),
+            ('http://python.org/?q#', 'http://python.org/?q', ''),
+            ('http://python.org/p?q#', 'http://python.org/p?q', ''),
+        ]
+
+        def encode(s):
+            return s.encode() if s is not None else None
+        cases += list(map(encode, case) for case in cases)
+
+        for uri, base, fragment in cases:
+            defrag = uridefrag(uri)
+            self.assertEqual(defrag, (base, fragment))
+            self.assertEqual(defrag.base, base)
+            self.assertEqual(defrag.fragment, fragment)
+            self.assertEqual(uri, defrag.geturi())
+
+    def test_getfragment(self):
+        self.assertEqual(uridefrag('').getfragment(), None)
+        self.assertEqual(uridefrag(b'').getfragment(), None)
+        self.assertEqual(uridefrag('#').getfragment(), '')
+        self.assertEqual(uridefrag(b'#').getfragment(), '')
+        self.assertEqual(uridefrag('#foo').getfragment(), 'foo')
+        self.assertEqual(uridefrag(b'#foo').getfragment(), 'foo')
+        self.assertEqual(uridefrag('#foo%20bar').getfragment(), 'foo bar')
+        self.assertEqual(uridefrag(b'#foo%20bar').getfragment(), 'foo bar')

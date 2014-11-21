@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unittest
 
 from uritools import urijoin
@@ -8,10 +10,15 @@ class UriJoinTest(unittest.TestCase):
     RFC3986_BASE = "http://a/b/c/d;p?q"
 
     def check(self, base, ref, expected, strict=False):
-        result = urijoin(base, ref, strict)
+        self.assertEqual(expected, urijoin(base, ref, strict))
+        # base as bytes, ref as str
+        self.assertEqual(expected, urijoin(base.encode(), ref, strict))
+        # base as str, ref as bytes
+        self.assertEqual(expected, urijoin(base, ref.encode(), strict))
+        # both base and ref as bytes
         self.assertEqual(
-            result, expected,
-            '(%r, %r) -> %r != %r' % (base, ref, result, expected)
+            expected.encode(),
+            urijoin(base.encode(), ref.encode(), strict)
         )
 
     def test_rfc3986_normal(self):
