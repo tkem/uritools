@@ -1,4 +1,4 @@
-0.9.0 UNRELEASED
+0.9.0 2014-11-21
 ----------------
 
 - Improve Python 3 support.
