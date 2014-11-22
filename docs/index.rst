@@ -73,6 +73,10 @@ URI Composition
 
 .. autofunction:: uricompose
 
+   `authority` may be a Unicode string, a `bytes-like object`_, or a
+   tuple of three elements, specifying userinfo, host and port.
+
+
 .. autofunction:: urijoin
 
 .. autofunction:: uriunsplit
