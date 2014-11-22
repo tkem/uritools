@@ -48,6 +48,15 @@ class UriComposeTest(unittest.TestCase):
             (b'//tkem@example.com:8042', ['tkem', 'example.com', '8042']),
             (b'//tkem@example.com:8042', [b'tkem', b'example.com', b'8042']),
             (b'//tkem@example.com:8042', ['tkem', 'example.com', 8042]),
+            (b'//tkem@example.com:8042', [b'tkem', b'example.com', 8042]),
+            (b'//tkem@example.com', ['tkem', 'example.com', None]),
+            (b'//tkem@example.com', [b'tkem', b'example.com', None]),
+            (b'//tkem@example.com', ['tkem', 'example.com', '']),
+            (b'//tkem@example.com', [b'tkem', b'example.com', '']),
+            (b'//tkem:cGFzc3dvcmQ=@foo', ['tkem:cGFzc3dvcmQ=', 'foo', None]),
+            (b'//tkem:cGFzc3dvcmQ=@foo', ['tkem:cGFzc3dvcmQ=', 'foo', None]),
+            (b'//example.com', [None, 'example.com', None]),
+            (b'//example.com', [None, b'example.com', None]),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)
