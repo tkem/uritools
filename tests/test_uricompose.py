@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import ipaddress
 import unittest
 
 from uritools import uricompose
@@ -8,7 +9,7 @@ from uritools import uricompose
 class UriComposeTest(unittest.TestCase):
 
     def check(self, uri, **kwargs):
-        self.assertEqual(uri, uricompose(**kwargs), msg='uri=%r' % uri)
+        self.assertEqual(uri, uricompose(**kwargs), msg='uri=%r %r' % (uri, uricompose(**kwargs)))
 
     def test_rfc3986(self):
         """uricompose test cases from [RFC3986] 3. Syntax Components"""
@@ -57,6 +58,14 @@ class UriComposeTest(unittest.TestCase):
             (b'//tkem:cGFzc3dvcmQ=@foo', ['tkem:cGFzc3dvcmQ=', 'foo', None]),
             (b'//example.com', [None, 'example.com', None]),
             (b'//example.com', [None, b'example.com', None]),
+            (b'//127.0.0.1', [None, '127.0.0.1', None]),
+            (b'//127.0.0.1', [None, b'127.0.0.1', None]),
+            (b'//127.0.0.1', [None, ipaddress.IPv4Address('127.0.0.1'), None]),
+            (b'//[::1]', [None, '::1', None]),
+            (b'//[::1]', [None, b'::1', None]),
+            (b'//[::1]', [None, '[::1]', None]),
+            (b'//[::1]', [None, b'[::1]', None]),
+            (b'//[::1]', [None, ipaddress.IPv6Address('::1'), None]),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)
@@ -66,7 +75,7 @@ class UriComposeTest(unittest.TestCase):
         for authority in (True, 42, 3.14):
             with self.assertRaises(TypeError, msg='authority=%r' % authority):
                 uricompose(authority=authority)
-        for host in (None, '[foo]', '[::1', '::1]'):
+        for host in (None, '[foo]', '[::1', '::1]', '[v1.x]'):
             with self.assertRaises(ValueError, msg='host=%r' % host):
                 uricompose(authority=[None, host, None])
         for port in (-1, 'foo', 3.14):

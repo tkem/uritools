@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import ipaddress
 import re
 
 from collections import Iterable, Mapping
@@ -12,7 +13,6 @@ except NameError:
 from .const import SUB_DELIMS
 from .parse import uriunsplit
 from .encoding import uriencode
-from .ipaddress import ip_address
 
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 SCHEME_RE = re.compile(br"\A[A-Za-z][A-Za-z0-9+.-]*\Z")
@@ -29,13 +29,34 @@ def decoder(encoding):
 
 def splitauth(authority, encoding):
     if isinstance(authority, type('')):
-        return AUTHORITY_RE.match(authority).groups()
+        parts = AUTHORITY_RE.match(authority).groups()
     elif isinstance(authority, String):
-        return AUTHORITY_RE.match(authority.decode(encoding)).groups()
+        parts = AUTHORITY_RE.match(authority.decode(encoding)).groups()
     elif isinstance(authority, Iterable):
-        return map(decoder(encoding), authority)
+        parts = list(map(decoder(encoding), authority))
     else:
         raise TypeError('Invalid authority type')
+    try:
+        parts[1] = ipaddress.ip_address(parts[1])
+    except ValueError:
+        pass
+    except IndexError:
+        raise ValueError('Invalid authority type')  # FIXME
+    return parts
+
+def ip_literal(address):
+    # TODO: support IPvFuture when composing?
+    if address.startswith('v'):
+        raise ipaddress.AddressValueError('address mechanism not supported')
+    else:
+        return b'[' + ipaddress.IPv6Address(address).compressed.encode() + b']'
+
+
+def is_ipv6_address(host):
+    try:
+        return ipaddress.ip_address(host).version == 6
+    except ValueError:
+        return False
 
 
 def querylist(items, delim, encoding):
@@ -109,15 +130,16 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         # only using uppercase letters for percent-encodings.
         if host is None:
             raise ValueError('URI host component must be present if empty')
+        elif isinstance(host, ipaddress.IPv4Address):
+            authority += host.compressed.encode()
+        elif isinstance(host, ipaddress.IPv6Address):
+            authority += b'[' + host.compressed.encode() + b']'
         elif host.startswith('[') and host.endswith(']'):
-            authority += b'[' + ip_address(host[1:-1]).encode() + b']'
+            authority += ip_literal(host[1:-1])
         elif host.startswith('[') or host.endswith(']'):
             raise ValueError('Invalid host %r' % host)
         else:
-            try:
-                authority += b'[' + ip_address(host).encode() + b']'
-            except ValueError:
-                authority += uriencode(host, SUB_DELIMS, encoding).lower()
+            authority += uriencode(host, SUB_DELIMS, encoding).lower()
         # RFC 3986 3.2.3: URI producers and normalizers should omit
         # the port component and its ":" delimiter if port is empty or
         # if its value would be the same as that of the scheme's

@@ -1,6 +1,8 @@
 0.10.0 UNRELEASED
 -----------------
 
+- Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
+
 
 0.9.0 2014-11-21
 ----------------

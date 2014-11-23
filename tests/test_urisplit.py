@@ -167,6 +167,17 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(urisplit(b'foo').getscheme(default='bar'), 'bar')
         self.assertEqual(urisplit(b'FOO_BAR:/').getscheme(), 'foo_bar')
 
+    def test_gethostip(self):
+        from ipaddress import IPv4Address, IPv6Address
+        cases = [
+            ('http://Test.python.org:5432/foo/', 'test.python.org'),
+            ('http://12.34.56.78:5432/foo/', IPv4Address('12.34.56.78')),
+            ('http://[::1]:5432/foo/', IPv6Address('::1')),
+        ]
+        for uri, hostip in cases:
+            self.assertEqual(urisplit(uri).gethostip(), hostip)
+            self.assertEqual(urisplit(uri.encode()).gethostip(), hostip)
+
     def test_getaddrinfo(self):
         import socket
         family = socket.AF_INET

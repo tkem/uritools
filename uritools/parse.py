@@ -1,12 +1,37 @@
 from __future__ import unicode_literals
 
 import collections
+import ipaddress
 import re
 
 from .encoding import uridecode
-from .ipaddress import ip_address
 
 URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
+
+
+def parse_ip_literal(address, as_string=False):
+    # RFC 3986 3.2.2: In anticipation of future, as-yet-undefined IP
+    # literal address formats, an implementation may use an optional
+    # version flag to indicate such a format explicitly rather than
+    # rely on heuristic determination.
+    #
+    #  IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+    #
+    #  IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+    #
+    # If a URI containing an IP-literal that starts with "v"
+    # (case-insensitive), indicating that the version flag is present,
+    # is dereferenced by an application that does not know the meaning
+    # of that version flag, then the application should return an
+    # appropriate error for "address mechanism not supported".
+    if address.startswith('v'):
+        raise ipaddress.AddressValueError('address mechanism not supported')
+    elif as_string:
+        # TBD: compact form or original?
+        ipaddress.IPv6Address(address)
+        return address.lower()
+    else:
+        return ipaddress.IPv6Address(address)
 
 
 class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
@@ -98,6 +123,14 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         If the host represents an internationalized domain name
         intended for resolution via DNS, the :const:`'idna'` encoding
         must be specified to return a Unicode domain name.
+
+        """
+        raise NotImplementedError
+
+    def gethostip(self, default=None, encoding='utf-8'):
+        """Return the decoded host subcomponent of the URI authority as a
+        string or an :mod:`ipaddress` address object, or `default` if
+        the original URI did not contain a host.
 
         """
         raise NotImplementedError
@@ -234,11 +267,25 @@ class SplitResultBytes(SplitResult):
         if host is None or (not host and default is not None):
             return default
         elif host.startswith(b'[') and host.endswith(b']'):
-            return ip_address(host[1:-1].decode(encoding))
+            return parse_ip_literal(host[1:-1].decode(encoding), True)
         elif host.startswith(b'[') or host.endswith(b']'):
             raise ValueError('Invalid host %r' % host)
         else:
             return uridecode(host, encoding).lower()
+
+    def gethostip(self, default=None, encoding='utf-8'):
+        host = self.host
+        if host is None or (not host and default is not None):
+            return default
+        elif host.startswith(b'[') and host.endswith(b']'):
+            return parse_ip_literal(host[1:-1].decode(encoding))
+        elif host.startswith(b'[') or host.endswith(b']'):
+            raise ValueError('Invalid host %r' % host)
+        else:
+            try:
+                return ipaddress.IPv4Address(host.decode(encoding))
+            except ValueError:
+                return uridecode(host, encoding).lower()
 
     def getquerylist(self, delims=b';&', encoding='utf-8'):
         qsl = [self.query] if self.query else []
@@ -354,11 +401,25 @@ class SplitResultString(SplitResult):
         if host is None or (not host and default is not None):
             return default
         elif host.startswith('[') and host.endswith(']'):
-            return ip_address(host[1:-1])
+            return parse_ip_literal(host[1:-1], True)
         elif host.startswith('[') or host.endswith(']'):
             raise ValueError('Invalid host %r' % host)
         else:
             return uridecode(host, encoding).lower()
+
+    def gethostip(self, default=None, encoding='utf-8'):
+        host = self.host
+        if host is None or (not host and default is not None):
+            return default
+        elif host.startswith('[') and host.endswith(']'):
+            return parse_ip_literal(host[1:-1])
+        elif host.startswith('[') or host.endswith(']'):
+            raise ValueError('Invalid host %r' % host)
+        else:
+            try:
+                return ipaddress.IPv4Address(host)
+            except ValueError:
+                return uridecode(host, encoding).lower()
 
     def getquerylist(self, delims=b';&', encoding='utf-8'):
         qsl = [self.query] if self.query else []
