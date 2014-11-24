@@ -5,9 +5,8 @@ python:
 - 3.3
 - 3.4
 install:
-- pip install .
-- pip install coverage coveralls
+- pip install . coverage coveralls
 script:
-- nosetests --with-coverage --cover-package=uritools
+- python setup.py nosetests
 after_success:
 - coveralls
