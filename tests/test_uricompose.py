@@ -9,7 +9,10 @@ from uritools import uricompose
 class UriComposeTest(unittest.TestCase):
 
     def check(self, uri, **kwargs):
-        self.assertEqual(uri, uricompose(**kwargs), msg='uri=%r' % uri)
+        result = uricompose(**kwargs)
+        self.assertEqual(uri, result, msg='%r != %r %r' % (
+            uri, result, kwargs)
+        )
 
     def test_rfc3986(self):
         """uricompose test cases from [RFC3986] 3. Syntax Components"""
@@ -47,9 +50,10 @@ class UriComposeTest(unittest.TestCase):
             (b'//tkem@example.com:8042', b'tkem@example.com:8042'),
             (b'//tkem@example.com:8042', ('tkem', 'example.com', '8042')),
             (b'//tkem@example.com:8042', ['tkem', 'example.com', '8042']),
-            (b'//tkem@example.com:8042', [b'tkem', b'example.com', b'8042']),
+            (b'//tkem@example.com:8042', [b'tkem', 'example.com', '8042']),
+            (b'//tkem@example.com:8042', ['tkem', b'example.com', '8042']),
+            (b'//tkem@example.com:8042', ['tkem', b'example.com', b'8042']),
             (b'//tkem@example.com:8042', ['tkem', 'example.com', 8042]),
-            (b'//tkem@example.com:8042', [b'tkem', b'example.com', 8042]),
             (b'//tkem@example.com', ['tkem', 'example.com', None]),
             (b'//tkem@example.com', [b'tkem', b'example.com', None]),
             (b'//tkem@example.com', ['tkem', 'example.com', '']),
@@ -66,21 +70,66 @@ class UriComposeTest(unittest.TestCase):
             (b'//[::1]', [None, '[::1]', None]),
             (b'//[::1]', [None, b'[::1]', None]),
             (b'//[::1]', [None, ipaddress.IPv6Address('::1'), None]),
+            (b'', [None, None, None]),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)
         for authority in ([], ['foo'], ['foo', 'bar'], range(4)):
             with self.assertRaises(ValueError, msg='authority=%r' % authority):
                 uricompose(authority=authority)
-        for authority in (True, 42, 3.14):
+        for authority in (True, 42, 3.14, ipaddress.IPv6Address('::1')):
             with self.assertRaises(TypeError, msg='authority=%r' % authority):
                 uricompose(authority=authority)
-        for host in (None, '[foo]', '[::1', '::1]', '[v1.x]'):
+        for host in ('[foo]', '[::1', '::1]', '[v1.x]'):
             with self.assertRaises(ValueError, msg='host=%r' % host):
+                uricompose(authority=[None, host, None])
+        for host in (True, 42, 3.14, ipaddress.IPv6Network('2001:db00::0/24')):
+            with self.assertRaises(TypeError, msg='host=%r' % host):
                 uricompose(authority=[None, host, None])
         for port in (-1, 'foo', 3.14):
             with self.assertRaises(ValueError, msg='port=%r' % port):
                 uricompose(authority=[None, '', port])
+        for host, port in (['foo', None], [None, 80], ['foo', 80]):
+            with self.assertRaises(ValueError):
+                uricompose(authority=[host, None, port])
+
+    def test_authority_kwargs(self):
+        cases = [
+            (b'//tkem@example.com:8042', 'tkem', 'example.com', '8042'),
+            (b'//tkem@example.com:8042', b'tkem', 'example.com', '8042'),
+            (b'//tkem@example.com:8042', 'tkem', b'example.com', '8042'),
+            (b'//tkem@example.com:8042', 'tkem', 'example.com', b'8042'),
+            (b'//tkem@example.com:8042', 'tkem', 'example.com', 8042),
+            (b'//tkem@example.com', 'tkem', 'example.com', None),
+            (b'//tkem@example.com', 'tkem', 'example.com', ''),
+            (b'//tkem:cGFzc3dvcmQ=@foo', 'tkem:cGFzc3dvcmQ=', 'foo', None),
+            (b'//tkem:cGFzc3dvcmQ=@foo', 'tkem:cGFzc3dvcmQ=', 'foo', None),
+            (b'//example.com', None, 'example.com', None),
+            (b'//example.com', None, b'example.com', None),
+            (b'//127.0.0.1', None, '127.0.0.1', None),
+            (b'//127.0.0.1', None, b'127.0.0.1', None),
+            (b'//127.0.0.1', None, ipaddress.IPv4Address('127.0.0.1'), None),
+            (b'//[::1]', None, '::1', None),
+            (b'//[::1]', None, b'::1', None),
+            (b'//[::1]', None, '[::1]', None),
+            (b'//[::1]', None, b'[::1]', None),
+            (b'//[::1]', None, ipaddress.IPv6Address('::1'), None),
+            (b'', None, None, None),
+        ]
+        for uri, userinfo, host, port in cases:
+            self.check(uri, userinfo=userinfo, host=host, port=port)
+        for host in ('[foo]', '[::1', '::1]', '[v1.x]'):
+            with self.assertRaises(ValueError, msg='host=%r' % host):
+                uricompose(host=host)
+        for host in (True, 42, 3.14, ipaddress.IPv6Network('2001:db00::0/24')):
+            with self.assertRaises(TypeError, msg='host=%r' % host):
+                uricompose(host=host)
+        for port in (-1, 'foo', 3.14):
+            with self.assertRaises(ValueError, msg='port=%r' % port):
+                uricompose(host='', port=port)
+        for kwargs in ({'userinfo': 'foo'}, {'port': 80}):
+            with self.assertRaises(ValueError):
+                uricompose(**kwargs)
 
     def test_path(self):
         cases = [

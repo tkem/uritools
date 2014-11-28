@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import ipaddress
+import itertools
 import re
 
 from collections import Iterable, Mapping
@@ -21,43 +22,39 @@ SCHEME_RE = re.compile(br"\A[A-Za-z][A-Za-z0-9+.-]*\Z")
 AUTHORITY_RE = re.compile(r"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
 
 
-def decoder(encoding):
-    def decode(obj):
-        return obj.decode(encoding) if hasattr(obj, 'decode') else obj
-    return decode
+def ifnone(a, b):
+    return a if a is not None else b
 
 
-def splitauth(authority, encoding):
+def splitauth(authority, userinfo, host, port, encoding='utf-8'):
     if isinstance(authority, type('')):
         parts = AUTHORITY_RE.match(authority).groups()
     elif isinstance(authority, String):
         parts = AUTHORITY_RE.match(authority.decode(encoding)).groups()
     elif isinstance(authority, Iterable):
-        parts = list(map(decoder(encoding), authority))
+        _, _, _ = parts = authority
     else:
         raise TypeError('Invalid authority type')
-    try:
-        parts[1] = ipaddress.ip_address(parts[1])
-    except ValueError:
-        pass
-    except IndexError:
-        raise ValueError('Invalid authority type')  # FIXME
-    return parts
+    return itertools.starmap(ifnone, zip((userinfo, host, port), parts))
 
 
 def ip_literal(address):
-    # TODO: support IPvFuture when composing?
     if address.startswith('v'):
-        raise ipaddress.AddressValueError('address mechanism not supported')
+        raise ipaddress.AddressValueError('Address mechanism not supported')
     else:
         return b'[' + ipaddress.IPv6Address(address).compressed.encode() + b']'
 
 
-def is_ipv6_address(host):
+def hoststr(host, encoding):
+    if host.startswith('[') and host.endswith(']'):
+        return ip_literal(host[1:-1])
+    if host.startswith('[') or host.endswith(']'):
+        raise ValueError('Invalid host subcomponent %r' % host)
     try:
-        return ipaddress.ip_address(host).version == 6
+        # check for IPv6 addresses as returned by SplitResult.gethost()
+        return b'[' + ipaddress.IPv6Address(host).compressed.encode() + b']'
     except ValueError:
-        return False
+        return uriencode(host, SUB_DELIMS, encoding).lower()
 
 
 def querylist(items, delim, encoding):
@@ -88,7 +85,8 @@ def querydict(mapping, delim, encoding):
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
-               fragment=None, delim=b'&', encoding='utf-8'):
+               fragment=None, userinfo=None, host=None, port=None,
+               delim=b'&', encoding='utf-8'):
     """Compose a URI string from its components.
 
     If `query` is a mapping object or a sequence of two-element
@@ -96,6 +94,14 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     seperated by `delim`.
 
     """
+
+    if path is None:
+        raise ValueError('URI path component must be present if empty')
+    if authority is not None:
+        userinfo, host, port = splitauth(authority, userinfo, host, port, encoding)  # noqa
+    if host is None and (userinfo is not None or port is not None):
+        raise ValueError('URI host subcomponent must be present if empty')
+    authority = b'' if host is not None else None
 
     # RFC 3986 3.1: Scheme names consist of a sequence of characters
     # beginning with a letter and followed by any combination of
@@ -107,49 +113,46 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # "HTTP" as well as "http") for the sake of robustness but should
     # only produce lowercase scheme names for consistency.
     if scheme is not None:
-        if isinstance(scheme, type('')):
-            encoded_scheme = scheme.encode()
-        else:
-            encoded_scheme = scheme
-        if SCHEME_RE.match(encoded_scheme):
-            scheme = encoded_scheme.lower()
-        else:
-            raise ValueError('Invalid scheme %r' % scheme)
+        s = uriencode(scheme, safe=b'+')
+        if not SCHEME_RE.match(s):
+            raise ValueError('Invalid scheme component %r' % scheme)
+        scheme = s.lower()
 
-    if authority is not None:
-        userinfo, host, port = splitauth(authority, encoding)
-        # RFC 3986 3.2.1: The user information, if present, is
-        # followed by a commercial at-sign ("@") that delimits it from
-        # the host.
-        if userinfo is not None:
-            authority = uriencode(userinfo, SUB_DELIMS + b':', encoding) + b'@'
-        else:
-            authority = b''
-        # RFC 3986 3.2.3: Although host is case-insensitive, producers
-        # and normalizers should use lowercase for registered names
-        # and hexadecimal addresses for the sake of uniformity, while
-        # only using uppercase letters for percent-encodings.
-        if host is None:
-            raise ValueError('URI host component must be present if empty')
-        elif isinstance(host, ipaddress.IPv4Address):
+    # RFC 3986 3.2.1: The user information, if present, is followed by
+    # a commercial at-sign ("@") that delimits it from the host.
+    if userinfo is not None:
+        authority += uriencode(userinfo, SUB_DELIMS + b':', encoding) + b'@'
+
+    # RFC 3986 3.2.3: Although host is case-insensitive, producers and
+    # normalizers should use lowercase for registered names and
+    # hexadecimal addresses for the sake of uniformity, while only
+    # using uppercase letters for percent-encodings.
+    if host is not None:
+        if isinstance(host, ipaddress.IPv4Address):
             authority += host.compressed.encode()
         elif isinstance(host, ipaddress.IPv6Address):
             authority += b'[' + host.compressed.encode() + b']'
-        elif host.startswith('[') and host.endswith(']'):
-            authority += ip_literal(host[1:-1])
-        elif host.startswith('[') or host.endswith(']'):
-            raise ValueError('Invalid host %r' % host)
+        elif isinstance(host, type('')):
+            authority += hoststr(host, encoding)
+        elif isinstance(host, String):
+            authority += hoststr(host.decode(encoding), encoding)
         else:
-            authority += uriencode(host, SUB_DELIMS, encoding).lower()
-        # RFC 3986 3.2.3: URI producers and normalizers should omit
-        # the port component and its ":" delimiter if port is empty or
-        # if its value would be the same as that of the scheme's
-        # default.
-        port = str(port).encode() if port is not None else b''
-        if port.isdigit():
+            raise TypeError('Invalid host type')
+
+    # RFC 3986 3.2.3: URI producers and normalizers should omit the
+    # port component and its ":" delimiter if port is empty or if its
+    # value would be the same as that of the scheme's default.
+    if port is not None:
+        if isinstance(port, type('')):
+            port = port.encode(encoding)
+        elif not isinstance(port, String):
+            port = str(port).encode(encoding)  # handle int, etc.
+        if not port:
+            pass  # empty
+        elif not port.isdigit():
+            raise ValueError('Invalid port subcomponent %r', port)
+        else:
             authority += b':' + port
-        elif port:
-            raise ValueError('Invalid port %r' % port)
 
     # RFC 3986 3.3: If a URI contains an authority component, then the
     # path component must either be empty or begin with a slash ("/")
@@ -158,17 +161,26 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # addition, a URI reference may be a relative-path reference, in
     # which case the first path segment cannot contain a colon (":")
     # character.
-    if path is None:
-        raise ValueError('URI path component must be present if empty')
-    else:
-        path = uriencode(path, SUB_DELIMS + b':@/', encoding)
-    if authority is not None and path and not path.startswith(b'/'):
+    p = uriencode(path, SUB_DELIMS + b':@/', encoding)
+    if authority is not None and p and not p.startswith(b'/'):
         raise ValueError('Invalid path %r with authority component' % path)
-    if authority is None and path.startswith(b'//'):
+    if authority is None and p.startswith(b'//'):
         raise ValueError('Invalid path %r without authority component' % path)
-    if scheme is None and authority is None and path.find(b':') < path.find(b'/'):  # noqa
+    if scheme is None and authority is None and p.find(b':') < p.find(b'/'):
         raise ValueError('Invalid relative-path reference %r' % path)
+    path = p
 
+    # RFC 3986 3.4: The characters slash ("/") and question mark ("?")
+    # may represent data within the query component.  Beware that some
+    # older, erroneous implementations may not handle such data
+    # correctly when it is used as the base URI for relative
+    # references (Section 5.1), apparently because they fail to
+    # distinguish query data from path data when looking for
+    # hierarchical separators.  However, as query components are often
+    # used to carry identifying information in the form of "key=value"
+    # pairs and one frequently used value is a reference to another
+    # URI, it is sometimes better for usability to avoid percent-
+    # encoding those characters.
     if query is not None:
         if isinstance(query, String):
             query = uriencode(query, SUB_DELIMS + b':@/?', encoding)
@@ -179,6 +191,11 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         else:
             raise TypeError('Invalid query type')
 
+    # RFC 3986 3.5: The characters slash ("/") and question mark ("?")
+    # are allowed to represent data within the fragment identifier.
+    # Beware that some older, erroneous implementations may not handle
+    # this data correctly when it is used as the base URI for relative
+    # references.
     if fragment is not None:
         fragment = uriencode(fragment, SUB_DELIMS + b':@/?', encoding)
 
