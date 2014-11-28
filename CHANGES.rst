@@ -1,6 +1,8 @@
 0.10.0 UNRELEASED
 -----------------
 
+- Deprecate ``DefragResult.base``.
+
 - Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
 
 
