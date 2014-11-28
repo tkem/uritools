@@ -44,6 +44,7 @@ def splitauth(authority, encoding):
         raise ValueError('Invalid authority type')  # FIXME
     return parts
 
+
 def ip_literal(address):
     # TODO: support IPvFuture when composing?
     if address.startswith('v'):

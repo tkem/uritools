@@ -9,7 +9,7 @@ from uritools import uricompose
 class UriComposeTest(unittest.TestCase):
 
     def check(self, uri, **kwargs):
-        self.assertEqual(uri, uricompose(**kwargs), msg='uri=%r %r' % (uri, uricompose(**kwargs)))
+        self.assertEqual(uri, uricompose(**kwargs), msg='uri=%r' % uri)
 
     def test_rfc3986(self):
         """uricompose test cases from [RFC3986] 3. Syntax Components"""

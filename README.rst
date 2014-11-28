@@ -27,7 +27,7 @@ and Python 3 `urllib.parse`_ modules.
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
-    DefragResult(base='http://pythonhosted.org/uritools/index.html',
+    DefragResult(uri='http://pythonhosted.org/uritools/index.html',
                  fragment='constants')
     >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
     'www.ölkürbis.at'

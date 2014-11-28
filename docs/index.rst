@@ -29,7 +29,7 @@ commonly used functions of the Python 2.7 Standard Library
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
-    DefragResult(base='http://pythonhosted.org/uritools/index.html',
+    DefragResult(uri='http://pythonhosted.org/uritools/index.html',
                  fragment='constants')
     >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
     'www.ölkürbis.at'
@@ -138,6 +138,9 @@ convenience methods:
 .. autoclass:: DefragResult
    :members:
 
+   .. attribute:: base
+
+      .. deprecated:: 0.10
 
 .. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py
 .. _bytes-like object: http://docs.python.org/3/glossary.html#term-bytes-like-object

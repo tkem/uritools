@@ -30,7 +30,7 @@ class UriDefragTest(unittest.TestCase):
         for uri, base, fragment in cases:
             defrag = uridefrag(uri)
             self.assertEqual(defrag, (base, fragment))
-            self.assertEqual(defrag.base, base)
+            self.assertEqual(defrag.uri, base)
             self.assertEqual(defrag.fragment, fragment)
             self.assertEqual(uri, defrag.geturi())
 

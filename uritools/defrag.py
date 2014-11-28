@@ -5,7 +5,7 @@ from .encoding import uridecode
 import collections
 
 
-class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
+class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
     """Class to hold :func:`uridefrag` results.
 
     Do not try to create instances of this class directly.  Use the
@@ -15,15 +15,21 @@ class DefragResult(collections.namedtuple('DefragResult', 'base fragment')):
 
     __slots__ = ()  # prevent creation of instance dictionary
 
+    @property
+    def base(self):
+        import warnings
+        warnings.warn("DefragResult.base is deprecated", DeprecationWarning)
+        return self.uri
+
     def geturi(self):
         """Return the recombined version of the original URI as a string."""
         fragment = self.fragment
         if fragment is None:
-            return self.base
+            return self.uri
         elif isinstance(fragment, type('')):
-            return self.base + '#' + fragment
+            return self.uri + '#' + fragment
         else:
-            return self.base + b'#' + fragment
+            return self.uri + b'#' + fragment
 
     def getfragment(self, default=None, encoding='utf-8'):
         """Return the decoded fragment identifier, or `default` if the
@@ -47,7 +53,7 @@ def uridefrag(string):
     +-------------------+-------+---------------------------------------------+
     | Attribute         | Index | Value                                       |
     +===================+=======+=============================================+
-    | :attr:`base`      | 0     | Absoulte URI or relative URI reference      |
+    | :attr:`uri`       | 0     | Absolute URI or relative URI reference      |
     |                   |       | without the fragment identifier             |
     +-------------------+-------+---------------------------------------------+
     | :attr:`fragment`  | 1     | Fragment identifier,                        |
