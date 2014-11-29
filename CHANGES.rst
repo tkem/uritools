@@ -1,9 +1,14 @@
 0.10.0 UNRELEASED
 -----------------
 
+- Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
+
+- Add `userinfo`, `host` and `port` keyword arguments to
+  ``uricompose()``.
+
 - Deprecate ``DefragResult.base``.
 
-- Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
+- Feature freeze for v1.0.
 
 
 0.9.0 2014-11-21
