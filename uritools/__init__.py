@@ -21,4 +21,4 @@ __all__ = (
     'uricompose'
 )
 
-__version__ = '0.10.0alpha4'
+__version__ = '0.10.0'

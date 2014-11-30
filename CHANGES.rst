@@ -1,4 +1,4 @@
-0.10.0 UNRELEASED
+0.10.0 2014-11-30
 -----------------
 
 - Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
@@ -8,7 +8,7 @@
 
 - Deprecate ``DefragResult.base``.
 
-- Feature freeze for v1.0.
+- Feature freeze for `v1.0`.
 
 
 0.9.0 2014-11-21
