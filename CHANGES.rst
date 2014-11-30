@@ -1,3 +1,9 @@
+0.10.1 2014-11-30
+-----------------
+
+- Make ``uricompose()`` return ``str`` on all Python versions.
+
+
 0.10.0 2014-11-30
 -----------------
 
