@@ -8,22 +8,22 @@ and Python 3 `urllib.parse`_ modules.
 .. code-block:: pycon
 
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
-    >>> parts = urisplit('foo://tkem@example.com:8042/over/there?name=ferret#nose')
+    >>> parts = urisplit('foo://user@example.com:8042/over/there?name=ferret#nose')
     >>> parts
-    SplitResultString(scheme='foo', authority='tkem@example.com:8042',
+    SplitResultString(scheme='foo', authority='user@example.com:8042',
                       path='/over/there', query='name=ferret', fragment='nose')
     >>> parts.scheme
     'foo'
     >>> parts.authority
-    'tkem@example.com:8042'
+    'user@example.com:8042'
     >>> parts.userinfo
-    'tkem'
+    'user'
     >>> parts.host
     'example.com'
     >>> parts.port
     '8042'
     >>> uriunsplit(parts[:3] + ('name=swallow&type=African', 'beak'))
-    'foo://tkem@example.com:8042/over/there?name=swallow&type=African#beak'
+    'foo://user@example.com:8042/over/there?name=swallow&type=African#beak'
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')

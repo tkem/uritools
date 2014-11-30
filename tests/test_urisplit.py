@@ -30,7 +30,6 @@ class UriSplitTest(unittest.TestCase):
             self.check(uri, parts)
 
     def test_abnormal(self):
-        """urisplit edge cases"""
         cases = [
             ('', (None, None, '', None, None)),
             (':', (None, None, ':', None, None)),
@@ -70,9 +69,7 @@ class UriSplitTest(unittest.TestCase):
         for uri, parts in cases:
             self.check(uri, parts)
 
-    def test_attributes(self):
-        """urisplit attribute test cases"""
-
+    def test_members(self):
         uri = 'foo://user@example.com:8042/over/there?name=ferret#nose'
         result = urisplit(uri)
         self.assertEqual(result.scheme, 'foo')
@@ -91,6 +88,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getfragment(), 'nose')
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
+        self.assertEqual(result.gethostip(), 'example.com')
         self.assertEqual(result.getport(), 8042)
         self.assertEqual(dict(result.getquerydict()), {'name': ['ferret']})
         self.assertEqual(list(result.getquerylist()), [('name', 'ferret')])
@@ -113,6 +111,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getfragment(), None)
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
+        self.assertEqual(result.gethostip(), None)
         self.assertEqual(result.getport(), None)
         self.assertEqual(dict(result.getquerydict()), {})
         self.assertEqual(list(result.getquerylist()), [])
@@ -135,6 +134,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getfragment(), 'nose')
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
+        self.assertEqual(result.gethostip(), 'example.com')
         self.assertEqual(result.getport(), 8042)
         self.assertEqual(dict(result.getquerydict()), {'name': ['ferret']})
         self.assertEqual(list(result.getquerylist()), [('name', 'ferret')])
@@ -157,6 +157,7 @@ class UriSplitTest(unittest.TestCase):
         self.assertEqual(result.getfragment(), None)
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
+        self.assertEqual(result.gethostip(), None)
         self.assertEqual(result.getport(), None)
         self.assertEqual(dict(result.getquerydict()), {})
         self.assertEqual(list(result.getquerylist()), [])
@@ -215,7 +216,6 @@ class UriSplitTest(unittest.TestCase):
             self.assertIn(addrinfo, urisplit(uri).getaddrinfo(port=port))
 
     def test_defaultport(self):
-        """urisplit default port test cases"""
         for uri in ['foo://bar', 'foo://bar:', 'foo://bar/', 'foo://bar:/']:
             result = urisplit(uri)
             if result.authority.endswith(':'):
@@ -262,7 +262,6 @@ class UriSplitTest(unittest.TestCase):
                              'Error parsing query list for %r' % query)
 
     def test_ip_literal(self):
-        """urisplit literal host address test cases"""
         cases = [
             ('http://Test.python.org:5432/foo/', 'test.python.org', 5432),
             ('http://12.34.56.78:5432/foo/', '12.34.56.78', 5432),
@@ -302,7 +301,6 @@ class UriSplitTest(unittest.TestCase):
             self.assertEqual((host, port), (parts.gethost(), parts.getport()))
 
     def test_invalid_ip_literal(self):
-        """urisplit invalid literal host address test cases"""
         uris = [
             'http://::12.34.56.78]/',
             'http://[::1/foo/',
@@ -314,5 +312,7 @@ class UriSplitTest(unittest.TestCase):
         for uri in uris:
             with self.assertRaises(ValueError, msg='%r' % uri):
                 urisplit(uri).gethost()
+            with self.assertRaises(ValueError, msg='%r' % uri):
+                urisplit(uri).gethostip()
             with self.assertRaises(ValueError, msg='%r' % uri.encode('ascii')):
                 urisplit(uri.encode('ascii')).gethost()
