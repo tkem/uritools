@@ -17,7 +17,7 @@ class UriComposeTest(unittest.TestCase):
     def test_rfc3986(self):
         """uricompose test cases from [RFC3986] 3. Syntax Components"""
         self.check(
-            b'foo://example.com:42/over/there?name=ferret#nose',
+            'foo://example.com:42/over/there?name=ferret#nose',
             scheme='foo',
             authority='example.com:42',
             path='/over/there',
@@ -25,17 +25,17 @@ class UriComposeTest(unittest.TestCase):
             fragment='nose'
         )
         self.check(
-            b'urn:example:animal:ferret:nose',
+            'urn:example:animal:ferret:nose',
             scheme='urn',
             path='example:animal:ferret:nose'
         )
 
     def test_scheme(self):
         cases = [
-            (b'foo+bar:', 'foo+bar'),
-            (b'foo+bar:', b'foo+bar'),
-            (b'foo+bar:', 'FOO+BAR'),
-            (b'foo+bar:', b'FOO+BAR'),
+            ('foo+bar:', 'foo+bar'),
+            ('foo+bar:', b'foo+bar'),
+            ('foo+bar:', 'FOO+BAR'),
+            ('foo+bar:', b'FOO+BAR'),
         ]
         for uri, scheme in cases:
             self.check(uri, scheme=scheme)
@@ -46,25 +46,25 @@ class UriComposeTest(unittest.TestCase):
 
     def test_authority(self):
         cases = [
-            (b'', None),
-            (b'//', ''),
-            (b'//', b''),
-            (b'//example.com', 'example.com'),
-            (b'//example.com', b'example.com'),
-            (b'//example.com', 'example.com:'),
-            (b'//example.com', b'example.com:'),
-            (b'//user@example.com', 'user@example.com'),
-            (b'//user@example.com', b'user@example.com'),
-            (b'//example.com:42', 'example.com:42'),
-            (b'//example.com:42', b'example.com:42'),
-            (b'//user@example.com:42', 'user@example.com:42'),
-            (b'//user@example.com:42', b'user@example.com:42'),
-            (b'//user@127.0.0.1:42', 'user@127.0.0.1:42'),
-            (b'//user@127.0.0.1:42', b'user@127.0.0.1:42'),
-            (b'//user@[::1]:42', 'user@[::1]:42'),
-            (b'//user@[::1]:42', b'user@[::1]:42'),
-            (b'//user:c2VjcmV0@example.com', 'user:c2VjcmV0@example.com'),
-            (b'//user:c2VjcmV0@example.com', b'user:c2VjcmV0@example.com'),
+            ('', None),
+            ('//', ''),
+            ('//', b''),
+            ('//example.com', 'example.com'),
+            ('//example.com', b'example.com'),
+            ('//example.com', 'example.com:'),
+            ('//example.com', b'example.com:'),
+            ('//user@example.com', 'user@example.com'),
+            ('//user@example.com', b'user@example.com'),
+            ('//example.com:42', 'example.com:42'),
+            ('//example.com:42', b'example.com:42'),
+            ('//user@example.com:42', 'user@example.com:42'),
+            ('//user@example.com:42', b'user@example.com:42'),
+            ('//user@127.0.0.1:42', 'user@127.0.0.1:42'),
+            ('//user@127.0.0.1:42', b'user@127.0.0.1:42'),
+            ('//user@[::1]:42', 'user@[::1]:42'),
+            ('//user@[::1]:42', b'user@[::1]:42'),
+            ('//user:c2VjcmV0@example.com', 'user:c2VjcmV0@example.com'),
+            ('//user:c2VjcmV0@example.com', b'user:c2VjcmV0@example.com'),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)
@@ -76,36 +76,36 @@ class UriComposeTest(unittest.TestCase):
     def test_authority_kwargs(self):
         from ipaddress import IPv4Address, IPv6Address
         cases = [
-            (b'', [None, None, None]),
-            (b'//', [None, '', None]),
-            (b'//', [None, b'', None]),
-            (b'//example.com', [None, 'example.com', None]),
-            (b'//example.com', [None, b'example.com', None]),
-            (b'//example.com', [None, 'example.com', '']),
-            (b'//example.com', [None, 'example.com', b'']),
-            (b'//user@example.com', ['user', 'example.com', None]),
-            (b'//user@example.com', [b'user', 'example.com', None]),
-            (b'//user@example.com', [b'user', b'example.com', None]),
-            (b'//example.com:42', [None, 'example.com', '42']),
-            (b'//example.com:42', [None, b'example.com', '42']),
-            (b'//example.com:42', [None, b'example.com', b'42']),
-            (b'//example.com:42', [None, 'example.com', 42]),
-            (b'//example.com:42', [None, b'example.com', 42]),
-            (b'//user@example.com:42', ['user', 'example.com', '42']),
-            (b'//user@example.com:42', [b'user', 'example.com', '42']),
-            (b'//user@example.com:42', [b'user', b'example.com', '42']),
-            (b'//user@example.com:42', [b'user', b'example.com', b'42']),
-            (b'//user@example.com:42', ['user', 'example.com', 42]),
-            (b'//user@example.com:42', [b'user', 'example.com', 42]),
-            (b'//user@example.com:42', [b'user', b'example.com', 42]),
-            (b'//user@127.0.0.1:42', ['user', '127.0.0.1', 42]),
-            (b'//user@127.0.0.1:42', ['user', b'127.0.0.1', 42]),
-            (b'//user@127.0.0.1:42', ['user', IPv4Address('127.0.0.1'), 42]),
-            (b'//user@[::1]:42', ['user', '::1', 42]),
-            (b'//user@[::1]:42', ['user', b'::1', 42]),
-            (b'//user@[::1]:42', ['user', '[::1]', 42]),
-            (b'//user@[::1]:42', ['user', b'[::1]', 42]),
-            (b'//user@[::1]:42', ['user', IPv6Address('::1'), 42]),
+            ('', [None, None, None]),
+            ('//', [None, '', None]),
+            ('//', [None, b'', None]),
+            ('//example.com', [None, 'example.com', None]),
+            ('//example.com', [None, b'example.com', None]),
+            ('//example.com', [None, 'example.com', '']),
+            ('//example.com', [None, 'example.com', b'']),
+            ('//user@example.com', ['user', 'example.com', None]),
+            ('//user@example.com', [b'user', 'example.com', None]),
+            ('//user@example.com', [b'user', b'example.com', None]),
+            ('//example.com:42', [None, 'example.com', '42']),
+            ('//example.com:42', [None, b'example.com', '42']),
+            ('//example.com:42', [None, b'example.com', b'42']),
+            ('//example.com:42', [None, 'example.com', 42]),
+            ('//example.com:42', [None, b'example.com', 42]),
+            ('//user@example.com:42', ['user', 'example.com', '42']),
+            ('//user@example.com:42', [b'user', 'example.com', '42']),
+            ('//user@example.com:42', [b'user', b'example.com', '42']),
+            ('//user@example.com:42', [b'user', b'example.com', b'42']),
+            ('//user@example.com:42', ['user', 'example.com', 42]),
+            ('//user@example.com:42', [b'user', 'example.com', 42]),
+            ('//user@example.com:42', [b'user', b'example.com', 42]),
+            ('//user@127.0.0.1:42', ['user', '127.0.0.1', 42]),
+            ('//user@127.0.0.1:42', ['user', b'127.0.0.1', 42]),
+            ('//user@127.0.0.1:42', ['user', IPv4Address('127.0.0.1'), 42]),
+            ('//user@[::1]:42', ['user', '::1', 42]),
+            ('//user@[::1]:42', ['user', b'::1', 42]),
+            ('//user@[::1]:42', ['user', '[::1]', 42]),
+            ('//user@[::1]:42', ['user', b'[::1]', 42]),
+            ('//user@[::1]:42', ['user', IPv6Address('::1'), 42]),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)
@@ -142,10 +142,10 @@ class UriComposeTest(unittest.TestCase):
 
     def test_authority_override(self):
         cases = [
-            (b'//user@example.com:42', None, 'user', 'example.com', 42),
-            (b'//user@example.com:42', '', 'user', 'example.com', 42),
-            (b'//user@example.com:42', 'example.com', 'user', None, 42),
-            (b'//user@example.com:42', 'user@:42', None, 'example.com', None),
+            ('//user@example.com:42', None, 'user', 'example.com', 42),
+            ('//user@example.com:42', '', 'user', 'example.com', 42),
+            ('//user@example.com:42', 'example.com', 'user', None, 42),
+            ('//user@example.com:42', 'user@:42', None, 'example.com', None),
         ]
         for uri, authority, userinfo, host, port in cases:
             self.check(uri, authority=authority, userinfo=userinfo, host=host,
@@ -153,12 +153,12 @@ class UriComposeTest(unittest.TestCase):
 
     def test_path(self):
         cases = [
-            (b'foo', 'foo'),
-            (b'foo', b'foo'),
-            (b'foo+bar', 'foo+bar'),
-            (b'foo+bar', b'foo+bar'),
-            (b'foo%20bar', 'foo bar'),
-            (b'foo%20bar', b'foo bar'),
+            ('foo', 'foo'),
+            ('foo', b'foo'),
+            ('foo+bar', 'foo+bar'),
+            ('foo+bar', b'foo+bar'),
+            ('foo%20bar', 'foo bar'),
+            ('foo%20bar', b'foo bar'),
         ]
         for uri, path in cases:
             self.check(uri, path=path)
@@ -175,34 +175,34 @@ class UriComposeTest(unittest.TestCase):
         from collections import OrderedDict as od
 
         cases = [
-            (b'?', ''),
-            (b'?', b''),
-            (b'?', []),
-            (b'?', {}),
-            (b'?name', 'name'),
-            (b'?name', b'name'),
-            (b'?name', [('name', None)]),
-            (b'?name', [(b'name', None)]),
-            (b'?name', {'name': None}),
-            (b'?name', {b'name': None}),
-            (b'?name=foo', 'name=foo'),
-            (b'?name=foo', b'name=foo'),
-            (b'?name=foo', [('name', 'foo')]),
-            (b'?name=foo', [('name', b'foo')]),
-            (b'?name=foo', [(b'name', b'foo')]),
-            (b'?name=foo', {'name': 'foo'}),
-            (b'?name=foo', {'name': b'foo'}),
-            (b'?name=foo', {'name': ['foo']}),
-            (b'?name=foo', {'name': [b'foo']}),
-            (b'?name=foo', {b'name': b'foo'}),
-            (b'?name=foo', {b'name': [b'foo']}),
-            (b'?name=42', [('name', 42)]),
-            (b'?name=42', {'name': 42}),
-            (b'?name=42', {'name': [42]}),
-            (b'?name=foo&type=bar', [('name', 'foo'), ('type', 'bar')]),
-            (b'?name=foo&type=bar', od([('name', 'foo'), ('type', 'bar')])),
-            (b'?name=foo&name=bar', [('name', 'foo'), ('name', 'bar')]),
-            (b'?name=foo&name=bar', {'name': ['foo', 'bar']}),
+            ('?', ''),
+            ('?', b''),
+            ('?', []),
+            ('?', {}),
+            ('?name', 'name'),
+            ('?name', b'name'),
+            ('?name', [('name', None)]),
+            ('?name', [(b'name', None)]),
+            ('?name', {'name': None}),
+            ('?name', {b'name': None}),
+            ('?name=foo', 'name=foo'),
+            ('?name=foo', b'name=foo'),
+            ('?name=foo', [('name', 'foo')]),
+            ('?name=foo', [('name', b'foo')]),
+            ('?name=foo', [(b'name', b'foo')]),
+            ('?name=foo', {'name': 'foo'}),
+            ('?name=foo', {'name': b'foo'}),
+            ('?name=foo', {'name': ['foo']}),
+            ('?name=foo', {'name': [b'foo']}),
+            ('?name=foo', {b'name': b'foo'}),
+            ('?name=foo', {b'name': [b'foo']}),
+            ('?name=42', [('name', 42)]),
+            ('?name=42', {'name': 42}),
+            ('?name=42', {'name': [42]}),
+            ('?name=foo&type=bar', [('name', 'foo'), ('type', 'bar')]),
+            ('?name=foo&type=bar', od([('name', 'foo'), ('type', 'bar')])),
+            ('?name=foo&name=bar', [('name', 'foo'), ('name', 'bar')]),
+            ('?name=foo&name=bar', {'name': ['foo', 'bar']}),
         ]
         for uri, query in cases:
             self.check(uri, query=query)

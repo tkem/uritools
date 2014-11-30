@@ -199,4 +199,6 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if fragment is not None:
         fragment = uriencode(fragment, SUB_DELIMS + b':@/?', encoding)
 
-    return uriunsplit((scheme, authority, path, query, fragment))
+    result = uriunsplit((scheme, authority, path, query, fragment))
+    # FIXME: better way to handle this?
+    return result if isinstance(result, str) else result.decode('ascii')
