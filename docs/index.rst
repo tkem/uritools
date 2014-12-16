@@ -87,16 +87,27 @@ URI Encoding
 
 .. autofunction:: uridecode
 
-   `string` may be either a Unicode string or a `bytes-like object`_.
+   If `encoding` is set to :const:`None`, return the percent-decoded
+   `obj` as a :class:`bytes` object.  Otherwise, replace any
+   percent-encodings and decode `obj` using the codec registered for
+   `encoding`, returning a Unicode string.  The default encoding is
+   :const:`utf-8`.
+
+   `obj` may be either a Unicode string or a `bytes-like object`_.
+
 
 .. autofunction:: uriencode
 
-   `string` may be either a Unicode string or a `bytes-like object`_,
+   If `encoding` is set to :const:`None` and `obj` is a `bytes-like
+   object`_, replace any characters not in :const:`UNRESERVED` or
+   `safe` with their corresponding percent-encodings and return the
+   result as a :class:`bytes` object.  Otherwise, encode `obj` using
+   the codec registered for `encoding` before replacing any percent
+   encodings.  The default encoding is :const:`utf-8`.
+
+   `obj` may be either a Unicode string or a `bytes-like object`_,
    while `safe` must be a :class:`bytes` object containg ASCII
    characters only.
-
-   This function should not be confused with :func:`urllib.urlencode`,
-   which does something completely different.
 
 
 Constants

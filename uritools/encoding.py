@@ -26,35 +26,30 @@ decoded = {
 }
 
 
-def uridecode(string, encoding='utf-8'):
-    """Replace any percent-encodings in `string`, and return a decoded
-    version of the string, using the codec registered for `encoding`.
-
-    """
+def uridecode(obj, encoding='utf-8', errors='strict'):
+    """Decode a URI string or bytes-like object."""
     try:
-        # FIXME: have to explicitly convert to bytes in Python 2.7 (???)
-        parts = memoryview(string).tobytes().split(b'%')
+        parts = memoryview(obj).tobytes().split(b'%')
     except TypeError:
-        parts = string.encode(encoding).split(b'%')
+        parts = obj.encode(encoding or 'ascii', errors).split(b'%')
     result = [parts[0]]
     append = result.append
     decode = decoded.get
     for s in parts[1:]:
         append(decode(s[:2], b'%' + s[:2]))
         append(s[2:])
-    return b''.join(result).decode(encoding)
+    if encoding is not None:
+        return b''.join(result).decode(encoding, errors)
+    else:
+        return b''.join(result)
 
 
-def uriencode(string, safe=b'', encoding='utf-8'):
-    """Encode `string` using the codec registered for `encoding`,
-    replacing any characters not in :const:`UNRESERVED` or `safe` with
-    their corresponding percent-encodings.
-
-    """
+def uriencode(obj, safe=b'', encoding='utf-8'):
+    """Encode a URI string or bytes-like object."""
     try:
-        bytelist = memoryview(string).tolist()
+        bytelist = memoryview(obj).tolist()
     except TypeError:
-        bytelist = memoryview(string.encode(encoding)).tolist()
+        bytelist = memoryview(obj.encode(encoding)).tolist()
     try:
         encode = encoded[safe].__getitem__
     except KeyError:

@@ -56,6 +56,21 @@ class EncodingTest(unittest.TestCase):
         for decoded, encoded in cases:
             self.check(decoded, encoded, encoding='idna')
 
+    def test_decode_bytes(self):
+        cases = [
+            ('%F6lk%FCrbis', b'\xf6lk\xfcrbis'),
+            (b'%F6lk%FCrbis', b'\xf6lk\xfcrbis')
+        ]
+        for input, output in cases:
+            self.assertEqual(uridecode(input, encoding=None), output)
+
+    def test_encode_bytes(self):
+        cases = [
+            (b'\xf6lk\xfcrbis', b'%F6lk%FCrbis')
+        ]
+        for input, output in cases:
+            self.assertEqual(uriencode(input, encoding=None), output)
+
     def test_decode_errors(self):
         cases = [
             (UnicodeError, b'%FF', 'utf-8'),
