@@ -31,14 +31,14 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
         else:
             return self.uri + b'#' + fragment
 
-    def getfragment(self, default=None, encoding='utf-8'):
+    def getfragment(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded fragment identifier, or `default` if the
         original URI did not contain a fragment component.
 
         """
         fragment = self.fragment
         if fragment is not None:
-            return uridecode(fragment, encoding)
+            return uridecode(fragment, encoding, errors)
         else:
             return default
 

@@ -3,6 +3,8 @@
 
 - Support `encoding=None` for ``uriencode()`` and ``uridecode()``.
 
+- Add optional `errors` parameter to decoding methods.
+
 
 0.10.1 2014-11-30
 -----------------

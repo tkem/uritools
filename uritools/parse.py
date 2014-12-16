@@ -67,44 +67,44 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         """
         raise NotImplementedError
 
-    def getauthority(self, default=None, encoding='utf-8'):
+    def getauthority(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded URI authority, or `default` if the original URI
         did not contain an authority component.
 
         """
         authority = self.authority
         if authority is not None:
-            return uridecode(authority, encoding)
+            return uridecode(authority, encoding, errors)
         else:
             return default
 
-    def getpath(self, encoding='utf-8'):
+    def getpath(self, encoding='utf-8', errors='strict'):
         """Return the decoded URI path."""
-        return uridecode(self.path, encoding)
+        return uridecode(self.path, encoding, errors)
 
-    def getquery(self, default=None, encoding='utf-8'):
+    def getquery(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded query string, or `default` if the original URI
         did not contain a query component.
 
         """
         query = self.query
         if query is not None:
-            return uridecode(query, encoding)
+            return uridecode(query, encoding, errors)
         else:
             return default
 
-    def getfragment(self, default=None, encoding='utf-8'):
+    def getfragment(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded fragment identifier, or `default` if the
         original URI did not contain a fragment component.
 
         """
         fragment = self.fragment
         if fragment is not None:
-            return uridecode(fragment, encoding)
+            return uridecode(fragment, encoding, errors)
         else:
             return default
 
-    def getuserinfo(self, default=None, encoding='utf-8'):
+    def getuserinfo(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded userinfo subcomponent of the URI authority, or
         `default` if the original URI did not contain a userinfo
         field.
@@ -112,11 +112,11 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         """
         userinfo = self.userinfo
         if userinfo is not None:
-            return uridecode(userinfo, encoding)
+            return uridecode(userinfo, encoding, errors)
         else:
             return default
 
-    def gethost(self, default=None, encoding='utf-8'):
+    def gethost(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded host subcomponent of the URI authority, or
         `default` if the original URI did not contain a host.
 
@@ -127,7 +127,7 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         """
         raise NotImplementedError
 
-    def gethostip(self, default=None, encoding='utf-8'):
+    def gethostip(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded host subcomponent of the URI authority as a
         string or an :mod:`ipaddress` address object, or `default` if
         the original URI did not contain a host.
@@ -170,7 +170,7 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
                 pass
         return socket.getaddrinfo(host, port, family, type, proto, flags)
 
-    def getquerydict(self, delims=b';&', encoding='utf-8'):
+    def getquerydict(self, delims=b';&', encoding='utf-8', errors='strict'):
         """Split the query string into individual components using the
         delimiter characters in `delims`, and return a dictionary of
         query parameters.
@@ -181,11 +181,11 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
 
         """
         dict = collections.defaultdict(list)
-        for name, value in self.getquerylist(delims, encoding):
+        for name, value in self.getquerylist(delims, encoding, errors):
             dict[name].append(value)
         return dict
 
-    def getquerylist(self, delims=b';&', encoding='utf-8'):
+    def getquerylist(self, delims=b';&', encoding='utf-8', errors='strict'):
         """Split the query string into individual components using the
         delimiter characters in `delims`, and return a list of `(name,
         value)` pairs, where names and values are seperated by
@@ -262,7 +262,7 @@ class SplitResultBytes(SplitResult):
         else:
             return default
 
-    def gethost(self, default=None, encoding='utf-8'):
+    def gethost(self, default=None, encoding='utf-8', errors='strict'):
         host = self.host
         if host is None or (not host and default is not None):
             return default
@@ -271,9 +271,9 @@ class SplitResultBytes(SplitResult):
         elif host.startswith(b'[') or host.endswith(b']'):
             raise ValueError('Invalid host %r' % host)
         else:
-            return uridecode(host, encoding).lower()
+            return uridecode(host, encoding, errors).lower()
 
-    def gethostip(self, default=None, encoding='utf-8'):
+    def gethostip(self, default=None, encoding='utf-8', errors='strict'):
         host = self.host
         if host is None or (not host and default is not None):
             return default
@@ -285,17 +285,17 @@ class SplitResultBytes(SplitResult):
             try:
                 return ipaddress.IPv4Address(host.decode(encoding))
             except ValueError:
-                return uridecode(host, encoding).lower()
+                return uridecode(host, encoding, errors).lower()
 
-    def getquerylist(self, delims=b';&', encoding='utf-8'):
+    def getquerylist(self, delims=b';&', encoding='utf-8', errors='strict'):
         qsl = [self.query] if self.query else []
         for delim in (delims[i:i+1] for i in range(len(delims))):
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
         items = []
         for qs in qsl:
             parts = qs.partition(b'=')
-            name = uridecode(parts[0], encoding)
-            value = uridecode(parts[2], encoding) if parts[1] else None
+            name = uridecode(parts[0], encoding, errors)
+            value = uridecode(parts[2], encoding, errors) if parts[1] else None
             items.append((name, value))
         return items
 
@@ -396,7 +396,7 @@ class SplitResultString(SplitResult):
         else:
             return default
 
-    def gethost(self, default=None, encoding='utf-8'):
+    def gethost(self, default=None, encoding='utf-8', errors='strict'):
         host = self.host
         if host is None or (not host and default is not None):
             return default
@@ -405,9 +405,9 @@ class SplitResultString(SplitResult):
         elif host.startswith('[') or host.endswith(']'):
             raise ValueError('Invalid host %r' % host)
         else:
-            return uridecode(host, encoding).lower()
+            return uridecode(host, encoding, errors).lower()
 
-    def gethostip(self, default=None, encoding='utf-8'):
+    def gethostip(self, default=None, encoding='utf-8', errors='strict'):
         host = self.host
         if host is None or (not host and default is not None):
             return default
@@ -419,17 +419,17 @@ class SplitResultString(SplitResult):
             try:
                 return ipaddress.IPv4Address(host)
             except ValueError:
-                return uridecode(host, encoding).lower()
+                return uridecode(host, encoding, errors).lower()
 
-    def getquerylist(self, delims=b';&', encoding='utf-8'):
+    def getquerylist(self, delims=b';&', encoding='utf-8', errors='strict'):
         qsl = [self.query] if self.query else []
         for delim in delims.decode():
             qsl = [s for qs in qsl for s in qs.split(delim) if s]
         items = []
         for qs in qsl:
             parts = qs.partition('=')
-            name = uridecode(parts[0], encoding)
-            value = uridecode(parts[2], encoding) if parts[1] else None
+            name = uridecode(parts[0], encoding, errors)
+            value = uridecode(parts[2], encoding, errors) if parts[1] else None
             items.append((name, value))
         return items
 

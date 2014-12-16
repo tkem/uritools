@@ -44,12 +44,12 @@ def uridecode(obj, encoding='utf-8', errors='strict'):
         return b''.join(result)
 
 
-def uriencode(obj, safe=b'', encoding='utf-8'):
+def uriencode(obj, safe=b'', encoding='utf-8', errors='strict'):
     """Encode a URI string or bytes-like object."""
     try:
         bytelist = memoryview(obj).tolist()
     except TypeError:
-        bytelist = memoryview(obj.encode(encoding)).tolist()
+        bytelist = memoryview(obj.encode(encoding, errors)).tolist()
     try:
         encode = encoded[safe].__getitem__
     except KeyError:
