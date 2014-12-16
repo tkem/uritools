@@ -1,4 +1,4 @@
-0.11.0 UNRELEASED
+0.11.0 2014-12-16
 -----------------
 
 - Support `encoding=None` for ``uriencode()`` and ``uridecode()``.
