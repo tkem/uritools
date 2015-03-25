@@ -157,17 +157,19 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # RFC 3986 3.3: If a URI contains an authority component, then the
     # path component must either be empty or begin with a slash ("/")
     # character.  If a URI does not contain an authority component,
-    # then the path cannot begin with two slash characters ("//").  In
-    # addition, a URI reference may be a relative-path reference, in
-    # which case the first path segment cannot contain a colon (":")
-    # character.
+    # then the path cannot begin with two slash characters ("//").
     p = uriencode(path, SUB_DELIMS + b':@/', encoding)
     if authority is not None and p and not p.startswith(b'/'):
         raise ValueError('Invalid path %r with authority component' % path)
     if authority is None and p.startswith(b'//'):
         raise ValueError('Invalid path %r without authority component' % path)
-    if scheme is None and authority is None and p.find(b':') < p.find(b'/'):
-        raise ValueError('Invalid relative-path reference %r' % path)
+    # RFC 3986 4.2: A path segment that contains a colon character
+    # (e.g., "this:that") cannot be used as the first segment of a
+    # relative-path reference, as it would be mistaken for a scheme
+    # name.  Such a segment must be preceded by a dot-segment (e.g.,
+    # "./this:that") to make a relative-path reference.
+    if scheme is None and authority is None and b':' in p.partition(b'/')[0]:
+        p = b'./' + p
     path = p
 
     # RFC 3986 3.4: The characters slash ("/") and question mark ("?")

@@ -159,6 +159,10 @@ class UriComposeTest(unittest.TestCase):
             ('foo+bar', b'foo+bar'),
             ('foo%20bar', 'foo bar'),
             ('foo%20bar', b'foo bar'),
+            ('./this:that', 'this:that'),
+            ('./this:that', b'this:that'),
+            ('./this:that/', 'this:that/'),
+            ('./this:that/', b'this:that/'),
         ]
         for uri, path in cases:
             self.check(uri, path=path)
@@ -167,7 +171,7 @@ class UriComposeTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg='path=%r' % path):
                 uricompose(authority='auth', path=path)
         # invalid path without authority
-        for path in (None, '//foo', b'//foo', ':/foo', b':/foo'):
+        for path in (None, '//', b'//', '//foo', b'//foo'):
             with self.assertRaises(ValueError, msg='path=%r' % path):
                 uricompose(path=path)
 
