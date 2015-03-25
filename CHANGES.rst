@@ -1,3 +1,10 @@
+0.11.1 2015-03-35
+-----------------
+
+- Fix ``uricompose()`` for relative-path references with colons in the
+  first path segment.
+
+
 0.11.0 2014-12-16
 -----------------
 
