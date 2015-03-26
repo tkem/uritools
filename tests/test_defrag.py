@@ -6,7 +6,7 @@ import warnings
 from uritools import uridefrag
 
 
-class UriDefragTest(unittest.TestCase):
+class DefragTest(unittest.TestCase):
 
     def test_uridefrag(self):
         cases = [

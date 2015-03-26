@@ -6,7 +6,7 @@ import unittest
 from uritools import uricompose
 
 
-class UriComposeTest(unittest.TestCase):
+class ComposeTest(unittest.TestCase):
 
     def check(self, uri, **kwargs):
         result = uricompose(**kwargs)

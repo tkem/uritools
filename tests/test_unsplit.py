@@ -5,7 +5,7 @@ import unittest
 from uritools import uriunsplit
 
 
-class UriUnsplitTest(unittest.TestCase):
+class UnsplitTest(unittest.TestCase):
 
     def check(self, split, uri):
         result = uriunsplit(split)

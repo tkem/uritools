@@ -5,7 +5,7 @@ import unittest
 from uritools import urijoin
 
 
-class UriJoinTest(unittest.TestCase):
+class JoinTest(unittest.TestCase):
 
     RFC3986_BASE = "http://a/b/c/d;p?q"
 
