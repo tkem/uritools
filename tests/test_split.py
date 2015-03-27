@@ -178,6 +178,11 @@ class SplitTest(unittest.TestCase):
         for uri, hostip in cases:
             self.assertEqual(urisplit(uri).gethostip(), hostip)
             self.assertEqual(urisplit(uri.encode()).gethostip(), hostip)
+        for uri in ['http://[::1/', 'http://::1]/']:
+            with self.assertRaises(ValueError, msg='%r' % uri):
+                urisplit(uri).gethostip()
+            with self.assertRaises(ValueError, msg='%r' % uri):
+                urisplit(uri.encode()).gethostip()
 
     def test_getaddrinfo(self):
         import socket

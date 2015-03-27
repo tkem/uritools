@@ -44,28 +44,16 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
 
     __slots__ = ()  # prevent creation of instance dictionary
 
-    @property
-    def userinfo(self):
-        raise NotImplementedError
-
-    @property
-    def host(self):
-        raise NotImplementedError
-
-    @property
-    def port(self):
-        raise NotImplementedError
-
     def geturi(self):
         """Return the re-combined version of the original URI as a string."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def getscheme(self, default=None):
         """Return the URI scheme in canonical (lowercase) form, or `default`
         if the original URI did not contain a scheme component.
 
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def getauthority(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded URI authority, or `default` if the original URI
@@ -125,7 +113,7 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         must be specified to return a Unicode domain name.
 
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def gethostip(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded host subcomponent of the URI authority as a
@@ -133,7 +121,7 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         the original URI did not contain a host.
 
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
@@ -192,7 +180,7 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         :const:`'='`.
 
         """
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def transform(self, ref, strict=False):
         """Convert a URI reference relative to `self` into a
