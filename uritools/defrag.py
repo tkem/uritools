@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 
-from .encoding import uridecode
-
 import collections
+
+from .encoding import uridecode
 
 
 class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):

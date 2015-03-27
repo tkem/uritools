@@ -202,7 +202,50 @@ class SplitResult(collections.namedtuple('SplitResult', URI_COMPONENTS)):
         ignored if it is identical to :attr:`self.scheme`.
 
         """
-        raise NotImplementedError
+        scheme, authority, path, query, fragment = self.RE.match(ref).groups()
+
+        # RFC 3986 5.2.2. Transform References
+        if scheme is not None and (strict or scheme != self.scheme):
+            path = self.__normpath(path)
+        elif authority is not None:
+            scheme = self.scheme
+            path = self.__normpath(path)
+        elif not path:
+            scheme = self.scheme
+            authority = self.authority
+            path = self.path
+            query = self.query if query is None else query
+        elif path.startswith(self.SLASH):
+            scheme = self.scheme
+            authority = self.authority
+            path = self.__normpath(path)
+        elif self.authority is not None and not self.path:
+            scheme = self.scheme
+            authority = self.authority
+            path = self.__normpath(self.SLASH + path)
+        else:
+            scheme = self.scheme
+            authority = self.authority
+            pseg = self.path.rpartition(self.SLASH)[0]
+            path = self.__normpath(self.SLASH.join((pseg, path)))
+        return type(self)(scheme, authority, path, query, fragment)
+
+    def __normpath(self, path):
+        # RFC 3986 5.2.4. Remove Dot Segments
+        out = []
+        for s in path.split(self.SLASH):
+            if s == self.DOT:
+                continue
+            elif s != self.DOTDOT:
+                out.append(s)
+            elif out:
+                out.pop()
+        # FIXME: verify (and refactor) this
+        if path.startswith(self.SLASH) and (not out or out[0]):
+            out.insert(0, type(path)())
+        if path.endswith((self.SLASH + self.DOT, self.SLASH + self.DOTDOT)):
+            out.append(type(path)())
+        return self.SLASH.join(out)
 
 
 class SplitResultBytes(SplitResult):
@@ -210,13 +253,19 @@ class SplitResultBytes(SplitResult):
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
-    re = re.compile(br"""
+    RE = re.compile(br"""
     (?:([^:/?#]+):)?        # scheme
     (?://([^/?#]*))?        # authority
     ([^?#]*)                # path
     (?:\?([^#]*))?          # query
     (?:\#(.*))?             # fragment
     """, flags=re.VERBOSE)
+
+    DOT = b'.'
+
+    DOTDOT = b'..'
+
+    SLASH = b'/'
 
     @property
     def userinfo(self):
@@ -299,58 +348,25 @@ class SplitResultBytes(SplitResult):
             items.append((name, value))
         return items
 
-    def transform(self, ref, strict=False):
-        scheme, authority, path, query, fragment = self.re.match(ref).groups()
-        result = SplitResultBytes
-        # RFC 3986 5.2.2. Transform References
-        if scheme is not None and (strict or scheme != self.scheme):
-            path = self.normpath(path)
-            return result(scheme, authority, path, query, fragment)
-        elif authority is not None:
-            path = self.normpath(path)
-            return result(self.scheme, authority, path, query, fragment)
-        elif not path:
-            path = self.path
-            if query is None:
-                query = self.query
-        elif path.startswith(b'/'):
-            path = self.normpath(path)
-        elif self.authority is not None and not self.path:
-            path = self.normpath(b'/' + path)
-        else:
-            path = self.normpath(self.path[:self.path.rfind(b'/') + 1] + path)
-        return result(self.scheme, self.authority, path, query, fragment)
-
-    @staticmethod
-    def normpath(path):
-        # RFC 3986 5.2.4. Remove Dot Segments
-        out = []
-        for s in path.split(b'/'):
-            if s == b'.':
-                continue
-            elif s != b'..':
-                out.append(s)
-            elif out:
-                out.pop()
-        if path.startswith(b'/') and (not out or out[0]):
-            out.insert(0, b'')
-        if path.endswith((b'/.', b'/..')):
-            out.append(b'')
-        return b'/'.join(out)
-
 
 class SplitResultString(SplitResult):
 
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
-    re = re.compile(r"""
+    RE = re.compile(r"""
     (?:([^:/?#]+):)?        # scheme
     (?://([^/?#]*))?        # authority
     ([^?#]*)                # path
     (?:\?([^#]*))?          # query
     (?:\#(.*))?             # fragment
     """, flags=re.VERBOSE)
+
+    DOT = '.'
+
+    DOTDOT = '..'
+
+    SLASH = '/'
 
     @property
     def userinfo(self):
@@ -433,45 +449,6 @@ class SplitResultString(SplitResult):
             items.append((name, value))
         return items
 
-    def transform(self, ref, strict=False):
-        scheme, authority, path, query, fragment = self.re.match(ref).groups()
-        result = SplitResultString
-        # RFC 3986 5.2.2. Transform References
-        if scheme is not None and (strict or scheme != self.scheme):
-            path = self.normpath(path)
-            return result(scheme, authority, path, query, fragment)
-        elif authority is not None:
-            path = self.normpath(path)
-            return result(self.scheme, authority, path, query, fragment)
-        elif not path:
-            path = self.path
-            if query is None:
-                query = self.query
-        elif path.startswith('/'):
-            path = self.normpath(path)
-        elif self.authority is not None and not self.path:
-            path = self.normpath('/' + path)
-        else:
-            path = self.normpath(self.path[:self.path.rfind('/') + 1] + path)
-        return result(self.scheme, self.authority, path, query, fragment)
-
-    @staticmethod
-    def normpath(path):
-        # RFC 3986 5.2.4. Remove Dot Segments
-        out = []
-        for s in path.split('/'):
-            if s == '.':
-                continue
-            elif s != '..':
-                out.append(s)
-            elif out:
-                out.pop()
-        if path.startswith('/') and (not out or out[0]):
-            out.insert(0, '')
-        if path.endswith(('/.', '/..')):
-            out.append('')
-        return '/'.join(out)
-
 
 def urisplit(string):
     """Split a well-formed URI string into a tuple with five components
@@ -516,7 +493,7 @@ def urisplit(string):
         result = SplitResultString
     else:
         result = SplitResultBytes
-    return result(*result.re.match(string).groups())
+    return result(*result.RE.match(string).groups())
 
 
 def uriunsplit(parts):

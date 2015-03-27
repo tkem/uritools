@@ -12,8 +12,8 @@ except NameError:
     String = (str, bytes, bytearray)
 
 from .const import SUB_DELIMS
-from .parse import uriunsplit
 from .encoding import uriencode
+from .parse import uriunsplit
 
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 SCHEME_RE = re.compile(br"\A[A-Za-z][A-Za-z0-9+.-]*\Z")
