@@ -7,18 +7,27 @@ commonly used functions of the Python 2.7 Standard Library
 
 """
 
+from .chars import GEN_DELIMS, RESERVED, SUB_DELIMS, UNRESERVED
 from .compose import uricompose
-from .const import GEN_DELIMS, RESERVED, SUB_DELIMS, UNRESERVED
 from .defrag import DefragResult, uridefrag
 from .encoding import uridecode, uriencode
-from .parse import SplitResult, urijoin, urisplit, uriunsplit
+from .join import urijoin
+from .split import SplitResult, urisplit, uriunsplit
 
 __all__ = (
-    'GEN_DELIMS', 'SUB_DELIMS', 'RESERVED', 'UNRESERVED',
-    'SplitResult', 'urisplit', 'uriunsplit', 'urijoin',
-    'DefragResult', 'uridefrag',
-    'uriencode', 'uridecode',
-    'uricompose'
+    'GEN_DELIMS',
+    'RESERVED',
+    'SUB_DELIMS',
+    'UNRESERVED',
+    'DefragResult',
+    'SplitResult',
+    'uricompose',
+    'uridecode',
+    'uridefrag',
+    'uriencode',
+    'urijoin',
+    'urisplit',
+    'uriunsplit'
 )
 
 __version__ = '0.11.1'

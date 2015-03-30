@@ -1,6 +1,6 @@
 from string import hexdigits
 
-from .const import UNRESERVED
+from .chars import UNRESERVED
 
 try:
     fromhex = bytes.fromhex

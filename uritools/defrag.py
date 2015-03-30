@@ -26,10 +26,10 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
         fragment = self.fragment
         if fragment is None:
             return self.uri
-        elif isinstance(fragment, type('')):
-            return self.uri + '#' + fragment
-        else:
+        elif isinstance(fragment, bytes):
             return self.uri + b'#' + fragment
+        else:
+            return self.uri + '#' + fragment
 
     def getfragment(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded fragment identifier, or `default` if the
@@ -61,8 +61,8 @@ def uridefrag(string):
     +-------------------+-------+---------------------------------------------+
 
     """
-    if isinstance(string, type('')):
-        parts = string.partition('#')
-    else:
+    if isinstance(string, bytes):
         parts = string.partition(b'#')
+    else:
+        parts = string.partition('#')
     return DefragResult(parts[0], parts[2] if parts[1] else None)
