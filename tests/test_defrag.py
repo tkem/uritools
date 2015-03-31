@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import unittest
-import warnings
 
 from uritools import uridefrag
 
@@ -34,12 +33,6 @@ class DefragTest(unittest.TestCase):
             self.assertEqual(defrag.uri, base)
             self.assertEqual(defrag.fragment, fragment)
             self.assertEqual(uri, defrag.geturi())
-            # DefragResult.base is deprecated
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                self.assertEqual(defrag.uri, defrag.base)
-                self.assertEqual(1, len(w))
-                self.assertEqual(w[0].category, DeprecationWarning)
 
     def test_getfragment(self):
         self.assertEqual(uridefrag('').getfragment(), None)

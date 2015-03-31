@@ -15,12 +15,6 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
 
     __slots__ = ()  # prevent creation of instance dictionary
 
-    @property
-    def base(self):
-        import warnings
-        warnings.warn("DefragResult.base is deprecated", DeprecationWarning)
-        return self.uri
-
     def geturi(self):
         """Return the recombined version of the original URI as a string."""
         fragment = self.fragment
