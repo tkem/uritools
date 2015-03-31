@@ -120,41 +120,12 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return scheme.lower()
 
     def getauthority(self, default=None, encoding='utf-8', errors='strict'):
-        """Return the decoded URI authority, or `default` if the original URI
-        did not contain an authority component.
-
-        """
+        warnings.warn("getauthority() is deprecated", DeprecationWarning)
         authority = self.authority
         if authority is None:
             return default
         else:
             return uridecode(authority, encoding, errors)
-
-    def getpath(self, encoding='utf-8', errors='strict'):
-        """Return the decoded URI path."""
-        return uridecode(self.path, encoding, errors)
-
-    def getquery(self, default=None, encoding='utf-8', errors='strict'):
-        """Return the decoded query string, or `default` if the original URI
-        did not contain a query component.
-
-        """
-        query = self.query
-        if query is None:
-            return default
-        else:
-            return uridecode(query, encoding, errors)
-
-    def getfragment(self, default=None, encoding='utf-8', errors='strict'):
-        """Return the decoded fragment identifier, or `default` if the
-        original URI did not contain a fragment component.
-
-        """
-        fragment = self.fragment
-        if fragment is None:
-            return default
-        else:
-            return uridecode(fragment, encoding, errors)
 
     def getuserinfo(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded userinfo subcomponent of the URI authority, or
@@ -244,6 +215,21 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
                 pass
         return socket.getaddrinfo(host, port, family, type, proto, flags)
 
+    def getpath(self, encoding='utf-8', errors='strict'):
+        """Return the decoded URI path."""
+        return uridecode(self.path, encoding, errors)
+
+    def getquery(self, default=None, encoding='utf-8', errors='strict'):
+        """Return the decoded query string, or `default` if the original URI
+        did not contain a query component.
+
+        """
+        query = self.query
+        if query is None:
+            return default
+        else:
+            return uridecode(query, encoding, errors)
+
     def getquerydict(self, delims=b';&', encoding='utf-8', errors='strict'):
         """Split the query string into individual components using the
         delimiter characters in `delims`, and return a dictionary of
@@ -283,6 +269,17 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             value = uridecode(parts[2], encoding, errors) if parts[1] else None
             items.append((name, value))
         return items
+
+    def getfragment(self, default=None, encoding='utf-8', errors='strict'):
+        """Return the decoded fragment identifier, or `default` if the
+        original URI did not contain a fragment component.
+
+        """
+        fragment = self.fragment
+        if fragment is None:
+            return default
+        else:
+            return uridecode(fragment, encoding, errors)
 
     def transform(self, ref, strict=False):
         """Convert a URI reference relative to `self` into a
