@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import ipaddress
 import itertools
 import re
+import warnings
 
 from collections import Iterable, Mapping
 
@@ -28,8 +29,10 @@ def ifnone(a, b):
 
 def splitauth(authority, userinfo, host, port, encoding='utf-8'):
     if isinstance(authority, type('')):
+        warnings.warn("authority as string is deprecated", DeprecationWarning)
         parts = AUTHORITY_RE.match(authority).groups()
-    elif isinstance(authority, String):
+    elif isinstance(authority, bytes):
+        warnings.warn("authority as bytes is deprecated", DeprecationWarning)
         parts = AUTHORITY_RE.match(authority.decode(encoding)).groups()
     elif isinstance(authority, Iterable):
         _, _, _ = parts = authority
@@ -45,7 +48,7 @@ def ip_literal(address):
         return b'[' + ipaddress.IPv6Address(address).compressed.encode() + b']'
 
 
-def hoststr(host, encoding):
+def hoststr(host):
     if host.startswith('[') and host.endswith(']'):
         return ip_literal(host[1:-1])
     if host.startswith('[') or host.endswith(']'):
@@ -54,7 +57,7 @@ def hoststr(host, encoding):
         # check for IPv6 addresses as returned by SplitResult.gethost()
         return b'[' + ipaddress.IPv6Address(host).compressed.encode() + b']'
     except ValueError:
-        return uriencode(host, SUB_DELIMS, encoding).lower()
+        return uriencode(host, SUB_DELIMS).lower()
 
 
 def querylist(items, delim, encoding):
@@ -133,9 +136,9 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         elif isinstance(host, ipaddress.IPv6Address):
             authority += b'[' + host.compressed.encode() + b']'
         elif isinstance(host, type('')):
-            authority += hoststr(host, encoding)
+            authority += hoststr(host)
         elif isinstance(host, String):
-            authority += hoststr(host.decode(encoding), encoding)
+            authority += hoststr(host.decode('utf-8'))
         else:
             raise TypeError('Invalid host type')
 
