@@ -7,9 +7,6 @@ def urijoin(base, ref, strict=False):
     """Convert a URI reference relative to a base URI to its target URI
     string.
 
-    If `strict` is :const:`False`, a scheme in the reference is
-    ignored if it is identical to the base URI's scheme.
-
     """
     if isinstance(base, type(ref)):
         return urisplit(base).transform(ref, strict).geturi()

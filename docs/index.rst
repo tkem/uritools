@@ -65,7 +65,53 @@ URI Parsing
 
 .. autofunction:: urisplit
 
+   The return value is an instance of a subclass of
+   :class:`collections.namedtuple` with the following read-only
+   attributes:
+
+   +-------------------+-------+---------------------------------------------+
+   | Attribute         | Index | Value                                       |
+   +===================+=======+=============================================+
+   | :attr:`scheme`    | 0     | URI scheme, or :const:`None` if not present |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`authority` | 1     | Authority component,                        |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`path`      | 2     | Path component, always present but may be   |
+   |                   |       | empty                                       |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`query`     | 3     | Query component,                            |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`fragment`  | 4     | Fragment identifier,                        |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`userinfo`  |       | Userinfo subcomponent of authority,         |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`host`      |       | Host subcomponent of authority,             |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`port`      |       | Port subcomponent of authority as a         |
+   |                   |       | (possibly empty) string,                    |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+
 .. autofunction:: uridefrag
+
+   The return value is an instance of a subclass of
+   :class:`collections.namedtuple` with the following read-only
+   attributes:
+
+   +-------------------+-------+---------------------------------------------+
+   | Attribute         | Index | Value                                       |
+   +===================+=======+=============================================+
+   | :attr:`uri`       | 0     | Absolute URI or relative URI reference      |
+   |                   |       | without the fragment identifier             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`fragment`  | 1     | Fragment identifier,                        |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
 
 
 URI Composition
@@ -73,11 +119,17 @@ URI Composition
 
 .. autofunction:: uricompose
 
-   `authority` may be a Unicode string, a `bytes-like object`_, or a
-   tuple of three elements, specifying userinfo, host and port.
+   `authority` must be a tuple of three elements, specifying userinfo,
+   host and port, or :const:`None`.
 
+   If `query` is a mapping object or a sequence of two-element tuples,
+   it will be converted to a string of `key=value` pairs seperated by
+   `delim`.
 
 .. autofunction:: urijoin
+
+    If `strict` is :const:`False`, a scheme in the reference is
+    ignored if it is identical to the base URI's scheme.
 
 .. autofunction:: uriunsplit
 
@@ -94,7 +146,6 @@ URI Encoding
    :const:`utf-8`.
 
    `obj` may be either a Unicode string or a `bytes-like object`_.
-
 
 .. autofunction:: uriencode
 
@@ -146,12 +197,15 @@ convenience methods:
 .. autoclass:: SplitResult
    :members:
 
+   Do not try to create instances of this class directly.  Use the
+   :func:`urisplit` factory function instead.
+
 .. autoclass:: DefragResult
    :members:
 
-   .. attribute:: base
+   Do not try to create instances of this class directly.  Use the
+   :func:`uridefrag` factory function instead.
 
-      .. deprecated:: 0.10
 
 .. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py
 .. _bytes-like object: http://docs.python.org/3/glossary.html#term-bytes-like-object

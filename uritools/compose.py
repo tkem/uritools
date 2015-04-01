@@ -90,14 +90,7 @@ def querydict(mapping, delim, encoding):
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, userinfo=None, host=None, port=None,
                delim=b'&', encoding='utf-8'):
-    """Compose a URI string from its components.
-
-    If `query` is a mapping object or a sequence of two-element
-    tuples, it will be converted to a string of `key=value` pairs
-    seperated by `delim`.
-
-    """
-
+    """Compose a URI string from its components."""
     if path is None:
         raise ValueError('URI path component must be present if empty')
     if authority is not None:

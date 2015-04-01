@@ -6,12 +6,7 @@ from .encoding import uridecode
 
 
 class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
-    """Class to hold :func:`uridefrag` results.
-
-    Do not try to create instances of this class directly.  Use the
-    :func:`uridefrag` factory function instead.
-
-    """
+    """Class to hold :func:`uridefrag` results."""
 
     __slots__ = ()  # prevent creation of instance dictionary
 
@@ -38,23 +33,7 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
 
 
 def uridefrag(string):
-    """Remove an existing fragment component from a URI string.
-
-    The return value is an instance of a subclass of
-    :class:`collections.namedtuple` with the following read-only
-    attributes:
-
-    +-------------------+-------+---------------------------------------------+
-    | Attribute         | Index | Value                                       |
-    +===================+=======+=============================================+
-    | :attr:`uri`       | 0     | Absolute URI or relative URI reference      |
-    |                   |       | without the fragment identifier             |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`fragment`  | 1     | Fragment identifier,                        |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-
-    """
+    """Remove an existing fragment component from a URI string."""
     if isinstance(string, bytes):
         parts = string.partition(b'#')
     else:

@@ -43,12 +43,7 @@ def _ipv4_address(address):
 
 
 class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
-    """Base class to hold :func:`urisplit` results.
-
-    Do not try to create instances of this class directly.  Use the
-    :func:`urisplit` factory function instead.
-
-    """
+    """Base class to hold :func:`urisplit` results."""
 
     __slots__ = ()  # prevent creation of instance dictionary
 
@@ -385,38 +380,6 @@ def urisplit(string):
 
       <scheme>://<authority>/<path>?<query>#<fragment>
 
-    The return value is an instance of a subclass of
-    :class:`collections.namedtuple` with the following read-only
-    attributes:
-
-    +-------------------+-------+---------------------------------------------+
-    | Attribute         | Index | Value                                       |
-    +===================+=======+=============================================+
-    | :attr:`scheme`    | 0     | URI scheme, or :const:`None` if not present |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`authority` | 1     | Authority component,                        |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`path`      | 2     | Path component, always present but may be   |
-    |                   |       | empty                                       |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`query`     | 3     | Query component,                            |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`fragment`  | 4     | Fragment identifier,                        |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`userinfo`  |       | Userinfo subcomponent of authority,         |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`host`      |       | Host subcomponent of authority,             |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-    | :attr:`port`      |       | Port subcomponent of authority as a         |
-    |                   |       | (possibly empty) string,                    |
-    |                   |       | or :const:`None` if not present             |
-    +-------------------+-------+---------------------------------------------+
-
     """
     if isinstance(string, bytes):
         result = SplitResultBytes
@@ -426,9 +389,7 @@ def urisplit(string):
 
 
 def uriunsplit(parts):
-    """Combine the elements of a five-item iterable into a URI string.
-
-    """
+    """Combine the elements of a five-item iterable into a URI string."""
     scheme, authority, path, query, fragment = parts
     if isinstance(path, bytes):
         result = SplitResultBytes
