@@ -145,18 +145,18 @@ URI Encoding
    `encoding`, returning a Unicode string.  The default encoding is
    :const:`utf-8`.
 
-   `obj` may be either a Unicode string or a `bytes-like object`_.
+   `obj` may be either a Unicode string or a :class:`bytes` object.
 
 .. autofunction:: uriencode
 
-   If `encoding` is set to :const:`None` and `obj` is a `bytes-like
-   object`_, replace any characters not in :const:`UNRESERVED` or
-   `safe` with their corresponding percent-encodings and return the
-   result as a :class:`bytes` object.  Otherwise, encode `obj` using
-   the codec registered for `encoding` before replacing any percent
-   encodings.  The default encoding is :const:`utf-8`.
+   If `encoding` is set to :const:`None` and `obj` is a :class:`bytes`
+   object, replace any characters not in :const:`UNRESERVED` or `safe`
+   with their corresponding percent-encodings and return the result as
+   a :class:`bytes` object.  Otherwise, encode `obj` using the codec
+   registered for `encoding` before replacing any percent encodings.
+   The default encoding is :const:`utf-8`.
 
-   `obj` may be either a Unicode string or a `bytes-like object`_,
+   `obj` may be either a Unicode string or a :class:`bytes` object,
    while `safe` must be a :class:`bytes` object containg ASCII
    characters only.
 
@@ -208,4 +208,3 @@ convenience methods:
 
 
 .. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py
-.. _bytes-like object: http://docs.python.org/3/glossary.html#term-bytes-like-object
