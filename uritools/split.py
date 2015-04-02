@@ -28,7 +28,7 @@ def _ip_literal(address):
     if isinstance(address, bytes):
         address = address.decode('ascii')
     if address.startswith('v'):
-        raise ipaddress.AddressValueError('address mechanism not supported')
+        raise ValueError('address mechanism not supported')
     return ipaddress.IPv6Address(address)
 
 

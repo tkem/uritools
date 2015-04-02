@@ -117,12 +117,12 @@ class ComposeTest(unittest.TestCase):
                 uricompose(authority=authority)
         # invalid host type
         for host in (True, 42, 3.14, ipaddress.IPv6Network('2001:db00::0/24')):
-            with self.assertRaises(TypeError, msg='host=%r' % host):
+            with self.assertRaises(AttributeError, msg='host=%r' % host):
                 uricompose(authority=[None, host, None])
-            with self.assertRaises(TypeError, msg='host=%r' % host):
+            with self.assertRaises(AttributeError, msg='host=%r' % host):
                 uricompose(host=host)
-        # invalid host value
-        for host in ('[foo]', '[::1', '::1]', '[v1.x]'):
+        # invalid host ip-literal
+        for host in ('[foo]', '[v1.x]'):
             with self.assertRaises(ValueError, msg='host=%r' % host):
                 uricompose(authority=[None, host, None])
             with self.assertRaises(ValueError, msg='host=%r' % host):
@@ -133,12 +133,6 @@ class ComposeTest(unittest.TestCase):
                 uricompose(authority=[None, '', port])
             with self.assertRaises(ValueError, msg='port=%r' % port):
                 uricompose(port=port)
-        # missing host subcomponent
-        for userinfo, port in (['foo', None], [None, 80], ['foo', 80]):
-            with self.assertRaises(ValueError, msg='%r:%r' % (userinfo, port)):
-                uricompose(authority=[userinfo, None, port])
-            with self.assertRaises(ValueError, msg='%r:%r' % (userinfo, port)):
-                uricompose(userinfo=userinfo, port=port)
 
     def test_authority_override(self):
         cases = [
@@ -171,7 +165,7 @@ class ComposeTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg='path=%r' % path):
                 uricompose(authority='auth', path=path)
         # invalid path without authority
-        for path in (None, '//', b'//', '//foo', b'//foo'):
+        for path in ('//', b'//', '//foo', b'//foo'):
             with self.assertRaises(ValueError, msg='path=%r' % path):
                 uricompose(path=path)
 
