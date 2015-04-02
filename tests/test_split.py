@@ -180,42 +180,6 @@ class SplitTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg='%r' % uri):
                 urisplit(uri.encode()).gethostip()
 
-    def test_getaddrinfo(self):
-        import socket
-        family = socket.AF_INET
-        socktype = socket.SOCK_STREAM
-        proto = socket.getprotobyname('tcp')
-
-        cases = [
-            ((family, socktype, proto, '', ('127.0.0.1', 80)),
-             'http://localhost/foo',
-             None),
-            ((family, socktype, proto, '', ('127.0.0.1', 8080)),
-             'http://localhost/foo',
-             8080),
-            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
-             'http://localhost:8000/foo',
-             None),
-            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
-             'http://localhost:8000/foo',
-             8080),
-            ((family, socktype, proto, '', ('127.0.0.1', 0)),
-             'foo://user@localhost/foo',
-             None),
-            ((family, socktype, proto, '', ('127.0.0.1', 8080)),
-             'foo://user@localhost/foo',
-             8080),
-            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
-             'foo://user@localhost:8000/foo',
-             None),
-            ((family, socktype, proto, '', ('127.0.0.1', 8000)),
-             'foo://user@localhost:8000/foo',
-             8080),
-        ]
-
-        for addrinfo, uri, port in cases:
-            self.assertIn(addrinfo, urisplit(uri).getaddrinfo(port=port))
-
     def test_defaultport(self):
         for uri in ['foo://bar', 'foo://bar:', 'foo://bar/', 'foo://bar:/']:
             result = urisplit(uri)

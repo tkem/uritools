@@ -114,7 +114,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return scheme.lower()
 
-    def getauthority(self, default=None, encoding='utf-8', errors='strict'):
+    def getauthority(self, default=None, encoding='utf-8',
+                     errors='strict'):  # pragma: no cover
         warnings.warn("getauthority() is deprecated", DeprecationWarning)
         authority = self.authority
         if authority is None:
@@ -139,7 +140,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
        `default` if the original URI did not contain a host.
 
         """
-        if kwargs:
+        if kwargs:  # pragma: no cover
             warnings.warn(
                 "gethost() arguments encoding and errors are deprecated",
                 DeprecationWarning
@@ -156,7 +157,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         the original URI did not contain a host.
 
         """
-        if kwargs:
+        if kwargs:  # pragma: no cover
             warnings.warn(
                 "gethostip() arguments encoding and errors are deprecated",
                 DeprecationWarning
@@ -183,24 +184,10 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return default
 
-    def getaddrinfo(self, port=None, family=0, type=0, proto=0, flags=0):
-        """Translate the host and port subcomponents of the URI
-        authority into a sequence of 5-tuples as reported by
-        :func:`socket.getaddrinfo`.
-
-        If the URI authority does not contain a port subcomponent, or
-        the port subcomponent is empty, the optional `port` argument
-        is used.  If no `port` argument is given, the URI scheme is
-        interpreted as a service name, and the port number for that
-        service is used.  If no matching service is found,
-        :const:`None` is passed to :func:`socket.getaddrinfo` for the
-        port value.
-
-        The optional `family`, `type`, `proto` and `flags` arguments
-        are passed to :func:`socket.getaddrinfo` unchanged.
-
-        """
+    def getaddrinfo(self, port=None, family=0, type=0, proto=0,
+                    flags=0):  # pragma: no cover
         import socket
+        warnings.warn("getaddrinfo() is deprecated", DeprecationWarning)
         host = self.gethost()
         port = self.getport(port)
         if port is None and self.scheme:
