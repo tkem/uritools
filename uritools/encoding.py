@@ -29,12 +29,29 @@ _decoded = {
 }
 
 
-def uridecode(obj, encoding='utf-8', errors='strict'):
-    """Decode a URI string or :class:`bytes` object."""
-    if isinstance(obj, bytes):
-        parts = obj.split(b'%')
+def uriencode(uristring, safe=b'', encoding='utf-8', errors='strict'):
+    """Encode a URI string or string component."""
+    if isinstance(uristring, bytes):
+        values = memoryview(uristring).tolist()
     else:
-        parts = obj.encode(encoding or 'ascii', errors).split(b'%')
+        values = memoryview(uristring.encode(encoding, errors)).tolist()
+    try:
+        encode = _encoded[safe].__getitem__
+    except KeyError:
+        enclist = _encoded[b''][:]
+        for i in memoryview(safe).tolist():
+            enclist[i] = _fromint(i)
+        _encoded[safe] = enclist
+        encode = enclist.__getitem__
+    return b''.join(map(encode, values))
+
+
+def uridecode(uristring, encoding='utf-8', errors='strict'):
+    """Decode a URI string or string component."""
+    if isinstance(uristring, bytes):
+        parts = uristring.split(b'%')
+    else:
+        parts = uristring.encode(encoding or 'ascii', errors).split(b'%')
     result = [parts[0]]
     append = result.append
     decode = _decoded.get
@@ -45,20 +62,3 @@ def uridecode(obj, encoding='utf-8', errors='strict'):
         return b''.join(result).decode(encoding, errors)
     else:
         return b''.join(result)
-
-
-def uriencode(obj, safe=b'', encoding='utf-8', errors='strict'):
-    """Encode a URI string or :class:`bytes` object."""
-    if isinstance(obj, bytes):
-        values = memoryview(obj).tolist()
-    else:
-        values = memoryview(obj.encode(encoding, errors)).tolist()
-    try:
-        encode = _encoded[safe].__getitem__
-    except KeyError:
-        enclist = _encoded[b''][:]
-        for i in memoryview(safe).tolist():
-            enclist[i] = _fromint(i)
-        _encoded[safe] = enclist
-        encode = enclist.__getitem__
-    return b''.join(map(encode, values))

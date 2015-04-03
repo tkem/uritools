@@ -32,10 +32,10 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
             return default
 
 
-def uridefrag(string):
+def uridefrag(uristring):
     """Remove an existing fragment component from a URI string."""
-    if isinstance(string, bytes):
-        parts = string.partition(b'#')
+    if isinstance(uristring, bytes):
+        parts = uristring.partition(b'#')
     else:
-        parts = string.partition('#')
+        parts = uristring.partition('#')
     return DefragResult(parts[0], parts[2] if parts[1] else None)

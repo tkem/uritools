@@ -175,7 +175,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
         :class:`int`, or `default` if the original URI did not contain
-        a port, or if the port was empty.
+        a port or if the port was empty.
 
         """
         port = self.port
@@ -217,10 +217,6 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         delimiter characters in `delims`, and return a dictionary of
         query parameters.
 
-        The dictionary keys are the unique decoded query parameter
-        names, and the values are lists of decoded values for each
-        name, with names and values seperated by :const:`'='`.
-
         """
         dict = collections.defaultdict(list)
         for name, value in self.getquerylist(delims, encoding, errors):
@@ -229,8 +225,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getquerylist(self, delims=b';&', encoding='utf-8', errors='strict'):
         """Split the query string into individual components using the
-        delimiter characters in `delims`, and return a list of `(name,
-        value)` pairs, where names and values are seperated by
+        delimiter characters in `delims` and return a list of `(name,
+        value)` pairs, with names and values seperated by
         :const:`'='`.
 
         """
@@ -266,9 +262,6 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     def transform(self, ref, strict=False):
         """Convert a URI reference relative to `self` into a
         :class:`SplitResult` representing its target.
-
-        If `strict` is :const:`False`, a scheme in the reference is
-        ignored if it is identical to :attr:`self.scheme`.
 
         """
         scheme, authority, path, query, fragment = self.RE.match(ref).groups()
@@ -361,18 +354,18 @@ class SplitResultString(SplitResult):
     DIGITS = '0123456789'
 
 
-def urisplit(string):
+def urisplit(uristring):
     """Split a well-formed URI string into a tuple with five components
     corresponding to a URI's general structure::
 
       <scheme>://<authority>/<path>?<query>#<fragment>
 
     """
-    if isinstance(string, bytes):
+    if isinstance(uristring, bytes):
         result = SplitResultBytes
     else:
         result = SplitResultString
-    return result(*result.RE.match(string).groups())
+    return result(*result.RE.match(uristring).groups())
 
 
 def uriunsplit(parts):

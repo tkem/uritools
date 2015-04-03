@@ -10,8 +10,8 @@ and Python 3 `urllib.parse`_ modules.
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
     >>> parts = urisplit('foo://user@example.com:8042/over/there?name=ferret#nose')
     >>> parts
-    SplitResultString(scheme='foo', authority='user@example.com:8042',
-                      path='/over/there', query='name=ferret', fragment='nose')
+    SplitResult(scheme='foo', authority='user@example.com:8042',
+                path='/over/there', query='name=ferret', fragment='nose')
     >>> parts.scheme
     'foo'
     >>> parts.authority
@@ -29,8 +29,6 @@ and Python 3 `urllib.parse`_ modules.
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
     DefragResult(uri='http://pythonhosted.org/uritools/index.html',
                  fragment='constants')
-    >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
-    'www.ölkürbis.at'
 
 For various reasons, the Python 2 urlparse_ module is not compliant
 with current Internet standards, does not include Unicode support, and
@@ -45,9 +43,9 @@ still remain.  As stated in `Lib/urllib/parse.py`_::
     some parsing quirks from older RFCs are retained.
 
 This module aims to provide fully RFC 3986 compliant replacements for
-some commonly used functions found in urlparse_, plus additional
-functions for conveniently composing URIs from their individual
-components.
+some commonly used functions found in urlparse_ and `urllib.parse`_,
+plus additional functions for conveniently composing URIs from their
+individual components.
 
 
 Installation

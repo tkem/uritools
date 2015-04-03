@@ -12,8 +12,8 @@ commonly used functions of the Python 2.7 Standard Library
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
     >>> parts = urisplit('foo://user@example.com:8042/over/there?name=ferret#nose')
     >>> parts
-    SplitResultString(scheme='foo', authority='user@example.com:8042',
-                      path='/over/there', query='name=ferret', fragment='nose')
+    SplitResult(scheme='foo', authority='user@example.com:8042',
+                path='/over/there', query='name=ferret', fragment='nose')
     >>> parts.scheme
     'foo'
     >>> parts.authority
@@ -31,8 +31,6 @@ commonly used functions of the Python 2.7 Standard Library
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
     DefragResult(uri='http://pythonhosted.org/uritools/index.html',
                  fragment='constants')
-    >>> urisplit('http://www.xn--lkrbis-vxa4c.at/').gethost(encoding='idna')
-    'www.ölkürbis.at'
 
 For various reasons, the Python 2 :mod:`urlparse` module is not
 compliant with current Internet standards, does not include Unicode
@@ -47,9 +45,9 @@ other issues still remain.  As stated in `Lib/urllib/parse.py`_::
     some parsing quirks from older RFCs are retained.
 
 This module aims to provide fully RFC 3986 compliant replacements for
-the most commonly used functions found in :mod:`urlparse`, plus
-additional functions for conveniently composing URIs from their
-individual components.
+the most commonly used functions found in :mod:`urlparse` and
+:mod:`urllib.parse`, plus additional functions for conveniently
+composing URIs from their individual components.
 
 .. seealso::
 
@@ -60,7 +58,7 @@ individual components.
         changed, even if this means breaking backward compatiblity.
 
 
-URI Parsing
+URI Decomposition
 ------------------------------------------------------------------------
 
 .. autofunction:: urisplit
@@ -117,57 +115,53 @@ URI Parsing
 URI Composition
 ------------------------------------------------------------------------
 
-.. autofunction:: uricompose
-
-   `authority` must be a tuple of three elements, specifying userinfo,
-   host and port, or :const:`None`.
-
-   If `query` is a mapping object or a sequence of two-element tuples,
-   it will be converted to a string of `key=value` pairs seperated by
-   `delim`.
+.. autofunction:: uriunsplit
 
 .. autofunction:: urijoin
 
     If `strict` is :const:`False`, a scheme in the reference is
     ignored if it is identical to the base URI's scheme.
 
-.. autofunction:: uriunsplit
+.. autofunction:: uricompose
+
+   `authority` may be a Unicode string, :class:`bytes` object, or a
+   three-item iterable specifying userinfo, host and port
+   subcomponents.  If both `authority` and any of the `userinfo`,
+   `host` or `port` keyword arguments are given, the keyword argument
+   will override the corresponding `authority` subcomponent.
+
+   If `query` is a mapping object or a sequence of two-element tuples,
+   it will be converted to a string of `key=value` pairs seperated by
+   `delim`.
+
+   The returned value is of type :class:`str`.
 
 
 URI Encoding
 ------------------------------------------------------------------------
 
+.. autofunction:: uriencode
+
+   If `uristring` is a :class:`bytes` object, replace any characters
+   not in :const:`UNRESERVED` or `safe` with their corresponding
+   percent-encodings and return the result as a :class:`bytes` object.
+   Otherwise, encode `uristring` using the codec registered for
+   `encoding` before replacing any percent encodings.
+
+   Note that `uristring` may be either a Unicode string or a
+   :class:`bytes` object, while `safe` must be a :class:`bytes` object
+   containg ASCII characters only.
+
 .. autofunction:: uridecode
 
    If `encoding` is set to :const:`None`, return the percent-decoded
-   `obj` as a :class:`bytes` object.  Otherwise, replace any
-   percent-encodings and decode `obj` using the codec registered for
-   `encoding`, returning a Unicode string.  The default encoding is
-   :const:`utf-8`.
-
-   `obj` may be either a Unicode string or a :class:`bytes` object.
-
-.. autofunction:: uriencode
-
-   If `encoding` is set to :const:`None` and `obj` is a :class:`bytes`
-   object, replace any characters not in :const:`UNRESERVED` or `safe`
-   with their corresponding percent-encodings and return the result as
-   a :class:`bytes` object.  Otherwise, encode `obj` using the codec
-   registered for `encoding` before replacing any percent encodings.
-   The default encoding is :const:`utf-8`.
-
-   `obj` may be either a Unicode string or a :class:`bytes` object,
-   while `safe` must be a :class:`bytes` object containg ASCII
-   characters only.
+   `uristring` as a :class:`bytes` object.  Otherwise, replace any
+   percent-encodings and decode `uristring` using the codec registered
+   for `encoding`, returning a Unicode string.
 
 
-Constants
+Character Constants
 ------------------------------------------------------------------------
-
-.. data:: UNRESERVED
-
-   Unreserved characters specified in RFC 3986 as a :class:`bytes`
-   object.
 
 .. data:: RESERVED
 
@@ -184,6 +178,11 @@ Constants
    Subcomponent delimiting characters specified in RFC 3986 as a
    :class:`bytes` object.
 
+.. data:: UNRESERVED
+
+   Unreserved characters specified in RFC 3986 as a :class:`bytes`
+   object.
+
 
 Structured Parse Results
 ------------------------------------------------------------------------
@@ -192,19 +191,25 @@ The result objects from the :func:`urisplit` and :func:`uridefrag`
 functions are instances of subclasses of
 :class:`collections.namedtuple`.  These objects contain the attributes
 described in the function documentation, as well as some additional
-convenience methods:
+convenience methods.
 
 .. autoclass:: SplitResult
    :members:
+   :exclude-members: gethost, gethostip
 
-   Do not try to create instances of this class directly.  Use the
-   :func:`urisplit` factory function instead.
+   .. method:: gethost(default=None)
+
+      Return the decoded host subcomponent of the URI authority, or
+      `default` if the original URI did not contain a host.
+
+   .. method:: gethostip(default=None)
+
+      Return the decoded host subcomponent of the URI authority as a
+      string or an :mod:`ipaddress` address object, or `default` if
+      the original URI did not contain a host.
 
 .. autoclass:: DefragResult
    :members:
-
-   Do not try to create instances of this class directly.  Use the
-   :func:`uridefrag` factory function instead.
 
 
 .. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py
