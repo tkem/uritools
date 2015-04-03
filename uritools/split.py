@@ -50,10 +50,9 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     @property
     def userinfo(self):
         authority = self.authority
-        if authority is not None:
-            userinfo, present, _ = authority.rpartition(self.AT)
-        else:
+        if authority is None:
             return None
+        userinfo, present, _ = authority.rpartition(self.AT)
         if present:
             return userinfo
         else:
@@ -62,23 +61,21 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     @property
     def host(self):
         authority = self.authority
-        if authority is not None:
-            _, _, hostinfo = authority.rpartition(self.AT)
-            host, _, port = hostinfo.rpartition(self.COLON)
-        else:
+        if authority is None:
             return None
-        if not port.lstrip(self.DIGITS):
-            return host
-        else:
+        _, _, hostinfo = authority.rpartition(self.AT)
+        host, _, port = hostinfo.rpartition(self.COLON)
+        if port.lstrip(self.DIGITS):
             return hostinfo
+        else:
+            return host
 
     @property
     def port(self):
         authority = self.authority
-        if authority is not None:
-            _, present, port = authority.rpartition(self.COLON)
-        else:
+        if authority is None:
             return None
+        _, present, port = authority.rpartition(self.COLON)
         if present and not port.lstrip(self.DIGITS):
             return port
         else:
