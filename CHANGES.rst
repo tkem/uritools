@@ -1,3 +1,18 @@
+0.12.0 2015-04-03
+-----------------
+
+- Deprecate ``SplitResult.getaddrinfo()``.
+
+- Deprecate ``SplitResult.getauthority()``.
+
+- Deprecate ``SplitResult.gethost()`` and ``SplitResult.gethostip()``
+  `encoding` parameter; always use `utf-8` instead.
+
+- Drop support for "bytes-like objects".
+
+- Remove ``DefragResult.base``.
+
+
 0.11.1 2015-03-35
 -----------------
 
