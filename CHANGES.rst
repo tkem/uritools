@@ -13,7 +13,7 @@
 - Remove ``DefragResult.base``.
 
 
-0.11.1 2015-03-35
+0.11.1 2015-03-25
 -----------------
 
 - Fix ``uricompose()`` for relative-path references with colons in the
