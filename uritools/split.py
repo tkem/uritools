@@ -181,19 +181,6 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return default
 
-    def getaddrinfo(self, port=None, family=0, type=0, proto=0,
-                    flags=0):  # pragma: no cover
-        import socket
-        warnings.warn("getaddrinfo() is deprecated", DeprecationWarning)
-        host = self.gethost()
-        port = self.getport(port)
-        if port is None and self.scheme:
-            try:
-                port = socket.getservbyname(self.getscheme())
-            except socket.error:
-                pass
-        return socket.getaddrinfo(host, port, family, type, proto, flags)
-
     def getpath(self, encoding='utf-8', errors='strict'):
         """Return the decoded URI path."""
         return uridecode(self.path, encoding, errors)
