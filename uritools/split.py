@@ -111,15 +111,6 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return scheme.lower()
 
-    def getauthority(self, default=None, encoding='utf-8',
-                     errors='strict'):  # pragma: no cover
-        warnings.warn("getauthority() is deprecated", DeprecationWarning)
-        authority = self.authority
-        if authority is None:
-            return default
-        else:
-            return uridecode(authority, encoding, errors)
-
     def getuserinfo(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded userinfo subcomponent of the URI authority, or
         `default` if the original URI did not contain a userinfo
