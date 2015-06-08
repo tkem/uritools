@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import collections
 import ipaddress
 import re
-import warnings
 
 from .encoding import uridecode
 
@@ -123,33 +122,23 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return uridecode(userinfo, encoding, errors)
 
-    def gethost(self, default=None, **kwargs):
+    def gethost(self, default=None):
         """Return the decoded host subcomponent of the URI authority, or
        `default` if the original URI did not contain a host.
 
         """
-        if kwargs:  # pragma: no cover
-            warnings.warn(
-                "gethost() arguments encoding and errors are deprecated",
-                DeprecationWarning
-            )
         hostip = self.gethostip()
         if hasattr(hostip, 'compressed'):
             return hostip.compressed
         else:
             return hostip
 
-    def gethostip(self, default=None, **kwargs):
+    def gethostip(self, default=None):
         """Return the decoded host subcomponent of the URI authority as a
         string or an :mod:`ipaddress` address object, or `default` if
         the original URI did not contain a host.
 
         """
-        if kwargs:  # pragma: no cover
-            warnings.warn(
-                "gethostip() arguments encoding and errors are deprecated",
-                DeprecationWarning
-            )
         host = self.host
         if host is None or (not host and default is not None):
             return default
