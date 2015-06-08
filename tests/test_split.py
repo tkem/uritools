@@ -234,6 +234,21 @@ class SplitTest(unittest.TestCase):
             self.assertEqual(result.gethost(), 'bar')
             self.assertEqual(result.getport(8000), 8000)
 
+    def test_getpath(self):
+        cases = [
+            ('', ''),
+            ('.', ''),
+            ('..', ''),
+            ('../..', ''),
+            ('../../foo', 'foo'),
+            ('../../foo/../bar/.', 'bar/'),
+        ]
+        for uri, path in cases:
+            parts = urisplit(uri)
+            self.assertEqual(path, parts.getpath())
+            parts = urisplit(uri.encode('ascii'))
+            self.assertEqual(path, parts.getpath())
+
     def test_getquery(self):
         cases = [
             ("?", [], {}),

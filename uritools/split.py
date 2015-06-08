@@ -162,8 +162,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return default
 
     def getpath(self, encoding='utf-8', errors='strict'):
-        """Return the decoded URI path."""
-        return uridecode(self.path, encoding, errors)
+        """Return the normalized decoded URI path."""
+        return uridecode(self.__normpath(self.path), encoding, errors)
 
     def getquery(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded query string, or `default` if the original URI
