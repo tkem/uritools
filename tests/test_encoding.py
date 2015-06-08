@@ -20,17 +20,17 @@ class EncodingTest(unittest.TestCase):
             (' ', b'%20'),
             ('%', b'%25'),
             ('~', b'~'),
-            (UNRESERVED.decode('ascii'), UNRESERVED),
+            (UNRESERVED, UNRESERVED.encode('ascii')),
         ]
         for decoded, encoded in cases:
             self.check(decoded, encoded)
 
     def test_safe_encoding(self):
         cases = [
-            ('', b'', b''),
-            (' ', b' ', b' '),
-            ('%', b'%', b'%'),
-            (RESERVED.decode('ascii'), RESERVED, RESERVED)
+            ('', b'', ''),
+            (' ', b' ', ' '),
+            ('%', b'%', '%'),
+            (RESERVED, RESERVED.encode('ascii'), RESERVED)
         ]
         for decoded, encoded, safe in cases:
             self.check(decoded, encoded, safe)

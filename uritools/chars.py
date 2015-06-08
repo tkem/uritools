@@ -7,8 +7,8 @@
 #   sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
 #               / "*" / "+" / "," / ";" / "="
 #
-GEN_DELIMS = b':/?#[]@'
-SUB_DELIMS = b"!$&'()*+,;="
+GEN_DELIMS = ':/?#[]@'
+SUB_DELIMS = "!$&'()*+,;="
 RESERVED = GEN_DELIMS + SUB_DELIMS
 
 # RFC 3986 2.3.  Unreserved Characters
@@ -16,8 +16,8 @@ RESERVED = GEN_DELIMS + SUB_DELIMS
 #   unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 #
 UNRESERVED = (
-    b'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    b'abcdefghijklmnopqrstuvwxyz'
-    b'0123456789'
-    b'-._~'
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    'abcdefghijklmnopqrstuvwxyz'
+    '0123456789'
+    '-._~'
 )

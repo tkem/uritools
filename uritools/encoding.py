@@ -18,7 +18,7 @@ else:
 def _pctenc(byte):
     return ('%%%02X' % byte).encode()
 
-_unreserved = frozenset(memoryview(UNRESERVED).tolist())
+_unreserved = frozenset(memoryview(UNRESERVED.encode('ascii')).tolist())
 
 _encoded = {
     b'': [_fromint(i) if i in _unreserved else _pctenc(i) for i in range(256)]
@@ -29,12 +29,14 @@ _decoded = {
 }
 
 
-def uriencode(uristring, safe=b'', encoding='utf-8', errors='strict'):
+def uriencode(uristring, safe='', encoding='utf-8', errors='strict'):
     """Encode a URI string or string component."""
     if isinstance(uristring, bytes):
         values = memoryview(uristring).tolist()
     else:
         values = memoryview(uristring.encode(encoding, errors)).tolist()
+    if not isinstance(safe, bytes):
+        safe = safe.encode('ascii')
     try:
         encode = _encoded[safe].__getitem__
     except KeyError:

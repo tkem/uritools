@@ -17,6 +17,14 @@ _SCHEME_RE = re.compile(br"\A[A-Za-z][A-Za-z0-9+.-]*\Z")
 _AUTHORITY_RE_BYTES = re.compile(br"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
 _AUTHORITY_RE_STRING = re.compile(r"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
 
+# safe component characters (bytes)
+_SUB_DELIMS_BYTES = SUB_DELIMS.encode('ascii')
+_SAFE_USERINFO = _SUB_DELIMS_BYTES + b':'
+_SAFE_HOST = _SUB_DELIMS_BYTES
+_SAFE_PATH = _SUB_DELIMS_BYTES + b':@/'
+_SAFE_QUERY = _SUB_DELIMS_BYTES + b':@/?'
+_SAFE_FRAGMENT = _SUB_DELIMS_BYTES + b':@/?'
+
 
 def _scheme(scheme):
     if _SCHEME_RE.match(scheme):
@@ -29,7 +37,7 @@ def _authority(userinfo, host, port, encoding):
     authority = []
 
     if userinfo is not None:
-        authority.append(uriencode(userinfo, SUB_DELIMS + b':', encoding))
+        authority.append(uriencode(userinfo, _SAFE_USERINFO, encoding))
         authority.append(b'@')
 
     if isinstance(host, ipaddress.IPv6Address):
@@ -69,7 +77,7 @@ def _host(host):
     try:
         return _ip_literal(host.decode('utf-8'))
     except ValueError:
-        return uriencode(host, SUB_DELIMS, 'utf-8').lower()
+        return uriencode(host, _SAFE_HOST, 'utf-8').lower()
 
 
 def _port(port):
@@ -85,7 +93,7 @@ def _port(port):
 
 
 def _querylist(items, delim, encoding):
-    safe = (SUB_DELIMS + b':@/?').replace(delim, b'')
+    safe = _SAFE_QUERY.replace(delim, b'')
     terms = []
     append = terms.append
     for key, value in items:
@@ -152,7 +160,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # path component must either be empty or begin with a slash ("/")
     # character.  If a URI does not contain an authority component,
     # then the path cannot begin with two slash characters ("//").
-    path = uriencode(path, SUB_DELIMS + b':@/', encoding)
+    path = uriencode(path, _SAFE_PATH, encoding)
     if authority is not None and path and not path.startswith(b'/'):
         raise ValueError('Invalid path with authority component')
     if authority is None and path.startswith(b'//'):
@@ -179,7 +187,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # URI, it is sometimes better for usability to avoid percent-
     # encoding those characters.
     if isinstance(query, (bytes, type(''))):
-        query = uriencode(query, SUB_DELIMS + b':@/?', encoding)
+        query = uriencode(query, _SAFE_QUERY, encoding)
     elif isinstance(query, Mapping):
         query = _querydict(query, delim, encoding)
     elif isinstance(query, Iterable):
@@ -193,7 +201,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # this data correctly when it is used as the base URI for relative
     # references.
     if fragment is not None:
-        fragment = uriencode(fragment, SUB_DELIMS + b':@/?', encoding)
+        fragment = uriencode(fragment, _SAFE_FRAGMENT, encoding)
 
     result = uriunsplit((scheme, authority, path, query, fragment))
     # always return platform `str` type

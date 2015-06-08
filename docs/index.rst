@@ -165,23 +165,22 @@ Character Constants
 
 .. data:: RESERVED
 
-   Reserved characters specified in RFC 3986 as a :class:`bytes`
-   object.
+   A string containing all reserved characters specified in RFC 3986.
 
 .. data:: GEN_DELIMS
 
-   General delimiting characters specified in RFC 3986 as a
-   :class:`bytes` object.
+   A string containing all general delimiting characters specified in
+   RFC 3986.
 
 .. data:: SUB_DELIMS
 
-   Subcomponent delimiting characters specified in RFC 3986 as a
-   :class:`bytes` object.
+   A string containing all subcomponent delimiting characters
+   specified in RFC 3986.
 
 .. data:: UNRESERVED
 
-   Unreserved characters specified in RFC 3986 as a :class:`bytes`
-   object.
+   A string containing all unreserved characters specified in
+   RFC 3986.
 
 
 Structured Parse Results
