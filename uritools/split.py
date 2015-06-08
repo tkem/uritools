@@ -123,17 +123,6 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return uridecode(userinfo, encoding, errors)
 
     def gethost(self, default=None):
-        """Return the decoded host subcomponent of the URI authority, or
-       `default` if the original URI did not contain a host.
-
-        """
-        hostip = self.gethostip()
-        if hasattr(hostip, 'compressed'):
-            return hostip.compressed
-        else:
-            return hostip
-
-    def gethostip(self, default=None):
         """Return the decoded host subcomponent of the URI authority as a
         string or an :mod:`ipaddress` address object, or `default` if
         the original URI did not contain a host.

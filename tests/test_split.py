@@ -84,7 +84,6 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.getscheme(), 'foo')
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
-        self.assertEqual(result.gethostip(), 'example.com')
         self.assertEqual(result.getport(), 8042)
         self.assertEqual(result.getpath(), '/over/there')
         self.assertEqual(result.getquery(), 'name=ferret')
@@ -106,7 +105,6 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.getscheme(), 'urn')
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
-        self.assertEqual(result.gethostip(), None)
         self.assertEqual(result.getport(), None)
         self.assertEqual(result.getpath(), 'example:animal:ferret:nose')
         self.assertEqual(result.getquery(), None)
@@ -128,7 +126,6 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.getscheme(), 'file')
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), '')
-        self.assertEqual(result.gethostip(), '')
         self.assertEqual(result.getport(), None)
         self.assertEqual(result.getpath(), '/')
         self.assertEqual(result.getquery(), None)
@@ -150,7 +147,6 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.getscheme(), 'foo')
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
-        self.assertEqual(result.gethostip(), 'example.com')
         self.assertEqual(result.getport(), 8042)
         self.assertEqual(result.getpath(), '/over/there')
         self.assertEqual(result.getquery(), 'name=ferret')
@@ -172,7 +168,6 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.getscheme(), 'urn')
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
-        self.assertEqual(result.gethostip(), None)
         self.assertEqual(result.getport(), None)
         self.assertEqual(result.getpath(), 'example:animal:ferret:nose')
         self.assertEqual(result.getquery(), None)
@@ -194,7 +189,6 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.getscheme(), 'file')
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), '')
-        self.assertEqual(result.gethostip(), '')
         self.assertEqual(result.getport(), None)
         self.assertEqual(result.getpath(), '/')
         self.assertEqual(result.getquery(), None)
@@ -208,21 +202,21 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(urisplit(b'foo').getscheme(default='bar'), 'bar')
         self.assertEqual(urisplit(b'FOO_BAR:/').getscheme(), 'foo_bar')
 
-    def test_gethostip(self):
+    def test_gethost(self):
         from ipaddress import IPv4Address, IPv6Address
         cases = [
             ('http://Test.python.org:5432/foo/', 'test.python.org'),
             ('http://12.34.56.78:5432/foo/', IPv4Address('12.34.56.78')),
             ('http://[::1]:5432/foo/', IPv6Address('::1')),
         ]
-        for uri, hostip in cases:
-            self.assertEqual(urisplit(uri).gethostip(), hostip)
-            self.assertEqual(urisplit(uri.encode()).gethostip(), hostip)
+        for uri, host in cases:
+            self.assertEqual(urisplit(uri).gethost(), host)
+            self.assertEqual(urisplit(uri.encode()).gethost(), host)
         for uri in ['http://[::1/', 'http://::1]/']:
             with self.assertRaises(ValueError, msg='%r' % uri):
-                urisplit(uri).gethostip()
+                urisplit(uri).gethost()
             with self.assertRaises(ValueError, msg='%r' % uri):
-                urisplit(uri.encode()).gethostip()
+                urisplit(uri.encode()).gethost()
 
     def test_defaultport(self):
         for uri in ['foo://bar', 'foo://bar:', 'foo://bar/', 'foo://bar:/']:
@@ -317,9 +311,11 @@ class SplitTest(unittest.TestCase):
             ]
         for uri, host, port in cases:
             parts = urisplit(uri)
-            self.assertEqual((host, port), (parts.gethost(), parts.getport()))
+            self.assertEqual(host, str(parts.gethost()))
+            self.assertEqual(port, parts.getport())
             parts = urisplit(uri.encode('ascii'))
-            self.assertEqual((host, port), (parts.gethost(), parts.getport()))
+            self.assertEqual(host, str(parts.gethost()))
+            self.assertEqual(port, parts.getport())
 
     def test_invalid_ip_literal(self):
         uris = [
@@ -333,7 +329,5 @@ class SplitTest(unittest.TestCase):
         for uri in uris:
             with self.assertRaises(ValueError, msg='%r' % uri):
                 urisplit(uri).gethost()
-            with self.assertRaises(ValueError, msg='%r' % uri):
-                urisplit(uri).gethostip()
             with self.assertRaises(ValueError, msg='%r' % uri.encode('ascii')):
                 urisplit(uri.encode('ascii')).gethost()
