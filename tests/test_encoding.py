@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from uritools import uriencode, uridecode, RESERVED, UNRESERVED
+from uritools import RESERVED, UNRESERVED, uridecode, uriencode
 
 
 class EncodingTest(unittest.TestCase):

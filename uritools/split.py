@@ -95,7 +95,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             result.extend([self.QUEST, query])
         if fragment is not None:
             result.extend([self.HASH, fragment])
-        return type(path)().join(result)
+        return self.EMPTY.join(result)
 
     def getscheme(self, default=None):
         """Return the URI scheme in canonical (lowercase) form, or `default`
@@ -152,7 +152,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getpath(self, encoding='utf-8', errors='strict'):
         """Return the normalized decoded URI path."""
-        return uridecode(self.__normpath(self.path), encoding, errors)
+        path = self.__remove_dot_segments(self.path)
+        return uridecode(path, encoding, errors)
 
     def getquery(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded query string, or `default` if the original URI
@@ -221,10 +222,10 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
         # RFC 3986 5.2.2. Transform References
         if scheme is not None and (strict or scheme != self.scheme):
-            path = self.__normpath(path)
+            path = self.__remove_dot_segments(path)
         elif authority is not None:
             scheme = self.scheme
-            path = self.__normpath(path)
+            path = self.__remove_dot_segments(path)
         elif not path:
             scheme = self.scheme
             authority = self.authority
@@ -233,34 +234,42 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         elif path.startswith(self.SLASH):
             scheme = self.scheme
             authority = self.authority
-            path = self.__normpath(path)
-        elif self.authority is not None and not self.path:
-            scheme = self.scheme
-            authority = self.authority
-            path = self.__normpath(self.SLASH + path)
+            path = self.__remove_dot_segments(path)
         else:
             scheme = self.scheme
             authority = self.authority
-            pseg = self.path.rpartition(self.SLASH)[0]
-            path = self.__normpath(self.SLASH.join((pseg, path)))
+            path = self.__remove_dot_segments(self.__merge(path))
         return type(self)(scheme, authority, path, query, fragment)
 
-    def __normpath(self, path):
+    def __merge(self, path):
+        # RFC 3986 5.2.3. Merge Paths
+        if self.authority is not None and not self.path:
+            return self.SLASH + path
+        else:
+            parts = self.path.rpartition(self.SLASH)
+            return parts[1].join((parts[0], path))
+
+    @classmethod
+    def __remove_dot_segments(cls, path):
         # RFC 3986 5.2.4. Remove Dot Segments
-        out = []
-        for s in path.split(self.SLASH):
-            if s == self.DOT:
+        pseg = []
+        for s in path.split(cls.SLASH):
+            if s == cls.DOT:
                 continue
-            elif s != self.DOT * 2:
-                out.append(s)
-            elif out:
-                out.pop()
-        # FIXME: verify (and refactor) this
-        if path.startswith(self.SLASH) and (not out or out[0]):
-            out.insert(0, type(path)())
-        if path.endswith((self.SLASH + self.DOT, self.SLASH + self.DOT * 2)):
-            out.append(type(path)())
-        return self.SLASH.join(out)
+            elif s != cls.DOTDOT:
+                pseg.append(s)
+            elif len(pseg) == 1 and not pseg[0]:
+                continue
+            elif pseg and pseg[-1] != cls.DOTDOT:
+                pseg.pop()
+            else:
+                pseg.append(s)
+        # adjust for trailing '/.' or '/..'
+        if path.rpartition(cls.SLASH)[2] in (cls.DOT, cls.DOTDOT):
+            pseg.append(cls.EMPTY)
+        if path and len(pseg) == 1 and pseg[0] == cls.EMPTY:
+            pseg.insert(0, cls.DOT)
+        return cls.SLASH.join(pseg)
 
 
 class SplitResultBytes(SplitResult):
@@ -281,7 +290,10 @@ class SplitResultBytes(SplitResult):
         b':', b'/', b'?', b'#', b'[', b']', b'@'
     )
 
-    DOT, EQ = b'.', b'='
+    # RFC 3986 3.3 dot-segments
+    DOT, DOTDOT = b'.', b'..'
+
+    EMPTY, EQ = b'', b'='
 
     DIGITS = b'0123456789'
 
@@ -302,7 +314,10 @@ class SplitResultString(SplitResult):
     # RFC 3986 2.2 gen-delims
     COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = ':/?#[]@'
 
-    DOT, EQ = '.='
+    # RFC 3986 3.3 dot-segments
+    DOT, DOTDOT = '.', '..'
+
+    EMPTY, EQ = '', '='
 
     DIGITS = '0123456789'
 

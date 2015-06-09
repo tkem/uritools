@@ -218,7 +218,7 @@ class SplitTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg='%r' % uri):
                 urisplit(uri.encode()).gethost()
 
-    def test_defaultport(self):
+    def test_getport(self):
         for uri in ['foo://bar', 'foo://bar:', 'foo://bar/', 'foo://bar:/']:
             result = urisplit(uri)
             if result.authority.endswith(':'):
@@ -230,18 +230,42 @@ class SplitTest(unittest.TestCase):
 
     def test_getpath(self):
         cases = [
-            ('', ''),
-            ('.', ''),
-            ('..', ''),
-            ('../..', ''),
-            ('../../foo', 'foo'),
-            ('../../foo/../bar/.', 'bar/'),
+            ('', '', '/'),
+            ('.', './', '/'),
+            ('./', './', '/'),
+            ('./.', './', '/'),
+            ('./..', '../', '/'),
+            ('./foo', 'foo', '/foo'),
+            ('./foo/', 'foo/', '/foo/'),
+            ('./foo/.', 'foo/', '/foo/'),
+            ('./foo/..', './', '/'),
+            ('..', '../', '/'),
+            ('../', '../', '/'),
+            ('../.', '../', '/'),
+            ('../..', '../../', '/'),
+            ('../foo', '../foo', '/foo'),
+            ('../foo/', '../foo/', '/foo/'),
+            ('../foo/.', '../foo/', '/foo/'),
+            ('../foo/..', '../', '/'),
+            ('../../foo', '../../foo', '/foo'),
+            ('../../foo/', '../../foo/', '/foo/'),
+            ('../../foo/.', '../../foo/', '/foo/'),
+            ('../../foo/..', '../../', '/'),
+            ('../../foo/../bar', '../../bar', '/bar'),
+            ('../../foo/../bar/', '../../bar/', '/bar/'),
+            ('../../foo/../bar/.', '../../bar/', '/bar/'),
+            ('../../foo/../bar/..', '../../', '/'),
+            ('../../foo/../..', '../../../', '/')
         ]
-        for uri, path in cases:
+        for uri, relpath, abspath in cases:
             parts = urisplit(uri)
-            self.assertEqual(path, parts.getpath())
+            self.assertEqual(relpath, parts.getpath())
             parts = urisplit(uri.encode('ascii'))
-            self.assertEqual(path, parts.getpath())
+            self.assertEqual(relpath, parts.getpath())
+            parts = urisplit('/' + uri)
+            self.assertEqual(abspath, parts.getpath())
+            parts = urisplit(('/' + uri).encode('ascii'))
+            self.assertEqual(abspath, parts.getpath())
 
     def test_getquery(self):
         cases = [

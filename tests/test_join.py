@@ -73,3 +73,28 @@ class JoinTest(unittest.TestCase):
     def test_rfc3986_merge(self):
         """urijoin test cases for RFC 3986 5.2.3. Merge Paths"""
         self.check('http://a', 'b', 'http://a/b')
+
+    def test_relative_base(self):
+        self.check('', "bar", "bar")
+        self.check('foo', "bar", "bar")
+        self.check('foo/', "bar", "foo/bar")
+        self.check('.', "bar", "bar")
+        self.check('./', "bar", "bar")
+        self.check('./foo', "bar", "bar")
+        self.check('./foo/', "bar", "foo/bar")
+        self.check('..', "bar", "bar")
+        self.check('../', "bar", "../bar")
+        self.check('../foo', "bar", "../bar")
+        self.check('../foo/', "bar", "../foo/bar")
+
+        self.check('', "../bar", "../bar")
+        self.check('foo', "../bar", "../bar")
+        self.check('foo/', "../bar", "bar")
+        self.check('.', "../bar", "../bar")
+        self.check('./', "../bar", "../bar")
+        self.check('./foo', "../bar", "../bar")
+        self.check('./foo/', "../bar", "bar")
+        self.check('..', "../bar", "../bar")
+        self.check('../', "../bar", "../../bar")
+        self.check('../foo', "../bar", "../../bar")
+        self.check('../foo/', "../bar", "../bar")
