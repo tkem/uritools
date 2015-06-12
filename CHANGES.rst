@@ -1,3 +1,25 @@
+1.0.0 2015-06-12
+----------------
+
+- Fix use of URI references as base URIs in ``urijoin()`` and
+  ``SplitResult.transform()``.
+
+- Remove ``SplitResult.getaddrinfo()``.
+
+- Remove ``SplitResult.getauthority()``.
+
+- Remove ``SplitResult.gethostip()``; return ``ipaddress`` address
+objects from ``SplitResult.gethost()`` instead.
+
+- Remove ``SplitResult.gethost()`` `encoding` parameter.
+
+- Remove query delimiter parameters.
+
+- Return normalized paths from ``SplitResult.getpath()``.
+
+- Convert character constants to strings.
+
+
 0.12.0 2015-04-03
 -----------------
 

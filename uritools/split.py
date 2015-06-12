@@ -212,8 +212,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return uridecode(fragment, encoding, errors)
 
     def transform(self, ref, strict=False):
-        """Convert a URI reference relative to `self` into a
-        :class:`SplitResult` representing its target.
+        """Transform a URI reference relative to `self` into a
+        :class:`SplitResult` representing its target URI.
 
         """
         scheme, authority, path, query, fragment = self.RE.match(ref).groups()

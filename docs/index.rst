@@ -61,6 +61,22 @@ composing URIs from their individual components.
 URI Decomposition
 ------------------------------------------------------------------------
 
+.. autofunction:: uridefrag
+
+   The return value is an instance of a subclass of
+   :class:`collections.namedtuple` with the following read-only
+   attributes:
+
+   +-------------------+-------+---------------------------------------------+
+   | Attribute         | Index | Value                                       |
+   +===================+=======+=============================================+
+   | :attr:`uri`       | 0     | Absolute URI or relative URI reference      |
+   |                   |       | without the fragment identifier             |
+   +-------------------+-------+---------------------------------------------+
+   | :attr:`fragment`  | 1     | Fragment identifier,                        |
+   |                   |       | or :const:`None` if not present             |
+   +-------------------+-------+---------------------------------------------+
+
 .. autofunction:: urisplit
 
    The return value is an instance of a subclass of
@@ -95,32 +111,9 @@ URI Decomposition
    |                   |       | or :const:`None` if not present             |
    +-------------------+-------+---------------------------------------------+
 
-.. autofunction:: uridefrag
-
-   The return value is an instance of a subclass of
-   :class:`collections.namedtuple` with the following read-only
-   attributes:
-
-   +-------------------+-------+---------------------------------------------+
-   | Attribute         | Index | Value                                       |
-   +===================+=======+=============================================+
-   | :attr:`uri`       | 0     | Absolute URI or relative URI reference      |
-   |                   |       | without the fragment identifier             |
-   +-------------------+-------+---------------------------------------------+
-   | :attr:`fragment`  | 1     | Fragment identifier,                        |
-   |                   |       | or :const:`None` if not present             |
-   +-------------------+-------+---------------------------------------------+
-
 
 URI Composition
 ------------------------------------------------------------------------
-
-.. autofunction:: uriunsplit
-
-.. autofunction:: urijoin
-
-    If `strict` is :const:`False`, a scheme in the reference is
-    ignored if it is identical to the base URI's scheme.
 
 .. autofunction:: uricompose
 
@@ -136,9 +129,23 @@ URI Composition
 
    The returned value is of type :class:`str`.
 
+.. autofunction:: urijoin
+
+    If `strict` is :const:`False`, a scheme in the reference is
+    ignored if it is identical to the base URI's scheme.
+
+.. autofunction:: uriunsplit
+
 
 URI Encoding
 ------------------------------------------------------------------------
+
+.. autofunction:: uridecode
+
+   If `encoding` is set to :const:`None`, return the percent-decoded
+   `uristring` as a :class:`bytes` object.  Otherwise, replace any
+   percent-encodings and decode `uristring` using the codec registered
+   for `encoding`, returning a Unicode string.
 
 .. autofunction:: uriencode
 
@@ -152,25 +159,18 @@ URI Encoding
    :class:`bytes` object, while `safe` must be a :class:`bytes` object
    containg ASCII characters only.
 
-.. autofunction:: uridecode
-
-   If `encoding` is set to :const:`None`, return the percent-decoded
-   `uristring` as a :class:`bytes` object.  Otherwise, replace any
-   percent-encodings and decode `uristring` using the codec registered
-   for `encoding`, returning a Unicode string.
-
 
 Character Constants
 ------------------------------------------------------------------------
-
-.. data:: RESERVED
-
-   A string containing all reserved characters specified in RFC 3986.
 
 .. data:: GEN_DELIMS
 
    A string containing all general delimiting characters specified in
    RFC 3986.
+
+.. data:: RESERVED
+
+   A string containing all reserved characters specified in RFC 3986.
 
 .. data:: SUB_DELIMS
 
@@ -186,16 +186,16 @@ Character Constants
 Structured Parse Results
 ------------------------------------------------------------------------
 
-The result objects from the :func:`urisplit` and :func:`uridefrag`
+The result objects from the :func:`uridefrag` and :func:`urisplit`
 functions are instances of subclasses of
 :class:`collections.namedtuple`.  These objects contain the attributes
 described in the function documentation, as well as some additional
 convenience methods.
 
-.. autoclass:: SplitResult
+.. autoclass:: DefragResult
    :members:
 
-.. autoclass:: DefragResult
+.. autoclass:: SplitResult
    :members:
 
 
