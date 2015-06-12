@@ -92,8 +92,7 @@ def _port(port):
         return b''
 
 
-def _querylist(items, delim, encoding):
-    safe = _SAFE_QUERY.replace(delim, b'')
+def _querylist(items, encoding, safe=_SAFE_QUERY.replace(b'&', b'')):
     terms = []
     append = terms.append
     for key, value in items:
@@ -104,10 +103,10 @@ def _querylist(items, delim, encoding):
             append(name + b'=' + uriencode(value, safe, encoding))
         else:
             append(name + b'=' + uriencode(str(value), safe, encoding))
-    return delim.join(terms)
+    return b'&'.join(terms)
 
 
-def _querydict(mapping, delim, encoding):
+def _querydict(mapping, encoding):
     items = []
     for key, value in mapping.items():
         if isinstance(value, (bytes, type(''))):
@@ -116,12 +115,12 @@ def _querydict(mapping, delim, encoding):
             items.extend([(key, v) for v in value])
         else:
             items.append((key, value))
-    return _querylist(items, delim, encoding)
+    return _querylist(items, encoding)
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, userinfo=None, host=None, port=None,
-               delim=b'&', encoding='utf-8'):
+               encoding='utf-8'):
     """Compose a URI string from its individual components."""
 
     # RFC 3986 3.1: Scheme names consist of a sequence of characters
@@ -189,9 +188,9 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if isinstance(query, (bytes, type(''))):
         query = uriencode(query, _SAFE_QUERY, encoding)
     elif isinstance(query, Mapping):
-        query = _querydict(query, delim, encoding)
+        query = _querydict(query, encoding)
     elif isinstance(query, Iterable):
-        query = _querylist(query, delim, encoding)
+        query = _querylist(query, encoding)
     elif query is not None:
         raise TypeError('Invalid query type')
 

@@ -131,8 +131,8 @@ URI Composition
    will override the corresponding `authority` subcomponent.
 
    If `query` is a mapping object or a sequence of two-element tuples,
-   it will be converted to a string of `key=value` pairs seperated by
-   `delim`.
+   it will be converted to a string of `name=value` pairs seperated by
+   `&`.
 
    The returned value is of type :class:`str`.
 
@@ -194,18 +194,6 @@ convenience methods.
 
 .. autoclass:: SplitResult
    :members:
-   :exclude-members: gethost, gethostip
-
-   .. method:: gethost(default=None)
-
-      Return the decoded host subcomponent of the URI authority, or
-      `default` if the original URI did not contain a host.
-
-   .. method:: gethostip(default=None)
-
-      Return the decoded host subcomponent of the URI authority as a
-      string or an :mod:`ipaddress` address object, or `default` if
-      the original URI did not contain a host.
 
 .. autoclass:: DefragResult
    :members:
