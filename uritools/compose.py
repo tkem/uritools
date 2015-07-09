@@ -92,7 +92,7 @@ def _port(port):
         return b''
 
 
-def _querylist(items, encoding, safe=_SAFE_QUERY.replace(b'&', b'')):
+def _querylist(items, encoding, safe=re.sub(b'[;&]', b'', _SAFE_QUERY)):
     terms = []
     append = terms.append
     for key, value in items:
@@ -106,7 +106,7 @@ def _querylist(items, encoding, safe=_SAFE_QUERY.replace(b'&', b'')):
     return b'&'.join(terms)
 
 
-def _querydict(mapping, encoding):
+def _querydict(mapping, encoding, safe=re.sub(b'[;&]', b'', _SAFE_QUERY)):
     items = []
     for key, value in mapping.items():
         if isinstance(value, (bytes, type(''))):
@@ -115,7 +115,7 @@ def _querydict(mapping, encoding):
             items.extend([(key, v) for v in value])
         else:
             items.append((key, value))
-    return _querylist(items, encoding)
+    return _querylist(items, encoding, safe)
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,

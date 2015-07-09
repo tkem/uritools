@@ -201,6 +201,13 @@ class ComposeTest(unittest.TestCase):
             ('?name=foo&type=bar', od([('name', 'foo'), ('type', 'bar')])),
             ('?name=foo&name=bar', [('name', 'foo'), ('name', 'bar')]),
             ('?name=foo&name=bar', {'name': ['foo', 'bar']}),
+            ('?name=a/b/c', dict(name='a/b/c')),
+            ('?name=a:b:c', dict(name='a:b:c')),
+            ('?name=a?b?c', dict(name='a?b?c')),
+            ('?name=a@b@c', dict(name='a@b@c')),
+            ('?name=a%23b%23c', dict(name='a#b#c')),
+            ('?name=a%26b%26c', dict(name='a&b&c')),
+            ('?name=a%3Bb%3Bc', dict(name='a;b;c')),
         ]
         for uri, query in cases:
             self.check(uri, query=query)
