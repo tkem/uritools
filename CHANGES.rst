@@ -1,3 +1,9 @@
+1.0.1 2015-07-09
+----------------
+
+- Encode semicolon in query values passed to ``uricompose()``.
+
+
 1.0.0 2015-06-12
 ----------------
 
