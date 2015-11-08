@@ -1,12 +1,15 @@
+sudo: false
 language: python
 python:
 - 2.7
 - 3.2
 - 3.3
 - 3.4
+- 3.5
 install:
-- pip install . coverage coveralls
+- pip install . "coverage<4" coveralls flake8 flake8-import-order nose
 script:
-- python setup.py nosetests
+- flake8
+- nosetests
 after_success:
 - coveralls
