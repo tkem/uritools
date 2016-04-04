@@ -17,13 +17,12 @@ _SCHEME_RE = re.compile(br"\A[A-Za-z][A-Za-z0-9+.-]*\Z")
 _AUTHORITY_RE_BYTES = re.compile(br"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
 _AUTHORITY_RE_STRING = re.compile(r"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
 
-# safe component characters (bytes)
-_SUB_DELIMS_BYTES = SUB_DELIMS.encode('ascii')
-_SAFE_USERINFO = _SUB_DELIMS_BYTES + b':'
-_SAFE_HOST = _SUB_DELIMS_BYTES
-_SAFE_PATH = _SUB_DELIMS_BYTES + b':@/'
-_SAFE_QUERY = _SUB_DELIMS_BYTES + b':@/?'
-_SAFE_FRAGMENT = _SUB_DELIMS_BYTES + b':@/?'
+# safe component characters
+_SAFE_USERINFO = SUB_DELIMS + ':'
+_SAFE_HOST = SUB_DELIMS
+_SAFE_PATH = SUB_DELIMS + ':@/'
+_SAFE_QUERY = SUB_DELIMS + ':@/?'
+_SAFE_FRAGMENT = SUB_DELIMS + ':@/?'
 
 
 def _scheme(scheme):
@@ -92,7 +91,7 @@ def _port(port):
         return b''
 
 
-def _querylist(items, encoding, safe=re.sub(b'[;&]', b'', _SAFE_QUERY)):
+def _querylist(items, encoding, safe=re.sub('[;&]', '', _SAFE_QUERY)):
     terms = []
     append = terms.append
     for key, value in items:
@@ -106,7 +105,7 @@ def _querylist(items, encoding, safe=re.sub(b'[;&]', b'', _SAFE_QUERY)):
     return b'&'.join(terms)
 
 
-def _querydict(mapping, encoding, safe=re.sub(b'[;&]', b'', _SAFE_QUERY)):
+def _querydict(mapping, encoding):
     items = []
     for key, value in mapping.items():
         if isinstance(value, (bytes, type(''))):
@@ -115,7 +114,7 @@ def _querydict(mapping, encoding, safe=re.sub(b'[;&]', b'', _SAFE_QUERY)):
             items.extend([(key, v) for v in value])
         else:
             items.append((key, value))
-    return _querylist(items, encoding, safe)
+    return _querylist(items, encoding)
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,

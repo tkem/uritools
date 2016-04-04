@@ -155,10 +155,6 @@ URI Encoding
    Otherwise, encode `uristring` using the codec registered for
    `encoding` before replacing any percent encodings.
 
-   Note that `uristring` may be either a Unicode string or a
-   :class:`bytes` object, while `safe` must be a :class:`bytes` object
-   containg ASCII characters only.
-
 
 Character Constants
 ------------------------------------------------------------------------

@@ -5,12 +5,12 @@ from .chars import UNRESERVED
 try:
     _fromhex = bytes.fromhex
 except AttributeError:
-    _fromhex = lambda x: chr(int(x, 16))
+    def _fromhex(x): return chr(int(x, 16))
 
 if isinstance(chr(0), bytes):
     _fromint = chr
 else:
-    _fromint = lambda i: bytes([i])
+    def _fromint(i): return bytes([i])
 
 
 # RFC 3986 2.1: For consistency, URI producers and normalizers should

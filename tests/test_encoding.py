@@ -7,7 +7,7 @@ from uritools import RESERVED, UNRESERVED, uridecode, uriencode
 
 class EncodingTest(unittest.TestCase):
 
-    def check(self, decoded, encoded, safe=b'', encoding='utf-8'):
+    def check(self, decoded, encoded, safe='', encoding='utf-8'):
         self.assertEqual(uriencode(decoded, safe, encoding), encoded)
         self.assertEqual(uridecode(encoded, encoding), decoded)
         # swap bytes/string types
@@ -28,8 +28,11 @@ class EncodingTest(unittest.TestCase):
     def test_safe_encoding(self):
         cases = [
             ('', b'', ''),
+            ('', b'', b''),
             (' ', b' ', ' '),
+            (' ', b' ', b' '),
             ('%', b'%', '%'),
+            ('%', b'%', b'%'),
             (RESERVED, RESERVED.encode('ascii'), RESERVED)
         ]
         for decoded, encoded, safe in cases:
