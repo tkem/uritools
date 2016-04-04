@@ -10,8 +10,7 @@ and Python 3 `urllib.parse`_ modules.
     >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
     >>> parts = urisplit('foo://user@example.com:8042/over/there?name=ferret#nose')
     >>> parts
-    SplitResult(scheme='foo', authority='user@example.com:8042',
-                path='/over/there', query='name=ferret', fragment='nose')
+    SplitResult(scheme='foo', authority='user@example.com:8042', path='/over/there', query='name=ferret', fragment='nose')
     >>> parts.scheme
     'foo'
     >>> parts.authority
@@ -27,8 +26,7 @@ and Python 3 `urllib.parse`_ modules.
     >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
     'http://www.cwi.nl/~guido/FAQ.html'
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
-    DefragResult(uri='http://pythonhosted.org/uritools/index.html',
-                 fragment='constants')
+    DefragResult(uri='http://pythonhosted.org/uritools/index.html', fragment='constants')
 
 For various reasons, the Python 2 urlparse_ module is not compliant
 with current Internet standards, does not include Unicode support, and
@@ -84,7 +82,7 @@ Project Resources
 License
 ------------------------------------------------------------------------
 
-Copyright (c) 2014, 2015 Thomas Kemmer.
+Copyright (c) 2014-2016 Thomas Kemmer.
 
 Licensed under the `MIT License`_.
 

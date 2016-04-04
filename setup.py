@@ -1,6 +1,6 @@
-import codecs, os.path, re, sys
+import sys
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # environment markers require a recent setuptools and/or pip version
 if sys.version_info >= (3, 3) or 'bdist_wheel' in sys.argv:
@@ -10,20 +10,32 @@ elif sys.version_info >= (3, 0):
 else:
     install_requires = ['ipaddress>=1.0.6']
 
-with codecs.open(os.path.join(os.path.dirname(__file__), 'uritools', '__init__.py'),
-                 encoding='utf8') as f:
-    metadata = dict(re.findall(r"__([a-z]+)__ = '([^']+)", f.read()))
+
+def get_version(filename):
+    from re import findall
+    with open(filename) as f:
+        metadata = dict(findall("__([a-z]+)__ = '([^']+)'", f.read()))
+    return metadata['version']
 
 setup(
     name='uritools',
-    version=metadata['version'],
-    author='Thomas Kemmer',
-    author_email='tkemmer@computer.org',
+    version=get_version('uritools/__init__.py'),
     url='https://github.com/tkem/uritools/',
     license='MIT',
-    description='RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for urlparse',
+    author='Thomas Kemmer',
+    author_email='tkemmer@computer.org',
+    description=(
+        'RFC 3986 compliant, Unicode-aware, scheme-agnostic '
+        'replacement for urlparse'
+    ),
     long_description=open('README.rst').read(),
     keywords='uri url urlparse urlsplit urljoin urldefrag',
+    packages=find_packages(exclude=['tests', 'tests.*']),
+    install_requires=install_requires,
+    extras_require={
+        ':python_version == "2.7"': ['ipaddress>=1.0.6'],
+        ':python_version == "3.2"': ['ipaddress>=1.0.7']
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Other Environment',
@@ -40,12 +52,5 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules'
-    ],
-    packages=['uritools'],
-    install_requires=install_requires,
-    extras_require={
-        ':python_version == "2.7"': ['ipaddress>=1.0.6'],
-        ':python_version == "3.2"': ['ipaddress>=1.0.7']
-    },
-    test_suite='tests'
+    ]
 )
