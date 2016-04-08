@@ -2,8 +2,8 @@ uritools
 ========================================================================
 
 This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python 2.7 Standard Library urlparse_
-and Python 3 `urllib.parse`_ modules.
+commonly used functions of the Python 2.7 Standard Library
+``urlparse`` and Python 3 ``urllib.parse`` modules.
 
 .. code-block:: pycon
 
@@ -28,11 +28,12 @@ and Python 3 `urllib.parse`_ modules.
     >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
     DefragResult(uri='http://pythonhosted.org/uritools/index.html', fragment='constants')
 
-For various reasons, the Python 2 urlparse_ module is not compliant
+For various reasons, the Python 2 ``urlparse`` module is not compliant
 with current Internet standards, does not include Unicode support, and
 is generally unusable with proprietary URI schemes.  Python 3's
-`urllib.parse`_ improves on Unicode support, but the other issues
-still remain.  As stated in `Lib/urllib/parse.py`_::
+``urllib.parse`` improves on Unicode support, but the other issues still
+remain.  As stated in `Lib/urllib/parse.py
+<https://hg.python.org/cpython/file/3.5/Lib/urllib/parse.py>`_::
 
     RFC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
@@ -41,9 +42,9 @@ still remain.  As stated in `Lib/urllib/parse.py`_::
     some parsing quirks from older RFCs are retained.
 
 This module aims to provide fully RFC 3986 compliant replacements for
-some commonly used functions found in urlparse_ and `urllib.parse`_,
-plus additional functions for conveniently composing URIs from their
-individual components.
+some commonly used functions found in ``urlparse`` and
+``urllib.parse``, plus additional functions for conveniently composing
+URIs from their individual components.
 
 
 Installation
@@ -86,10 +87,6 @@ Copyright (c) 2014-2016 Thomas Kemmer.
 
 Licensed under the `MIT License`_.
 
-
-.. _urlparse: http://docs.python.org/2/library/urlparse.html
-.. _urllib.parse: http://docs.python.org/3/library/urllib.parse.html
-.. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py
 
 .. _Documentation: http://pythonhosted.org/uritools/
 .. _Issue Tracker: https://github.com/tkem/uritools/issues/

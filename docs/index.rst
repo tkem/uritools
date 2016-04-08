@@ -34,7 +34,8 @@ For various reasons, the Python 2 :mod:`urlparse` module is not
 compliant with current Internet standards, does not include Unicode
 support, and is generally unusable with proprietary URI schemes.
 Python 3's :mod:`urllib.parse` improves on Unicode support, but the
-other issues still remain.  As stated in `Lib/urllib/parse.py`_::
+other issues still remain.  As stated in `Lib/urllib/parse.py
+<https://hg.python.org/cpython/file/3.5/Lib/urllib/parse.py>`_::
 
     FC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
@@ -191,6 +192,3 @@ convenience methods.
 
 .. autoclass:: SplitResult
    :members:
-
-
-.. _Lib/urllib/parse.py: https://hg.python.org/cpython/file/3.4/Lib/urllib/parse.py

@@ -1,3 +1,10 @@
+v1.0.2 (2016-04-08)
+-------------------
+
+- Fix ``uriencode()`` documentation and unit tests requiring the
+  ``safe`` parameter to be a ``bytes`` object.
+
+
 v1.0.1 (2015-07-09)
 -------------------
 
@@ -17,7 +24,7 @@ v1.0.0 (2015-06-12)
 - Remove ``SplitResult.gethostip()``; return ``ipaddress`` address
 objects from ``SplitResult.gethost()`` instead.
 
-- Remove ``SplitResult.gethost()`` `encoding` parameter.
+- Remove ``SplitResult.gethost()`` ``encoding`` parameter.
 
 - Remove query delimiter parameters.
 
@@ -34,7 +41,7 @@ v0.12.0 (2015-04-03)
 - Deprecate ``SplitResult.getauthority()``.
 
 - Deprecate ``SplitResult.gethost()`` and ``SplitResult.gethostip()``
-  `encoding` parameter; always use `utf-8` instead.
+  ``encoding`` parameter; always use ``utf-8`` instead.
 
 - Drop support for "bytes-like objects".
 
@@ -51,9 +58,9 @@ v0.11.1 (2015-03-25)
 v0.11.0 (2014-12-16)
 --------------------
 
-- Support `encoding=None` for ``uriencode()`` and ``uridecode()``.
+- Support ``encoding=None`` for ``uriencode()`` and ``uridecode()``.
 
-- Add optional `errors` parameter to decoding methods.
+- Add optional ``errors`` parameter to decoding methods.
 
 
 v0.10.1 (2014-11-30)
@@ -67,12 +74,12 @@ v0.10.0 (2014-11-30)
 
 - Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
 
-- Add `userinfo`, `host` and `port` keyword arguments to
+- Add ``userinfo``, ``host`` and ``port`` keyword arguments to
   ``uricompose()``.
 
 - Deprecate ``DefragResult.base``.
 
-- Feature freeze for `v1.0`.
+- Feature freeze for v1.0.
 
 
 v0.9.0 (2014-11-21)
