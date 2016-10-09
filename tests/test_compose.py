@@ -205,9 +205,9 @@ class ComposeTest(unittest.TestCase):
             ('?name=a:b:c', dict(name='a:b:c')),
             ('?name=a?b?c', dict(name='a?b?c')),
             ('?name=a@b@c', dict(name='a@b@c')),
+            ('?name=a;b;c', dict(name='a;b;c')),
             ('?name=a%23b%23c', dict(name='a#b#c')),
             ('?name=a%26b%26c', dict(name='a&b&c')),
-            ('?name=a%3Bb%3Bc', dict(name='a;b;c')),
         ]
         for uri, query in cases:
             self.check(uri, query=query)
@@ -215,3 +215,13 @@ class ComposeTest(unittest.TestCase):
         for query in (0, [1]):
             with self.assertRaises(TypeError, msg='query=%r' % query):
                 uricompose(query=query)
+
+    def test_query_sep(self):
+        cases = [
+            ('&', '?x=foo&y=bar', [('x', 'foo'), ('y', 'bar')]),
+            (';', '?x=foo;y=bar', [('x', 'foo'), ('y', 'bar')]),
+            ('&', '?x=foo;y=bar', [('x', 'foo;y=bar')]),
+            (';', '?x=foo&y=bar', [('x', 'foo&y=bar')])
+        ]
+        for sep, uri, query in cases:
+            self.check(uri, query=query, querysep=sep)

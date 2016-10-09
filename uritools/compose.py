@@ -92,9 +92,10 @@ def _port(port):
         return b''
 
 
-def _querylist(items, encoding, safe=re.sub('[;&]', '', _SAFE_QUERY)):
+def _querylist(items, sep, encoding):
     terms = []
     append = terms.append
+    safe = _SAFE_QUERY.replace(sep, '')
     for key, value in items:
         name = uriencode(key, safe, encoding)
         if value is None:
@@ -103,10 +104,13 @@ def _querylist(items, encoding, safe=re.sub('[;&]', '', _SAFE_QUERY)):
             append(name + b'=' + uriencode(value, safe, encoding))
         else:
             append(name + b'=' + uriencode(str(value), safe, encoding))
-    return b'&'.join(terms)
+    if isinstance(sep, bytes):
+        return sep.join(terms)
+    else:
+        return sep.encode('ascii').join(terms)
 
 
-def _querydict(mapping, encoding):
+def _querydict(mapping, sep, encoding):
     items = []
     for key, value in mapping.items():
         if isinstance(value, _strtypes):
@@ -115,12 +119,12 @@ def _querydict(mapping, encoding):
             items.extend([(key, v) for v in value])
         else:
             items.append((key, value))
-    return _querylist(items, encoding)
+    return _querylist(items, sep, encoding)
 
 
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, userinfo=None, host=None, port=None,
-               encoding='utf-8'):
+               querysep='&', encoding='utf-8'):
     """Compose a URI string from its individual components."""
 
     # RFC 3986 3.1: Scheme names consist of a sequence of characters
@@ -188,9 +192,9 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     if isinstance(query, _strtypes):
         query = uriencode(query, _SAFE_QUERY, encoding)
     elif isinstance(query, Mapping):
-        query = _querydict(query, encoding)
+        query = _querydict(query, querysep, encoding)
     elif isinstance(query, Iterable):
-        query = _querylist(query, encoding)
+        query = _querylist(query, querysep, encoding)
     elif query is not None:
         raise TypeError('Invalid query type')
 

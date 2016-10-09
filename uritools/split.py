@@ -164,32 +164,34 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return uridecode(query, encoding, errors)
 
-    def getquerydict(self, encoding='utf-8', errors='strict'):
-        """Split the query component into individual `name=value` pairs and
-        return a dictionary of query variables.  The dictionary keys
-        are the unique query variable names and the values are lists
-        of values for each name.
+    def getquerydict(self, sep='&', encoding='utf-8', errors='strict'):
+        """Split the query component into individual `name=value` pairs
+        separated by `sep` and return a dictionary of query variables.
+        The dictionary keys are the unique query variable names and
+        the values are lists of values for each name.
 
         """
         dict = collections.defaultdict(list)
-        for name, value in self.getquerylist(encoding, errors):
+        for name, value in self.getquerylist(sep, encoding, errors):
             dict[name].append(value)
         return dict
 
-    def getquerylist(self, encoding='utf-8', errors='strict'):
-        """Split the query component into individual `name=value` pairs and
-        return a list of `(name, value)` tuples.
+    def getquerylist(self, sep='&', encoding='utf-8', errors='strict'):
+        """Split the query component into individual `name=value` pairs
+        separated by `sep`, and return a list of `(name, value)`
+        tuples.
 
         """
-        if self.query:
-            qsl = [self.query]
-        else:
+        if not self.query:
             return []
-        for sep in self.QUERYSEP:
-            qsl = [s for qs in qsl for s in qs.split(sep) if s]
+        elif isinstance(sep, type(self.query)):
+            qsl = self.query.split(sep)
+        elif isinstance(sep, bytes):
+            qsl = self.query.split(sep.decode('ascii'))
+        else:
+            qsl = self.query.split(sep.encode('ascii'))
         items = []
-        for qs in qsl:
-            parts = qs.partition(self.EQ)
+        for parts in [qs.partition(self.EQ) for qs in qsl if qs]:
             name = uridecode(parts[0], encoding, errors)
             if parts[1]:
                 value = uridecode(parts[2], encoding, errors)
@@ -293,8 +295,6 @@ class SplitResultBytes(SplitResult):
 
     DIGITS = b'0123456789'
 
-    QUERYSEP = (b';', b'&')
-
 
 class SplitResultUnicode(SplitResult):
 
@@ -320,8 +320,6 @@ class SplitResultUnicode(SplitResult):
     EMPTY, EQ = u'', u'='
 
     DIGITS = u'0123456789'
-
-    QUERYSEP = (u';', u'&')
 
 
 def urisplit(uristring):

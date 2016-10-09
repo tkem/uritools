@@ -269,38 +269,58 @@ class SplitTest(unittest.TestCase):
 
     def test_getquery(self):
         cases = [
-            ("?", [], {}),
-            ("?&", [], {}),
-            ("?&&", [], {}),
-            ("?=",
+            ('', [], {}),
+            ('?', [], {}),
+            ('?&', [], {}),
+            ('?&&', [], {}),
+            ('?=',
              [('', '')],
              {'': ['']}),
-            ("?=a",
+            ('?=a',
              [('', 'a')],
              {'': ['a']}),
-            ("?a",
+            ('?a',
              [('a', None)],
              {'a': [None]}),
-            ("?a=",
+            ('?a=',
              [('a', '')],
              {'a': ['']}),
-            ("?&a=b",
+            ('?&a=b',
              [('a', 'b')],
              {'a': ['b']}),
-            ("?a=a+b&b=b+c",
+            ('?a=a+b&b=b+c',
              [('a', 'a+b'), ('b', 'b+c')],
              {'a': ['a+b'], 'b': ['b+c']}),
-            ("?a=a%20b&b=b%20c",
+            ('?a=a%20b&b=b%20c',
              [('a', 'a b'), ('b', 'b c')],
              {'a': ['a b'], 'b': ['b c']}),
-            ("?a=1&a=2",
+            ('?a=1&a=2',
              [('a', '1'), ('a', '2')],
              {'a': ['1', '2']}),
         ]
         for query, querylist, querydict in cases:
-            self.assertEqual(urisplit(query).getquerylist(), querylist,
+            parts = urisplit(query)
+            self.assertEqual(parts.getquerylist(), querylist,
                              'Error parsing query dict for %r' % query)
-            self.assertEqual(urisplit(query).getquerydict(), querydict,
+            self.assertEqual(parts.getquerydict(), querydict,
+                             'Error parsing query list for %r' % query)
+
+    def test_getquerysep(self):
+        cases = [
+            ('&', '?a=b', [('a', 'b')]),
+            (';', '?a=b', [('a', 'b')]),
+            ('&', '?a=a+b&b=b+c', [('a', 'a+b'), ('b', 'b+c')]),
+            (';', '?a=a+b;b=b+c', [('a', 'a+b'), ('b', 'b+c')]),
+            ('&', '?a=a+b;b=b+c', [('a', 'a+b;b=b+c')]),
+            (';', '?a=a+b&b=b+c', [('a', 'a+b&b=b+c')]),
+            ('&', '?a&b', [('a', None), ('b', None)]),
+            (';', '?a;b', [('a', None), ('b', None)]),
+            (b'&', u'?a&b', [('a', None), ('b', None)]),
+            (u'&', b'?a&b', [('a', None), ('b', None)]),
+        ]
+        for sep, query, querylist in cases:
+            parts = urisplit(query)
+            self.assertEqual(parts.getquerylist(sep), querylist,
                              'Error parsing query list for %r' % query)
 
     def test_ip_literal(self):

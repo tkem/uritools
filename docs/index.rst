@@ -123,7 +123,7 @@ URI Composition
 
    `query` may also be passed a mapping object or a sequence of
    two-element tuples, which will be converted to a string of
-   `name=value` pairs seperated by `&`.
+   `name=value` pairs separated by `querysep`.
 
    The returned URI is of type :class:`str`.
 
