@@ -1,3 +1,19 @@
+v2.0.0 (2016-10-09)
+-------------------
+
+- Drop Python 3.2 support (breaking change).
+
+- No longer treat semicolons as query separators by default (breaking
+  change).
+
+- Add optional ``sep`` parameter to ``SplitResult.getquerydict()`` and
+  ``SplitResult.getquerylist()`` (breaks ``encoding`` when passed as
+  positional argument).
+
+- Add optional ``querysep`` parameter to ``uricompose()`` (breaks
+  ``encoding`` when passed as positional argument).
+
+
 v1.0.2 (2016-04-08)
 -------------------
 
