@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import ipaddress
 import numbers
 import re
@@ -10,12 +8,15 @@ from .chars import SUB_DELIMS
 from .encoding import uriencode
 from .split import uriunsplit
 
+_unicode = type(u'')
+_strtypes = (bytes, _unicode)
+
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-_SCHEME_RE = re.compile(br"\A[A-Za-z][A-Za-z0-9+.-]*\Z")
+_SCHEME_RE = re.compile(b'^[A-Za-z][A-Za-z0-9+.-]*$')
 
 # RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
-_AUTHORITY_RE_BYTES = re.compile(br"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
-_AUTHORITY_RE_STRING = re.compile(r"\A(?:(.*)@)?(.*?)(?::([0-9]*))?\Z")
+_AUTHORITY_RE_BYTES = re.compile(b'^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
+_AUTHORITY_RE_UNICODE = re.compile(u'^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
 
 # safe component characters
 _SAFE_USERINFO = SUB_DELIMS + ':'
@@ -98,7 +99,7 @@ def _querylist(items, encoding, safe=re.sub('[;&]', '', _SAFE_QUERY)):
         name = uriencode(key, safe, encoding)
         if value is None:
             append(name)
-        elif isinstance(value, (bytes, type(''))):
+        elif isinstance(value, _strtypes):
             append(name + b'=' + uriencode(value, safe, encoding))
         else:
             append(name + b'=' + uriencode(str(value), safe, encoding))
@@ -108,7 +109,7 @@ def _querylist(items, encoding, safe=re.sub('[;&]', '', _SAFE_QUERY)):
 def _querydict(mapping, encoding):
     items = []
     for key, value in mapping.items():
-        if isinstance(value, (bytes, type(''))):
+        if isinstance(value, _strtypes):
             items.append((key, value))
         elif isinstance(value, Iterable):
             items.extend([(key, v) for v in value])
@@ -141,8 +142,8 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         authority = (None, None, None)
     elif isinstance(authority, bytes):
         authority = _AUTHORITY_RE_BYTES.match(authority).groups()
-    elif isinstance(authority, type('')):
-        authority = _AUTHORITY_RE_STRING.match(authority).groups()
+    elif isinstance(authority, _unicode):
+        authority = _AUTHORITY_RE_UNICODE.match(authority).groups()
     elif not isinstance(authority, Iterable):
         raise TypeError('Invalid authority type')
     elif len(authority) != 3:
@@ -184,7 +185,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # pairs and one frequently used value is a reference to another
     # URI, it is sometimes better for usability to avoid percent-
     # encoding those characters.
-    if isinstance(query, (bytes, type(''))):
+    if isinstance(query, _strtypes):
         query = uriencode(query, _SAFE_QUERY, encoding)
     elif isinstance(query, Mapping):
         query = _querydict(query, encoding)

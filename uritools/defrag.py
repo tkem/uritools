@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import collections
 
 from .encoding import uridecode
@@ -18,7 +16,7 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
         elif isinstance(fragment, bytes):
             return self.uri + b'#' + fragment
         else:
-            return self.uri + '#' + fragment
+            return self.uri + u'#' + fragment
 
     def getfragment(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded fragment identifier, or `default` if the
@@ -37,5 +35,5 @@ def uridefrag(uristring):
     if isinstance(uristring, bytes):
         parts = uristring.partition(b'#')
     else:
-        parts = uristring.partition('#')
+        parts = uristring.partition(u'#')
     return DefragResult(parts[0], parts[2] if parts[1] else None)

@@ -2,15 +2,22 @@ from string import hexdigits
 
 from .chars import UNRESERVED
 
+if isinstance(chr(0), bytes):
+    _fromint = chr
+else:
+    def _fromint(i): return bytes([i])
+
 try:
     _fromhex = bytes.fromhex
 except AttributeError:
     def _fromhex(x): return chr(int(x, 16))
 
-if isinstance(chr(0), bytes):
-    _fromint = chr
+try:
+    0 in b''
+except TypeError:
+    def _tointseq(b): return memoryview(b).tolist()
 else:
-    def _fromint(i): return bytes([i])
+    def _tointseq(b): return b
 
 
 # RFC 3986 2.1: For consistency, URI producers and normalizers should
@@ -18,7 +25,7 @@ else:
 def _pctenc(byte):
     return ('%%%02X' % byte).encode()
 
-_unreserved = frozenset(memoryview(UNRESERVED.encode('ascii')).tolist())
+_unreserved = frozenset(_tointseq(UNRESERVED.encode()))
 
 _encoded = {
     b'': [_fromint(i) if i in _unreserved else _pctenc(i) for i in range(256)]
@@ -31,29 +38,25 @@ _decoded = {
 
 def uriencode(uristring, safe='', encoding='utf-8', errors='strict'):
     """Encode a URI string or string component."""
-    if isinstance(uristring, bytes):
-        values = memoryview(uristring).tolist()
-    else:
-        values = memoryview(uristring.encode(encoding, errors)).tolist()
+    if not isinstance(uristring, bytes):
+        uristring = uristring.encode(encoding, errors)
     if not isinstance(safe, bytes):
         safe = safe.encode('ascii')
     try:
-        encode = _encoded[safe].__getitem__
+        encoded = _encoded[safe]
     except KeyError:
-        enclist = _encoded[b''][:]
-        for i in memoryview(safe).tolist():
-            enclist[i] = _fromint(i)
-        _encoded[safe] = enclist
-        encode = enclist.__getitem__
-    return b''.join(map(encode, values))
+        encoded = _encoded[b''][:]
+        for i in _tointseq(safe):
+            encoded[i] = _fromint(i)
+        _encoded[safe] = encoded
+    return b''.join(map(encoded.__getitem__, _tointseq(uristring)))
 
 
 def uridecode(uristring, encoding='utf-8', errors='strict'):
     """Decode a URI string or string component."""
-    if isinstance(uristring, bytes):
-        parts = uristring.split(b'%')
-    else:
-        parts = uristring.encode(encoding or 'ascii', errors).split(b'%')
+    if not isinstance(uristring, bytes):
+        uristring = uristring.encode(encoding or 'ascii', errors)
+    parts = uristring.split(b'%')
     result = [parts[0]]
     append = result.append
     decode = _decoded.get

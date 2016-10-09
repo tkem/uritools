@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import collections
 import ipaddress
 import re
@@ -26,7 +24,7 @@ def _ip_literal(address):
     # appropriate error for "address mechanism not supported".
     if isinstance(address, bytes):
         address = address.decode('ascii')
-    if address.startswith('v'):
+    if address.startswith(u'v'):
         raise ValueError('address mechanism not supported')
     return ipaddress.IPv6Address(address)
 
@@ -298,7 +296,7 @@ class SplitResultBytes(SplitResult):
     QUERYSEP = (b';', b'&')
 
 
-class SplitResultString(SplitResult):
+class SplitResultUnicode(SplitResult):
 
     __slots__ = ()  # prevent creation of instance dictionary
 
@@ -312,16 +310,18 @@ class SplitResultString(SplitResult):
     """, flags=re.VERBOSE)
 
     # RFC 3986 2.2 gen-delims
-    COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = ':/?#[]@'
+    COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = (
+        u':', u'/', u'?', u'#', u'[', u']', u'@'
+    )
 
     # RFC 3986 3.3 dot-segments
-    DOT, DOTDOT = '.', '..'
+    DOT, DOTDOT = u'.', u'..'
 
-    EMPTY, EQ = '', '='
+    EMPTY, EQ = u'', u'='
 
-    DIGITS = '0123456789'
+    DIGITS = u'0123456789'
 
-    QUERYSEP = ';&'
+    QUERYSEP = (u';', u'&')
 
 
 def urisplit(uristring):
@@ -334,7 +334,7 @@ def urisplit(uristring):
     if isinstance(uristring, bytes):
         result = SplitResultBytes
     else:
-        result = SplitResultString
+        result = SplitResultUnicode
     return result(*result.RE.match(uristring).groups())
 
 
@@ -344,5 +344,5 @@ def uriunsplit(parts):
     if isinstance(path, bytes):
         result = SplitResultBytes
     else:
-        result = SplitResultString
+        result = SplitResultUnicode
     return result(scheme, authority, path, query, fragment).geturi()
