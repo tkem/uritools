@@ -7,26 +7,22 @@ commonly used functions of the Python 2.7 Standard Library
 
 .. code-block:: pycon
 
-    >>> from uritools import urisplit, uriunsplit, urijoin, uridefrag
-    >>> parts = urisplit('foo://user@example.com:8042/over/there?name=ferret#nose')
-    >>> parts
-    SplitResult(scheme='foo', authority='user@example.com:8042', path='/over/there', query='name=ferret', fragment='nose')
+    >>> from uritools import uricompose, urijoin, urisplit, uriunsplit
+    >>> uricompose(scheme='foo', host='example.com', port=8042,
+    ...            path='/over/there', query={'name': 'ferret'},
+    ...            fragment='nose')
+    'foo://example.com:8042/over/there?name=ferret#nose'
+    >>> parts = urisplit(_)
     >>> parts.scheme
     'foo'
     >>> parts.authority
-    'user@example.com:8042'
-    >>> parts.userinfo
-    'user'
-    >>> parts.host
-    'example.com'
-    >>> parts.port
-    '8042'
-    >>> uriunsplit(parts[:3] + ('name=swallow&type=African', 'beak'))
-    'foo://user@example.com:8042/over/there?name=swallow&type=African#beak'
-    >>> urijoin('http://www.cwi.nl/~guido/Python.html', 'FAQ.html')
-    'http://www.cwi.nl/~guido/FAQ.html'
-    >>> uridefrag('http://pythonhosted.org/uritools/index.html#constants')
-    DefragResult(uri='http://pythonhosted.org/uritools/index.html', fragment='constants')
+    'example.com:8042'
+    >>> parts.getport(default=80)
+    8042
+    >>> parts.getquerydict().get('name')
+    ['ferret']
+    >>> urijoin(uriunsplit(parts), '/right/here?name=swallow#beak')
+    'foo://example.com:8042/right/here?name=swallow#beak'
 
 For various reasons, the Python 2 ``urlparse`` module is not compliant
 with current Internet standards, does not include Unicode support, and
