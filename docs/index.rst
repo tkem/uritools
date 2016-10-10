@@ -33,7 +33,7 @@ Python 3's :mod:`urllib.parse` improves on Unicode support, but the
 other issues still remain.  As stated in `Lib/urllib/parse.py
 <https://hg.python.org/cpython/file/3.5/Lib/urllib/parse.py>`_::
 
-    FC 3986 is considered the current standard and any future changes
+    RFC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
     currently not entirely compliant with this RFC due to defacto
     scenarios for parsing, and for backward compatibility purposes,
@@ -50,7 +50,7 @@ composing URIs from their individual components.
         The current Internet standard (STD66) defining URI syntax, to
         which any changes to :mod:`uritools` should conform.  If
         deviations are observed, the module's implementation should be
-        changed, even if this means breaking backward compatiblity.
+        changed, even if this means breaking backward compatibility.
 
 
 URI Decomposition
