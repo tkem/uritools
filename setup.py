@@ -15,6 +15,7 @@ def get_version(filename):
         metadata = dict(findall("__([a-z]+)__ = '([^']+)'", f.read()))
     return metadata['version']
 
+
 setup(
     name='uritools',
     version=get_version('uritools/__init__.py'),

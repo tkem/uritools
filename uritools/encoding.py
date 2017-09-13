@@ -25,6 +25,7 @@ else:
 def _pctenc(byte):
     return ('%%%02X' % byte).encode()
 
+
 _unreserved = frozenset(_tointseq(UNRESERVED.encode()))
 
 _encoded = {
