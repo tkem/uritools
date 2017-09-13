@@ -1,3 +1,13 @@
+v2.0.1 (2017-09-13)
+-------------------
+
+- Officially support Python 3.6.
+
+- Move documentation to RTD.
+
+- Fix ``flake8`` checks.
+
+
 v2.0.0 (2016-10-09)
 -------------------
 
