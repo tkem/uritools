@@ -82,6 +82,7 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.port, '8042')
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'foo')
+        self.assertEqual(result.getauthority(), ('user', 'example.com', 8042))
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
         self.assertEqual(result.getport(), 8042)
@@ -103,6 +104,7 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.port, None)
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'urn')
+        self.assertEqual(result.getauthority(), (None, None, None))
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
         self.assertEqual(result.getport(), None)
@@ -124,6 +126,7 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.port, None)
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'file')
+        self.assertEqual(result.getauthority(), (None, '', None))
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), '')
         self.assertEqual(result.getport(), None)
@@ -145,6 +148,7 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.port, b'8042')
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'foo')
+        self.assertEqual(result.getauthority(), ('user', 'example.com', 8042))
         self.assertEqual(result.getuserinfo(), 'user')
         self.assertEqual(result.gethost(), 'example.com')
         self.assertEqual(result.getport(), 8042)
@@ -166,6 +170,7 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.port, None)
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'urn')
+        self.assertEqual(result.getauthority(), (None, None, None))
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), None)
         self.assertEqual(result.getport(), None)
@@ -187,6 +192,7 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(result.port, None)
         self.assertEqual(result.geturi(), uri)
         self.assertEqual(result.getscheme(), 'file')
+        self.assertEqual(result.getauthority(), (None, '', None))
         self.assertEqual(result.getuserinfo(), None)
         self.assertEqual(result.gethost(), '')
         self.assertEqual(result.getport(), None)
@@ -201,6 +207,51 @@ class SplitTest(unittest.TestCase):
         self.assertEqual(urisplit('FOO_BAR:/').getscheme(), 'foo_bar')
         self.assertEqual(urisplit(b'foo').getscheme(default='bar'), 'bar')
         self.assertEqual(urisplit(b'FOO_BAR:/').getscheme(), 'foo_bar')
+
+    def test_getauthority(self):
+        from ipaddress import IPv4Address, IPv6Address
+        cases = [
+            ('urn:example:animal:ferret:nose',
+             None,
+             (None, None, None)),
+            ('file:///',
+             None,
+             (None, '', None)),
+            ('http://userinfo@Test.python.org:5432/foo/',
+             None,
+             ('userinfo', 'test.python.org', 5432)),
+            ('http://userinfo@12.34.56.78:5432/foo/',
+             None,
+             ('userinfo', IPv4Address('12.34.56.78'), 5432)),
+            ('http://userinfo@[::1]:5432/foo/',
+             None,
+             ('userinfo', IPv6Address('::1'), 5432)),
+            ('urn:example:animal:ferret:nose',
+             ('nobody', 'localhost', 42),
+             ('nobody', 'localhost', 42)),
+            ('file:///',
+             ('nobody', 'localhost', 42),
+             ('nobody', 'localhost', 42)),
+            ('http://Test.python.org/foo/',
+             ('nobody', 'localhost', 42),
+             ('nobody', 'test.python.org', 42)),
+            ('http://userinfo@Test.python.org/foo/',
+             ('nobody', 'localhost', 42),
+             ('userinfo', 'test.python.org', 42)),
+            ('http://Test.python.org:5432/foo/',
+             ('nobody', 'localhost', 42),
+             ('nobody', 'test.python.org', 5432)),
+            ('http://userinfo@Test.python.org:5432/foo/',
+             ('nobody', 'localhost', 42),
+             ('userinfo', 'test.python.org', 5432)),
+        ]
+        for uri, default, authority in cases:
+            self.assertEqual(urisplit(uri).getauthority(default), authority)
+        for uri in ['http://[::1/', 'http://::1]/']:
+            with self.assertRaises(ValueError, msg='%r' % uri):
+                urisplit(uri).getauthority()
+            with self.assertRaises(ValueError, msg='%r' % uri):
+                urisplit(uri.encode()).getauthority()
 
     def test_gethost(self):
         from ipaddress import IPv4Address, IPv6Address

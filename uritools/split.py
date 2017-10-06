@@ -108,6 +108,25 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return scheme.lower()
 
+    def getauthority(self, default=None, encoding='utf-8', errors='strict'):
+        """Return the decoded userinfo, host and port subcomponents of the URI
+        authority as a three-item tuple.
+
+        """
+        # TBD: (userinfo, host, port) kwargs, default string?
+        if default is None:
+            default = (None, None, None)
+        elif not isinstance(default, collections.Iterable):
+            raise TypeError('Invalid default type')
+        elif len(default) != 3:
+            raise ValueError('Invalid default length')
+        # TODO: this could be much more efficient by using a dedicated regex
+        return (
+            self.getuserinfo(default[0], encoding, errors),
+            self.gethost(default[1]),
+            self.getport(default[2])
+        )
+
     def getuserinfo(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded userinfo subcomponent of the URI authority, or
         `default` if the original URI did not contain a userinfo
