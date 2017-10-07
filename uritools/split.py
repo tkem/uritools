@@ -167,6 +167,23 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return default
 
+    def getauthority(self, encoding='utf-8', errors='strict', default=None):
+        """Return the normalized decoded URI path."""
+        if self.userinfo:
+            info = uridecode(self.userinfo, encoding, errors)
+        else:
+            info = default
+        if self.host:
+            host = uridecode(self.host, encoding, errors)
+        else:
+            host = default
+        if self.port:
+            port = uridecode(self.port, encoding, errors)
+        else:
+            port = default
+        return (info, host, port)
+
+
     def getpath(self, encoding='utf-8', errors='strict'):
         """Return the normalized decoded URI path."""
         path = self.__remove_dot_segments(self.path)

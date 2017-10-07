@@ -279,6 +279,20 @@ class SplitTest(unittest.TestCase):
             self.assertEqual(result.gethost(), 'bar')
             self.assertEqual(result.getport(8000), 8000)
 
+    def test_getauthority(self):
+        """test appending path components"""
+        cases = [
+            ('http://john:doe@Test.python.org/foo/',
+             ('john:doe', 'Test.python.org', None)),
+            ('http://john:doe@Test.python.org:8080/foo/',
+             ('john:doe', 'Test.python.org', '8080')),
+            ('foo://username:password@www.example.com:1234?name=ferret',
+             ('username:password', 'www.example.com', '1234'))
+        ]
+
+        for uri, result in cases:
+            self.assertEquals(urisplit(uri).getauthority(), result)
+
     def test_getpath(self):
         cases = [
             ('', '', '/'),
