@@ -252,6 +252,10 @@ class SplitTest(unittest.TestCase):
                 urisplit(uri).getauthority()
             with self.assertRaises(ValueError, msg='%r' % uri):
                 urisplit(uri.encode()).getauthority()
+        with self.assertRaises(TypeError, msg='%r' % uri):
+            urisplit('').getauthority(42)
+        with self.assertRaises(ValueError, msg='%r' % uri):
+            urisplit('').getauthority(('userinfo', 'test.python.org'))
 
     def test_gethost(self):
         from ipaddress import IPv4Address, IPv6Address
