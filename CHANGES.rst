@@ -1,3 +1,11 @@
+v2.1.0 (2017-10-07)
+-------------------
+
+- Add ``SplitResult.getauthority()``.
+
+- Add optional ``errors`` parameter to ``SplitResult.gethost()``.
+
+
 v2.0.1 (2017-09-13)
 -------------------
 
