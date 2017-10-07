@@ -123,7 +123,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         # TODO: this could be much more efficient by using a dedicated regex
         return (
             self.getuserinfo(default[0], encoding, errors),
-            self.gethost(default[1]),
+            self.gethost(default[1], errors),
             self.getport(default[2])
         )
 
@@ -139,7 +139,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return uridecode(userinfo, encoding, errors)
 
-    def gethost(self, default=None):
+    def gethost(self, default=None, errors='strict'):
         """Return the decoded host subcomponent of the URI authority as a
         string or an :mod:`ipaddress` address object, or `default` if
         the original URI did not contain a host.
@@ -151,9 +151,9 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         elif host.startswith(self.LBRACKET) and host.endswith(self.RBRACKET):
             return _ip_literal(host[1:-1])
         elif host.startswith(self.LBRACKET) or host.endswith(self.RBRACKET):
-            raise ValueError('Invalid host %r' % host)  # FIXME: remove?
-        else:
-            return _ipv4_address(host) or uridecode(host, 'utf-8').lower()
+            raise ValueError('Invalid host %r' % host)
+        # TODO: faster check for IPv4 address?
+        return _ipv4_address(host) or uridecode(host, 'utf-8', errors).lower()
 
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
