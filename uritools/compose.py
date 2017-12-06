@@ -1,7 +1,6 @@
 import ipaddress
 import numbers
 import re
-
 from collections import Iterable, Mapping
 
 from .chars import SUB_DELIMS
