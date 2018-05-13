@@ -295,11 +295,11 @@ class SplitResultBytes(SplitResult):
 
     # RFC 3986 Appendix B
     RE = re.compile(br"""
-    (?:([^:/?#]+):)?        # scheme
-    (?://([^/?#]*))?        # authority
-    ([^?#]*)                # path
-    (?:\?([^#]*))?          # query
-    (?:\#(.*))?             # fragment
+    (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
+    (?://([^/?#]*))?                 # authority
+    ([^?#]*)                         # path
+    (?:\?([^#]*))?                   # query
+    (?:\#(.*))?                      # fragment
     """, flags=re.VERBOSE)
 
     # RFC 3986 2.2 gen-delims
@@ -321,11 +321,11 @@ class SplitResultUnicode(SplitResult):
 
     # RFC 3986 Appendix B
     RE = re.compile(r"""
-    (?:([^:/?#]+):)?        # scheme
-    (?://([^/?#]*))?        # authority
-    ([^?#]*)                # path
-    (?:\?([^#]*))?          # query
-    (?:\#(.*))?             # fragment
+    (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
+    (?://([^/?#]*))?                 # authority
+    ([^?#]*)                         # path
+    (?:\?([^#]*))?                   # query
+    (?:\#(.*))?                      # fragment
     """, flags=re.VERBOSE)
 
     # RFC 3986 2.2 gen-delims

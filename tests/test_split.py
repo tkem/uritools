@@ -39,6 +39,7 @@ class SplitTest(unittest.TestCase):
             ('://#', (None, None, '://', None, '')),
             ('://?#', (None, None, '://', '', '')),
             ('//', (None, '', '', None, None)),
+            ('//:', (None, ':', '', None, None)),
             ('///', (None, '', '/', None, None)),
             ('//?', (None, '', '', '', None)),
             ('//#', (None, '', '', None, '')),
@@ -48,6 +49,9 @@ class SplitTest(unittest.TestCase):
             ('?#', (None, None, '', '', '')),
             ('#', (None, None, '', None, '')),
             ('##', (None, None, '', None, '#')),
+            ('?:', (None, None, '', ':', None)),
+            ('#:', (None, None, '', None, ':')),
+            ('_:', (None, None, '_:', None, None)),
             (b'', (None, None, b'', None, None)),
             (b':', (None, None, b':', None, None)),
             (b':/', (None, None, b':/', None, None)),
@@ -56,6 +60,7 @@ class SplitTest(unittest.TestCase):
             (b'://#', (None, None, b'://', None, b'')),
             (b'://?#', (None, None, b'://', b'', b'')),
             (b'//', (None, b'', b'', None, None)),
+            (b'//:', (None, b':', b'', None, None)),
             (b'///', (None, b'', b'/', None, None)),
             (b'//?', (None, b'', b'', b'', None)),
             (b'//#', (None, b'', b'', None, b'')),
@@ -65,6 +70,9 @@ class SplitTest(unittest.TestCase):
             (b'?#', (None, None, b'', b'', b'')),
             (b'#', (None, None, b'', None, b'')),
             (b'##', (None, None, b'', None, b'#')),
+            (b'?:', (None, None, b'', b':', None)),
+            (b'#:', (None, None, b'', None, b':')),
+            (b'_:', (None, None, b'_:', None, None)),
         ]
         for uri, parts in cases:
             self.check(uri, parts)
@@ -204,9 +212,13 @@ class SplitTest(unittest.TestCase):
 
     def test_getscheme(self):
         self.assertEqual(urisplit('foo').getscheme(default='bar'), 'bar')
-        self.assertEqual(urisplit('FOO_BAR:/').getscheme(), 'foo_bar')
+        self.assertEqual(urisplit('foo:').getscheme(default='bar'), 'foo')
+        self.assertEqual(urisplit('FOO:').getscheme(default='bar'), 'foo')
+        self.assertEqual(urisplit('FOO_BAR:/').getscheme(default='x'), 'x')
         self.assertEqual(urisplit(b'foo').getscheme(default='bar'), 'bar')
-        self.assertEqual(urisplit(b'FOO_BAR:/').getscheme(), 'foo_bar')
+        self.assertEqual(urisplit(b'foo:').getscheme(default='bar'), 'foo')
+        self.assertEqual(urisplit(b'FOO:').getscheme(default='bar'), 'foo')
+        self.assertEqual(urisplit(b'FOO_BAR:/').getscheme(default='x'), 'x')
 
     def test_getauthority(self):
         from ipaddress import IPv4Address, IPv6Address
