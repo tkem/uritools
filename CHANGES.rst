@@ -1,3 +1,9 @@
+v2.1.1 (2018-05-13)
+-------------------
+
+- Treat URIs with invalid schemes as relative references.
+
+
 v2.1.0 (2017-10-07)
 -------------------
 
