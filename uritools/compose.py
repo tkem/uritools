@@ -124,7 +124,7 @@ def _querydict(mapping, sep, encoding):
 def uricompose(scheme=None, authority=None, path='', query=None,
                fragment=None, userinfo=None, host=None, port=None,
                querysep='&', encoding='utf-8'):
-    """Compose a URI string from its individual components."""
+    """Compose a URI reference string from its individual components."""
 
     # RFC 3986 3.1: Scheme names consist of a sequence of characters
     # beginning with a letter and followed by any combination of

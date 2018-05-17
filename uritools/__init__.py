@@ -8,6 +8,8 @@ commonly used functions of the Python 2.7 Standard Library
 """
 
 from .chars import GEN_DELIMS, RESERVED, SUB_DELIMS, UNRESERVED
+from .classify import isabspath, isabsuri, isnetpath, isrelpath
+from .classify import issamedoc, isuri
 from .compose import uricompose
 from .defrag import DefragResult, uridefrag
 from .encoding import uridecode, uriencode
@@ -21,6 +23,12 @@ __all__ = (
     'UNRESERVED',
     'DefragResult',
     'SplitResult',
+    'isuri',
+    'isabsuri',
+    'isnetpath',
+    'isabspath',
+    'isrelpath',
+    'issamedoc',
     'uricompose',
     'uridecode',
     'uridefrag',

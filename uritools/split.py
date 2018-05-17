@@ -79,7 +79,10 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return None
 
     def geturi(self):
-        """Return the re-combined version of the original URI as a string."""
+        """Return the re-combined version of the original URI reference as a
+        string.
+
+        """
         scheme, authority, path, query, fragment = self
 
         # RFC 3986 5.3. Component Recomposition
@@ -97,7 +100,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getscheme(self, default=None):
         """Return the URI scheme in canonical (lowercase) form, or `default`
-        if the original URI did not contain a scheme component.
+        if the original URI reference did not contain a scheme component.
 
         """
         scheme = self.scheme
@@ -129,8 +132,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getuserinfo(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded userinfo subcomponent of the URI authority, or
-        `default` if the original URI did not contain a userinfo
-        field.
+        `default` if the original URI reference did not contain a
+        userinfo field.
 
         """
         userinfo = self.userinfo
@@ -142,7 +145,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
     def gethost(self, default=None, errors='strict'):
         """Return the decoded host subcomponent of the URI authority as a
         string or an :mod:`ipaddress` address object, or `default` if
-        the original URI did not contain a host.
+        the original URI reference did not contain a host.
 
         """
         host = self.host
@@ -157,8 +160,8 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
-        :class:`int`, or `default` if the original URI did not contain
-        a port or if the port was empty.
+        :class:`int`, or `default` if the original URI reference did
+        not contain a port or if the port was empty.
 
         """
         port = self.port
@@ -174,7 +177,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getquery(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded query string, or `default` if the original URI
-        did not contain a query component.
+        reference did not contain a query component.
 
         """
         query = self.query
@@ -221,7 +224,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def getfragment(self, default=None, encoding='utf-8', errors='strict'):
         """Return the decoded fragment identifier, or `default` if the
-        original URI did not contain a fragment component.
+        original URI reference did not contain a fragment component.
 
         """
         fragment = self.fragment
@@ -229,6 +232,33 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             return default
         else:
             return uridecode(fragment, encoding, errors)
+
+    def isuri(self):
+        """Return :const:`True` if this is a URI."""
+        return self.scheme is not None
+
+    def isabsuri(self):
+        """Return :const:`True` if this is an absolute URI."""
+        return self.scheme is not None and self.fragment is None
+
+    def isnetpath(self):
+        """Return :const:`True` if this is a network-path reference."""
+        return self.scheme is None and self.authority is not None
+
+    def isabspath(self):
+        """Return :const:`True` if this is an absolute-path reference."""
+        return (self.scheme is None and self.authority is None and
+                self.path.startswith(self.SLASH))
+
+    def isrelpath(self):
+        """Return :const:`True` if this is a relative-path reference."""
+        return (self.scheme is None and self.authority is None and
+                not self.path.startswith(self.SLASH))
+
+    def issamedoc(self):
+        """Return :const:`True` if this is a same-document reference."""
+        return (self.scheme is None and self.authority is None and
+                not self.path and self.query is None)
 
     def transform(self, ref, strict=False):
         """Transform a URI reference relative to `self` into a
@@ -342,8 +372,8 @@ class SplitResultUnicode(SplitResult):
 
 
 def urisplit(uristring):
-    """Split a well-formed URI string into a tuple with five components
-    corresponding to a URI's general structure::
+    """Split a well-formed URI reference string into a tuple with five
+    components corresponding to a URI's general structure::
 
       <scheme>://<authority>/<path>?<query>#<fragment>
 
@@ -356,7 +386,10 @@ def urisplit(uristring):
 
 
 def uriunsplit(parts):
-    """Combine the elements of a five-item iterable into a URI string."""
+    """Combine the elements of a five-item iterable into a URI reference's
+    string representation.
+
+    """
     scheme, authority, path, query, fragment = parts
     if isinstance(path, bytes):
         result = SplitResultBytes

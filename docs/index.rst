@@ -53,6 +53,72 @@ composing URIs from their individual components.
         changed, even if this means breaking backward compatibility.
 
 
+URI Classification
+------------------------------------------------------------------------
+
+According to RFC 3986, a URI reference is either a URI or a *relative
+reference*.  If the URI reference's prefix does not match the syntax
+of a scheme followed by its colon separator, then the URI reference is
+a relative reference.
+
+A relative reference that begins with two slash characters is termed a
+*network-path* reference.  A relative reference that begins with a
+single slash character is termed an *absolute-path* reference.  A
+relative reference that does not begin with a slash character is
+termed a *relative-path* reference.
+
+When a URI reference refers to a URI that is, aside from its fragment
+component, identical to the base URI, that reference is called a
+*same-document* reference.  Examples of same-document references are
+relative references that are empty or include only the number sign
+("#") separator followed by a fragment identifier.
+
+A URI without a fragment identifier is termed an *absolute URI*.  A
+base URI, for example, must be an absolute URI.  If the base URI is
+obtained from a URI reference, then that reference must be stripped of
+any fragment component prior to its use as a base URI.
+
+.. autofunction:: isuri
+
+.. autofunction:: isabsuri
+
+.. autofunction:: isnetpath
+
+.. autofunction:: isabspath
+
+.. autofunction:: isrelpath
+
+.. autofunction:: issamedoc
+
+
+URI Composition
+------------------------------------------------------------------------
+
+.. autofunction:: uricompose
+
+   All components may be specified as either Unicode strings, which
+   will be encoded according to `encoding`, or :class:`bytes` objects.
+
+   `authority` may also be passed a three-item iterable specifying
+   userinfo, host and port subcomponents.  If both `authority` and any
+   of the `userinfo`, `host` or `port` keyword arguments are given,
+   the keyword argument will override the corresponding `authority`
+   subcomponent.
+
+   `query` may also be passed a mapping object or a sequence of
+   two-element tuples, which will be converted to a string of
+   `name=value` pairs separated by `querysep`.
+
+   The returned URI reference is of type :class:`str`.
+
+.. autofunction:: urijoin
+
+    If `strict` is :const:`False`, a scheme in the reference is
+    ignored if it is identical to the base URI's scheme.
+
+.. autofunction:: uriunsplit
+
+
 URI Decomposition
 ------------------------------------------------------------------------
 
@@ -65,11 +131,11 @@ URI Decomposition
    +-------------------+-------+---------------------------------------------+
    | Attribute         | Index | Value                                       |
    +===================+=======+=============================================+
-   | :attr:`uri`       | 0     | Absolute URI or relative URI reference      |
-   |                   |       | without the fragment identifier             |
+   | :attr:`uri`       | 0     | Absolute URI, or relative reference without |
+   |                   |       | a fragment identifier                       |
    +-------------------+-------+---------------------------------------------+
-   | :attr:`fragment`  | 1     | Fragment identifier,                        |
-   |                   |       | or :const:`None` if not present             |
+   | :attr:`fragment`  | 1     | Fragment identifier, or :const:`None` if no |
+   |                   |       | fragment was present                        |
    +-------------------+-------+---------------------------------------------+
 
 .. autofunction:: urisplit
@@ -95,44 +161,16 @@ URI Decomposition
    | :attr:`fragment`  | 4     | Fragment identifier,                        |
    |                   |       | or :const:`None` if not present             |
    +-------------------+-------+---------------------------------------------+
-   | :attr:`userinfo`  |       | Userinfo subcomponent of authority,         |
+   | :attr:`userinfo`  |       | Userinfo subcomponent of `authority`,       |
    |                   |       | or :const:`None` if not present             |
    +-------------------+-------+---------------------------------------------+
-   | :attr:`host`      |       | Host subcomponent of authority,             |
+   | :attr:`host`      |       | Host subcomponent of `authority`,           |
    |                   |       | or :const:`None` if not present             |
    +-------------------+-------+---------------------------------------------+
-   | :attr:`port`      |       | Port subcomponent of authority as a         |
+   | :attr:`port`      |       | Port subcomponent of `authority` as a       |
    |                   |       | (possibly empty) string,                    |
    |                   |       | or :const:`None` if not present             |
    +-------------------+-------+---------------------------------------------+
-
-
-URI Composition
-------------------------------------------------------------------------
-
-.. autofunction:: uricompose
-
-   All components may be specified as either Unicode strings, which
-   will be encoded according to `encoding`, or :class:`bytes` objects.
-
-   `authority` may also be passed a three-item iterable specifying
-   userinfo, host and port subcomponents.  If both `authority` and any
-   of the `userinfo`, `host` or `port` keyword arguments are given,
-   the keyword argument will override the corresponding `authority`
-   subcomponent.
-
-   `query` may also be passed a mapping object or a sequence of
-   two-element tuples, which will be converted to a string of
-   `name=value` pairs separated by `querysep`.
-
-   The returned URI is of type :class:`str`.
-
-.. autofunction:: urijoin
-
-    If `strict` is :const:`False`, a scheme in the reference is
-    ignored if it is identical to the base URI's scheme.
-
-.. autofunction:: uriunsplit
 
 
 URI Encoding
@@ -152,6 +190,22 @@ URI Encoding
    percent-encodings and return the result as a :class:`bytes` object.
    Otherwise, encode `uristring` using the codec registered for
    `encoding` before replacing any percent encodings.
+
+
+Structured Parse Results
+------------------------------------------------------------------------
+
+The result objects from the :func:`uridefrag` and :func:`urisplit`
+functions are instances of subclasses of
+:class:`collections.namedtuple`.  These objects contain the attributes
+described in the function documentation, as well as some additional
+convenience methods.
+
+.. autoclass:: DefragResult
+   :members:
+
+.. autoclass:: SplitResult
+   :members:
 
 
 Character Constants
@@ -175,19 +229,3 @@ Character Constants
 
    A string containing all unreserved characters specified in
    RFC 3986.
-
-
-Structured Parse Results
-------------------------------------------------------------------------
-
-The result objects from the :func:`uridefrag` and :func:`urisplit`
-functions are instances of subclasses of
-:class:`collections.namedtuple`.  These objects contain the attributes
-described in the function documentation, as well as some additional
-convenience methods.
-
-.. autoclass:: DefragResult
-   :members:
-
-.. autoclass:: SplitResult
-   :members:
