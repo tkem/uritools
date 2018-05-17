@@ -1,3 +1,9 @@
+v2.2.0 (2018-05-17)
+-------------------
+
+-  Add URI classification methods and functions.
+
+
 v2.1.1 (2018-05-13)
 -------------------
 
