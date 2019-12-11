@@ -1,23 +1,6 @@
-from string import hexdigits
+from string import hexdigits as _hex
 
 from .chars import UNRESERVED
-
-if isinstance(chr(0), bytes):
-    _fromint = chr
-else:
-    def _fromint(i): return bytes([i])
-
-try:
-    _fromhex = bytes.fromhex
-except AttributeError:
-    def _fromhex(x): return chr(int(x, 16))
-
-try:
-    0 in b''
-except TypeError:
-    def _tointseq(b): return memoryview(b).tolist()
-else:
-    def _tointseq(b): return b
 
 
 # RFC 3986 2.1: For consistency, URI producers and normalizers should
@@ -26,14 +9,14 @@ def _pctenc(byte):
     return ('%%%02X' % byte).encode()
 
 
-_unreserved = frozenset(_tointseq(UNRESERVED.encode()))
+_unreserved = frozenset(UNRESERVED.encode())
 
 _encoded = {
-    b'': [_fromint(i) if i in _unreserved else _pctenc(i) for i in range(256)]
+    b'': [bytes([i]) if i in _unreserved else _pctenc(i) for i in range(256)]
 }
 
 _decoded = {
-    (a + b).encode(): _fromhex(a + b) for a in hexdigits for b in hexdigits
+    (a + b).encode(): bytes.fromhex(a + b) for a in _hex for b in _hex
 }
 
 
@@ -47,10 +30,10 @@ def uriencode(uristring, safe='', encoding='utf-8', errors='strict'):
         encoded = _encoded[safe]
     except KeyError:
         encoded = _encoded[b''][:]
-        for i in _tointseq(safe):
-            encoded[i] = _fromint(i)
+        for i in safe:
+            encoded[i] = bytes([i])
         _encoded[safe] = encoded
-    return b''.join(map(encoded.__getitem__, _tointseq(uristring)))
+    return b''.join(map(encoded.__getitem__, uristring))
 
 
 def uridecode(uristring, encoding='utf-8', errors='strict'):

@@ -346,7 +346,7 @@ class SplitResultBytes(SplitResult):
     DIGITS = b'0123456789'
 
 
-class SplitResultUnicode(SplitResult):
+class SplitResultString(SplitResult):
 
     __slots__ = ()  # prevent creation of instance dictionary
 
@@ -382,7 +382,7 @@ def urisplit(uristring):
     if isinstance(uristring, bytes):
         result = SplitResultBytes
     else:
-        result = SplitResultUnicode
+        result = SplitResultString
     return result(*result.RE.match(uristring).groups())
 
 
@@ -395,5 +395,5 @@ def uriunsplit(parts):
     if isinstance(path, bytes):
         result = SplitResultBytes
     else:
-        result = SplitResultUnicode
+        result = SplitResultString
     return result(scheme, authority, path, query, fragment).geturi()

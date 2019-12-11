@@ -1,9 +1,8 @@
-"""RFC 3986 compliant, Unicode-aware, scheme-agnostic replacement for
-urlparse.
+"""RFC 3986 compliant, scheme-agnostic replacement for `urllib.parse`.
 
 This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python 2.7 Standard Library
-:mod:`urlparse` module.
+commonly used functions of the Python Standard Library
+:mod:`urllib.parse` module.
 
 """
 
@@ -23,12 +22,12 @@ __all__ = (
     'UNRESERVED',
     'DefragResult',
     'SplitResult',
-    'isuri',
+    'isabspath',
     'isabsuri',
     'isnetpath',
-    'isabspath',
     'isrelpath',
     'issamedoc',
+    'isuri',
     'uricompose',
     'uridecode',
     'uridefrag',
@@ -38,4 +37,4 @@ __all__ = (
     'uriunsplit'
 )
 
-__version__ = '2.2.0'
+__version__ = '3.0.0'
