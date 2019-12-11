@@ -1,4 +1,5 @@
 import collections
+import collections.abc
 import ipaddress
 import numbers
 import re
@@ -114,7 +115,7 @@ def _querydict(mapping, sep, encoding):
     for key, value in mapping.items():
         if isinstance(value, _strtypes):
             items.append((key, value))
-        elif isinstance(value, collections.Iterable):
+        elif isinstance(value, collections.abc.Iterable):
             items.extend([(key, v) for v in value])
         else:
             items.append((key, value))
@@ -147,7 +148,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
         authority = _AUTHORITY_RE_BYTES.match(authority).groups()
     elif isinstance(authority, _unicode):
         authority = _AUTHORITY_RE_UNICODE.match(authority).groups()
-    elif not isinstance(authority, collections.Iterable):
+    elif not isinstance(authority, collections.abc.Iterable):
         raise TypeError('Invalid authority type')
     elif len(authority) != 3:
         raise ValueError('Invalid authority length')
@@ -190,9 +191,9 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # encoding those characters.
     if isinstance(query, _strtypes):
         query = uriencode(query, _SAFE_QUERY, encoding)
-    elif isinstance(query, collections.Mapping):
+    elif isinstance(query, collections.abc.Mapping):
         query = _querydict(query, querysep, encoding)
-    elif isinstance(query, collections.Iterable):
+    elif isinstance(query, collections.abc.Iterable):
         query = _querylist(query, querysep, encoding)
     elif query is not None:
         raise TypeError('Invalid query type')

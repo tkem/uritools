@@ -1,4 +1,5 @@
 import collections
+import collections.abc
 import ipaddress
 import re
 
@@ -119,7 +120,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         # TBD: (userinfo, host, port) kwargs, default string?
         if default is None:
             default = (None, None, None)
-        elif not isinstance(default, collections.Iterable):
+        elif not isinstance(default, collections.abc.Iterable):
             raise TypeError('Invalid default type')
         elif len(default) != 3:
             raise ValueError('Invalid default length')
