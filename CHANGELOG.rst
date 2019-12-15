@@ -1,17 +1,23 @@
+v3.0.0 (UNRELEASED)
+===================
+
+- Require Python 3.5 or later.
+
+
 v2.2.0 (2018-05-17)
--------------------
+===================
 
 -  Add URI classification methods and functions.
 
 
 v2.1.1 (2018-05-13)
--------------------
+===================
 
 - Treat URIs with invalid schemes as relative references.
 
 
 v2.1.0 (2017-10-07)
--------------------
+===================
 
 - Add ``SplitResult.getauthority()``.
 
@@ -19,7 +25,7 @@ v2.1.0 (2017-10-07)
 
 
 v2.0.1 (2017-09-13)
--------------------
+===================
 
 - Officially support Python 3.6.
 
@@ -29,7 +35,7 @@ v2.0.1 (2017-09-13)
 
 
 v2.0.0 (2016-10-09)
--------------------
+===================
 
 - Drop Python 3.2 support (breaking change).
 
@@ -45,20 +51,20 @@ v2.0.0 (2016-10-09)
 
 
 v1.0.2 (2016-04-08)
--------------------
+===================
 
 - Fix ``uriencode()`` documentation and unit tests requiring the
   ``safe`` parameter to be a ``bytes`` object.
 
 
 v1.0.1 (2015-07-09)
--------------------
+===================
 
 - Encode semicolon in query values passed to ``uricompose()``.
 
 
 v1.0.0 (2015-06-12)
--------------------
+===================
 
 - Fix use of URI references as base URIs in ``urijoin()`` and
   ``SplitResult.transform()``.
@@ -80,7 +86,7 @@ objects from ``SplitResult.gethost()`` instead.
 
 
 v0.12.0 (2015-04-03)
---------------------
+====================
 
 - Deprecate ``SplitResult.getaddrinfo()``.
 
@@ -95,14 +101,14 @@ v0.12.0 (2015-04-03)
 
 
 v0.11.1 (2015-03-25)
---------------------
+====================
 
 - Fix ``uricompose()`` for relative-path references with colons in the
   first path segment.
 
 
 v0.11.0 (2014-12-16)
---------------------
+====================
 
 - Support ``encoding=None`` for ``uriencode()`` and ``uridecode()``.
 
@@ -110,13 +116,13 @@ v0.11.0 (2014-12-16)
 
 
 v0.10.1 (2014-11-30)
---------------------
+====================
 
 - Make ``uricompose()`` return ``str`` on all Python versions.
 
 
 v0.10.0 (2014-11-30)
---------------------
+====================
 
 - Use ``ipaddress`` module for handling IPv4/IPv6 host addresses.
 
@@ -129,13 +135,13 @@ v0.10.0 (2014-11-30)
 
 
 v0.9.0 (2014-11-21)
--------------------
+===================
 
 - Improve Python 3 support.
 
 
 v0.8.0 (2014-11-04)
--------------------
+===================
 
 - Fix ``uriencode()`` and ``uridecode()``.
 
@@ -145,7 +151,7 @@ v0.8.0 (2014-11-04)
 
 
 v0.7.0 (2014-10-12)
--------------------
+===================
 
 - Add optional port parameter to ``SplitResult.getaddrinfo()``.
 
@@ -153,7 +159,7 @@ v0.7.0 (2014-10-12)
 
 
 v0.6.0 (2014-09-17)
--------------------
+===================
 
 - Add basic IPv6 support.
 
@@ -168,19 +174,19 @@ v0.6.0 (2014-09-17)
 
 
 v0.5.2 (2014-08-06)
--------------------
+===================
 
 - Fix empty port handling.
 
 
 v0.5.1 (2014-06-22)
--------------------
+===================
 
 - Add basic Python 3 support.
 
 
 v0.5.0 (2014-06-21)
--------------------
+===================
 
 - Add ``SplitResult.getaddrinfo()``.
 
@@ -188,7 +194,7 @@ v0.5.0 (2014-06-21)
 
 
 v0.4.0 (2014-03-20)
--------------------
+===================
 
 - Fix ``SplitResult.port`` to return int (matching urlparse).
 
@@ -196,7 +202,7 @@ v0.4.0 (2014-03-20)
 
 
 v0.3.0 (2014-03-02)
--------------------
+===================
 
 - Add result object accessor methods.
 
@@ -204,7 +210,7 @@ v0.3.0 (2014-03-02)
 
 
 v0.2.1 (2014-02-24)
--------------------
+===================
 
 - Fix IndexError in ``urinormpath()``.
 
@@ -212,7 +218,7 @@ v0.2.1 (2014-02-24)
 
 
 v0.2.0 (2014-02-18)
--------------------
+===================
 
 - Add authority subcomponent attributes.
 
@@ -222,6 +228,6 @@ v0.2.0 (2014-02-18)
 
 
 v0.1.0 (2014-02-14)
--------------------
+===================
 
 - Initial beta release.

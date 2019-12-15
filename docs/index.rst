@@ -1,13 +1,14 @@
-:mod:`uritools` --- RFC 3986 compliant replacement for :mod:`urlparse`
-=======================================================================
+***************************************************************
+:mod:`uritools` --- URI parsing, classification and composition
+***************************************************************
 
 .. module:: uritools
 
-This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python 2.7 Standard Library
-:mod:`urlparse` and Python 3 :mod:`urllib.parse` modules.
+This module provides RFC 3986 compliant functions for parsing,
+classifying and composing URIs and URI references, largely replacing
+the Python Standard Library's :mod:`urllib.parse` module.
 
-.. code-block:: pycon
+.. doctest::
 
     >>> from uritools import uricompose, urijoin, urisplit, uriunsplit
     >>> uricompose(scheme='foo', host='example.com', port=8042,
@@ -23,15 +24,17 @@ commonly used functions of the Python 2.7 Standard Library
     8042
     >>> parts.getquerydict().get('name')
     ['ferret']
+    >>> parts.isuri()
+    True
+    >>> parts.isabsuri()
+    False
     >>> urijoin(uriunsplit(parts), '/right/here?name=swallow#beak')
     'foo://example.com:8042/right/here?name=swallow#beak'
 
-For various reasons, the Python 2 :mod:`urlparse` module is not
-compliant with current Internet standards, does not include Unicode
-support, and is generally unusable with proprietary URI schemes.
-Python 3's :mod:`urllib.parse` improves on Unicode support, but the
-other issues still remain.  As stated in `Lib/urllib/parse.py
-<https://hg.python.org/cpython/file/3.5/Lib/urllib/parse.py>`_::
+For various reasons, :mod:`urllib.parse` and its Python 2 predecessor
+:mod:`urlparse` are not compliant with current Internet standards.  As
+stated in `Lib/urllib/parse.py
+<https://github.com/python/cpython/blob/3.8/Lib/urllib/parse.py>`_:
 
     RFC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
@@ -40,9 +43,10 @@ other issues still remain.  As stated in `Lib/urllib/parse.py
     some parsing quirks from older RFCs are retained.
 
 This module aims to provide fully RFC 3986 compliant replacements for
-the most commonly used functions found in :mod:`urlparse` and
-:mod:`urllib.parse`, plus additional functions for conveniently
-composing URIs from their individual components.
+the most commonly used functions found in :mod:`urllib.parse`.  It
+also includes functions for distinguishing between the different forms
+of URIs and URI references, and for conveniently creating URIs from
+their individual components.
 
 .. seealso::
 
@@ -54,7 +58,7 @@ composing URIs from their individual components.
 
 
 URI Classification
-------------------------------------------------------------------------
+==================
 
 According to RFC 3986, a URI reference is either a URI or a *relative
 reference*.  If the URI reference's prefix does not match the syntax
@@ -92,7 +96,7 @@ any fragment component prior to its use as a base URI.
 
 
 URI Composition
-------------------------------------------------------------------------
+===============
 
 .. autofunction:: uricompose
 
@@ -120,7 +124,7 @@ URI Composition
 
 
 URI Decomposition
-------------------------------------------------------------------------
+=================
 
 .. autofunction:: uridefrag
 
@@ -174,7 +178,7 @@ URI Decomposition
 
 
 URI Encoding
-------------------------------------------------------------------------
+============
 
 .. autofunction:: uridecode
 
@@ -193,7 +197,7 @@ URI Encoding
 
 
 Structured Parse Results
-------------------------------------------------------------------------
+========================
 
 The result objects from the :func:`uridefrag` and :func:`urisplit`
 functions are instances of subclasses of
@@ -209,7 +213,7 @@ convenience methods.
 
 
 Character Constants
-------------------------------------------------------------------------
+===================
 
 .. data:: GEN_DELIMS
 

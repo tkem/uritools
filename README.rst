@@ -1,9 +1,29 @@
 uritools
 ========================================================================
 
-This module defines RFC 3986 compliant replacements for the most
-commonly used functions of the Python 2.7 Standard Library
-``urlparse`` and Python 3 ``urllib.parse`` modules.
+.. image:: https://img.shields.io/pypi/v/uritools
+    :target: https://pypi.org/project/uritools
+    :alt: Latest PyPI version
+
+.. image:: https://img.shields.io/readthedocs/uritools
+   :target: https://uritools.readthedocs.io
+   :alt: Documentation build status
+
+.. image:: https://img.shields.io/travis/tkem/uritools
+    :target: https://travis-ci.org/tkem/uritools
+    :alt: Travis CI build status
+
+.. image:: https://img.shields.io/coveralls/tkem/uritools
+   :target: https://coveralls.io/r/tkem/uritools
+   :alt: Test coverage
+
+.. image:: https://img.shields.io/github/license/tkem/uritools
+   :target: http://raw.github.com/tkem/uritools/master/LICENSE
+   :alt: License
+
+This module provides RFC 3986 compliant functions for parsing,
+classifying and composing URIs and URI references, largely replacing
+the Python Standard Library's ``urllib.parse`` module.
 
 .. code-block:: pycon
 
@@ -21,15 +41,17 @@ commonly used functions of the Python 2.7 Standard Library
     8042
     >>> parts.getquerydict().get('name')
     ['ferret']
+    >>> parts.isuri()
+    True
+    >>> parts.isabsuri()
+    False
     >>> urijoin(uriunsplit(parts), '/right/here?name=swallow#beak')
     'foo://example.com:8042/right/here?name=swallow#beak'
 
-For various reasons, the Python 2 ``urlparse`` module is not compliant
-with current Internet standards, does not include Unicode support, and
-is generally unusable with proprietary URI schemes.  Python 3's
-``urllib.parse`` improves on Unicode support, but the other issues still
-remain.  As stated in `Lib/urllib/parse.py
-<https://hg.python.org/cpython/file/3.5/Lib/urllib/parse.py>`_::
+For various reasons, ``urllib.parse`` and its Python 2 predecessor
+``urlparse`` are not compliant with current Internet standards.  As
+stated in `Lib/urllib/parse.py
+<https://github.com/python/cpython/blob/3.8/Lib/urllib/parse.py>`_:
 
     RFC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
@@ -38,52 +60,40 @@ remain.  As stated in `Lib/urllib/parse.py
     some parsing quirks from older RFCs are retained.
 
 This module aims to provide fully RFC 3986 compliant replacements for
-some commonly used functions found in ``urlparse`` and
-``urllib.parse``, plus additional functions for conveniently composing
-URIs from their individual components.
+the most commonly used functions found in ``urllib.parse``.  It also
+includes functions for distinguishing between the different forms of
+URIs and URI references, and for conveniently creating URIs from their
+individual components.
 
 
 Installation
 ------------------------------------------------------------------------
 
-Install uritools using pip::
+uritools is available from PyPI_ and can be installed by running::
 
-    pip install uritools
+  pip install uritools
 
 
 Project Resources
 ------------------------------------------------------------------------
 
-.. image:: http://img.shields.io/pypi/v/uritools.svg?style=flat
-    :target: https://pypi.python.org/pypi/uritools/
-    :alt: Latest PyPI version
-
-.. image:: http://img.shields.io/travis/tkem/uritools/master.svg?style=flat
-    :target: https://travis-ci.org/tkem/uritools/
-    :alt: Travis CI build status
-
-.. image:: http://img.shields.io/coveralls/tkem/uritools/master.svg?style=flat
-   :target: https://coveralls.io/r/tkem/uritools
-   :alt: Test coverage
-
-.. image:: https://readthedocs.org/projects/uritools/badge/?version=latest&style=flat
-   :target: http://uritools.readthedocs.io/en/latest/
-   :alt: Documentation Status
-
-- `Issue Tracker`_
-- `Source Code`_
-- `Change Log`_
+- `Documentation`_
+- `Issue tracker`_
+- `Source code`_
+- `Change log`_
 
 
 License
 ------------------------------------------------------------------------
 
-Copyright (c) 2014-2018 Thomas Kemmer.
+Copyright (c) 2014-2019 Thomas Kemmer.
 
 Licensed under the `MIT License`_.
 
 
-.. _Issue Tracker: https://github.com/tkem/uritools/issues/
-.. _Source Code: https://github.com/tkem/uritools/
-.. _Change Log: https://github.com/tkem/uritools/blob/master/CHANGES.rst
+.. _PyPI: https://pypi.org/project/uritools/
+.. _Documentation: https://uritools.readthedocs.io/
+.. _Issue tracker: https://github.com/tkem/uritools/issues/
+.. _Source code: https://github.com/tkem/uritools/
+.. _Change log: https://github.com/tkem/uritools/blob/master/CHANGELOG.rst
 .. _MIT License: http://raw.github.com/tkem/uritools/master/LICENSE
