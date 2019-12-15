@@ -1,4 +1,4 @@
-v3.0.0 (UNRELEASED)
+v3.0.0 (2019-12-15)
 ===================
 
 - Require Python 3.5 or later.
