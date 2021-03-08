@@ -25,7 +25,7 @@ def _ip_literal(address):
     # appropriate error for "address mechanism not supported".
     if isinstance(address, bytes):
         address = address.decode('ascii')
-    if address.startswith(u'v'):
+    if address.startswith('v'):
         raise ValueError('address mechanism not supported')
     return ipaddress.IPv6Address(address)
 
@@ -361,15 +361,15 @@ class SplitResultString(SplitResult):
 
     # RFC 3986 2.2 gen-delims
     COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = (
-        u':', u'/', u'?', u'#', u'[', u']', u'@'
+        ':', '/', '?', '#', '[', ']', '@'
     )
 
     # RFC 3986 3.3 dot-segments
-    DOT, DOTDOT = u'.', u'..'
+    DOT, DOTDOT = '.', '..'
 
-    EMPTY, EQ = u'', u'='
+    EMPTY, EQ = '', '='
 
-    DIGITS = u'0123456789'
+    DIGITS = '0123456789'
 
 
 def urisplit(uristring):

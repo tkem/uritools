@@ -380,8 +380,8 @@ class SplitTest(unittest.TestCase):
             (';', '?a=a+b&b=b+c', [('a', 'a+b&b=b+c')]),
             ('&', '?a&b', [('a', None), ('b', None)]),
             (';', '?a;b', [('a', None), ('b', None)]),
-            (b'&', u'?a&b', [('a', None), ('b', None)]),
-            (u'&', b'?a&b', [('a', None), ('b', None)]),
+            (b'&', '?a&b', [('a', None), ('b', None)]),
+            ('&', b'?a&b', [('a', None), ('b', None)]),
         ]
         for sep, query, querylist in cases:
             parts = urisplit(query)

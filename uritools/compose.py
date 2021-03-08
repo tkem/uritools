@@ -13,7 +13,7 @@ _SCHEME_RE = re.compile(b'^[A-Za-z][A-Za-z0-9+.-]*$')
 
 # RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
 _AUTHORITY_RE_BYTES = re.compile(b'^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
-_AUTHORITY_RE_STR = re.compile(u'^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
+_AUTHORITY_RE_STR = re.compile('^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
 
 # safe component characters
 _SAFE_USERINFO = SUB_DELIMS + ':'
