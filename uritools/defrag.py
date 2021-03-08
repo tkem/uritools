@@ -3,7 +3,7 @@ import collections
 from .encoding import uridecode
 
 
-class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
+class DefragResult(collections.namedtuple("DefragResult", "uri fragment")):
     """Class to hold :func:`uridefrag` results."""
 
     __slots__ = ()  # prevent creation of instance dictionary
@@ -14,11 +14,11 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
         if fragment is None:
             return self.uri
         elif isinstance(fragment, bytes):
-            return self.uri + b'#' + fragment
+            return self.uri + b"#" + fragment
         else:
-            return self.uri + '#' + fragment
+            return self.uri + "#" + fragment
 
-    def getfragment(self, default=None, encoding='utf-8', errors='strict'):
+    def getfragment(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded fragment identifier, or `default` if the
         original URI did not contain a fragment component.
 
@@ -31,11 +31,9 @@ class DefragResult(collections.namedtuple('DefragResult', 'uri fragment')):
 
 
 def uridefrag(uristring):
-    """Remove an existing fragment component from a URI reference string.
-
-    """
+    """Remove an existing fragment component from a URI reference string."""
     if isinstance(uristring, bytes):
-        parts = uristring.partition(b'#')
+        parts = uristring.partition(b"#")
     else:
-        parts = uristring.partition('#')
+        parts = uristring.partition("#")
     return DefragResult(parts[0], parts[2] if parts[1] else None)

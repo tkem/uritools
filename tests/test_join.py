@@ -15,8 +15,7 @@ class JoinTest(unittest.TestCase):
         self.assertEqual(expected, urijoin(base, ref.encode(), strict))
         # both base and ref as bytes
         self.assertEqual(
-            expected.encode(),
-            urijoin(base.encode(), ref.encode(), strict)
+            expected.encode(), urijoin(base.encode(), ref.encode(), strict)
         )
 
     def test_rfc3986_normal(self):
@@ -70,29 +69,29 @@ class JoinTest(unittest.TestCase):
 
     def test_rfc3986_merge(self):
         """urijoin test cases for RFC 3986 5.2.3. Merge Paths"""
-        self.check('http://a', 'b', 'http://a/b')
+        self.check("http://a", "b", "http://a/b")
 
     def test_relative_base(self):
-        self.check('', "bar", "bar")
-        self.check('foo', "bar", "bar")
-        self.check('foo/', "bar", "foo/bar")
-        self.check('.', "bar", "bar")
-        self.check('./', "bar", "bar")
-        self.check('./foo', "bar", "bar")
-        self.check('./foo/', "bar", "foo/bar")
-        self.check('..', "bar", "bar")
-        self.check('../', "bar", "../bar")
-        self.check('../foo', "bar", "../bar")
-        self.check('../foo/', "bar", "../foo/bar")
+        self.check("", "bar", "bar")
+        self.check("foo", "bar", "bar")
+        self.check("foo/", "bar", "foo/bar")
+        self.check(".", "bar", "bar")
+        self.check("./", "bar", "bar")
+        self.check("./foo", "bar", "bar")
+        self.check("./foo/", "bar", "foo/bar")
+        self.check("..", "bar", "bar")
+        self.check("../", "bar", "../bar")
+        self.check("../foo", "bar", "../bar")
+        self.check("../foo/", "bar", "../foo/bar")
 
-        self.check('', "../bar", "../bar")
-        self.check('foo', "../bar", "../bar")
-        self.check('foo/', "../bar", "bar")
-        self.check('.', "../bar", "../bar")
-        self.check('./', "../bar", "../bar")
-        self.check('./foo', "../bar", "../bar")
-        self.check('./foo/', "../bar", "bar")
-        self.check('..', "../bar", "../bar")
-        self.check('../', "../bar", "../../bar")
-        self.check('../foo', "../bar", "../../bar")
-        self.check('../foo/', "../bar", "../bar")
+        self.check("", "../bar", "../bar")
+        self.check("foo", "../bar", "../bar")
+        self.check("foo/", "../bar", "bar")
+        self.check(".", "../bar", "../bar")
+        self.check("./", "../bar", "../bar")
+        self.check("./foo", "../bar", "../bar")
+        self.check("./foo/", "../bar", "bar")
+        self.check("..", "../bar", "../bar")
+        self.check("../", "../bar", "../../bar")
+        self.check("../foo", "../bar", "../../bar")
+        self.check("../foo/", "../bar", "../bar")

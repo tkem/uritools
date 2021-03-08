@@ -5,7 +5,7 @@ import re
 
 from .encoding import uridecode
 
-_URI_COMPONENTS = ('scheme', 'authority', 'path', 'query', 'fragment')
+_URI_COMPONENTS = ("scheme", "authority", "path", "query", "fragment")
 
 
 def _ip_literal(address):
@@ -24,23 +24,23 @@ def _ip_literal(address):
     # of that version flag, then the application should return an
     # appropriate error for "address mechanism not supported".
     if isinstance(address, bytes):
-        address = address.decode('ascii')
-    if address.startswith('v'):
-        raise ValueError('address mechanism not supported')
+        address = address.decode("ascii")
+    if address.startswith("v"):
+        raise ValueError("address mechanism not supported")
     return ipaddress.IPv6Address(address)
 
 
 def _ipv4_address(address):
     try:
         if isinstance(address, bytes):
-            return ipaddress.IPv4Address(address.decode('ascii'))
+            return ipaddress.IPv4Address(address.decode("ascii"))
         else:
             return ipaddress.IPv4Address(address)
     except ValueError:
         return None
 
 
-class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
+class SplitResult(collections.namedtuple("SplitResult", _URI_COMPONENTS)):
     """Base class to hold :func:`urisplit` results."""
 
     __slots__ = ()  # prevent creation of instance dictionary
@@ -108,11 +108,11 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         if scheme is None:
             return default
         elif isinstance(scheme, bytes):
-            return scheme.decode('ascii').lower()
+            return scheme.decode("ascii").lower()
         else:
             return scheme.lower()
 
-    def getauthority(self, default=None, encoding='utf-8', errors='strict'):
+    def getauthority(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded userinfo, host and port subcomponents of the URI
         authority as a three-item tuple.
 
@@ -121,17 +121,17 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         if default is None:
             default = (None, None, None)
         elif not isinstance(default, collections.abc.Iterable):
-            raise TypeError('Invalid default type')
+            raise TypeError("Invalid default type")
         elif len(default) != 3:
-            raise ValueError('Invalid default length')
+            raise ValueError("Invalid default length")
         # TODO: this could be much more efficient by using a dedicated regex
         return (
             self.getuserinfo(default[0], encoding, errors),
             self.gethost(default[1], errors),
-            self.getport(default[2])
+            self.getport(default[2]),
         )
 
-    def getuserinfo(self, default=None, encoding='utf-8', errors='strict'):
+    def getuserinfo(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded userinfo subcomponent of the URI authority, or
         `default` if the original URI reference did not contain a
         userinfo field.
@@ -143,7 +143,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return uridecode(userinfo, encoding, errors)
 
-    def gethost(self, default=None, errors='strict'):
+    def gethost(self, default=None, errors="strict"):
         """Return the decoded host subcomponent of the URI authority as a
         string or an :mod:`ipaddress` address object, or `default` if
         the original URI reference did not contain a host.
@@ -155,9 +155,9 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         elif host.startswith(self.LBRACKET) and host.endswith(self.RBRACKET):
             return _ip_literal(host[1:-1])
         elif host.startswith(self.LBRACKET) or host.endswith(self.RBRACKET):
-            raise ValueError('Invalid host %r' % host)
+            raise ValueError("Invalid host %r" % host)
         # TODO: faster check for IPv4 address?
-        return _ipv4_address(host) or uridecode(host, 'utf-8', errors).lower()
+        return _ipv4_address(host) or uridecode(host, "utf-8", errors).lower()
 
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
@@ -171,12 +171,12 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return default
 
-    def getpath(self, encoding='utf-8', errors='strict'):
+    def getpath(self, encoding="utf-8", errors="strict"):
         """Return the normalized decoded URI path."""
         path = self.__remove_dot_segments(self.path)
         return uridecode(path, encoding, errors)
 
-    def getquery(self, default=None, encoding='utf-8', errors='strict'):
+    def getquery(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded query string, or `default` if the original URI
         reference did not contain a query component.
 
@@ -187,7 +187,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         else:
             return uridecode(query, encoding, errors)
 
-    def getquerydict(self, sep='&', encoding='utf-8', errors='strict'):
+    def getquerydict(self, sep="&", encoding="utf-8", errors="strict"):
         """Split the query component into individual `name=value` pairs
         separated by `sep` and return a dictionary of query variables.
         The dictionary keys are the unique query variable names and
@@ -199,7 +199,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             dict[name].append(value)
         return dict
 
-    def getquerylist(self, sep='&', encoding='utf-8', errors='strict'):
+    def getquerylist(self, sep="&", encoding="utf-8", errors="strict"):
         """Split the query component into individual `name=value` pairs
         separated by `sep`, and return a list of `(name, value)`
         tuples.
@@ -210,9 +210,9 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
         elif isinstance(sep, type(self.query)):
             qsl = self.query.split(sep)
         elif isinstance(sep, bytes):
-            qsl = self.query.split(sep.decode('ascii'))
+            qsl = self.query.split(sep.decode("ascii"))
         else:
-            qsl = self.query.split(sep.encode('ascii'))
+            qsl = self.query.split(sep.encode("ascii"))
         items = []
         for parts in [qs.partition(self.EQ) for qs in qsl if qs]:
             name = uridecode(parts[0], encoding, errors)
@@ -223,7 +223,7 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
             items.append((name, value))
         return items
 
-    def getfragment(self, default=None, encoding='utf-8', errors='strict'):
+    def getfragment(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded fragment identifier, or `default` if the
         original URI reference did not contain a fragment component.
 
@@ -248,18 +248,28 @@ class SplitResult(collections.namedtuple('SplitResult', _URI_COMPONENTS)):
 
     def isabspath(self):
         """Return :const:`True` if this is an absolute-path reference."""
-        return (self.scheme is None and self.authority is None and
-                self.path.startswith(self.SLASH))
+        return (
+            self.scheme is None
+            and self.authority is None
+            and self.path.startswith(self.SLASH)
+        )
 
     def isrelpath(self):
         """Return :const:`True` if this is a relative-path reference."""
-        return (self.scheme is None and self.authority is None and
-                not self.path.startswith(self.SLASH))
+        return (
+            self.scheme is None
+            and self.authority is None
+            and not self.path.startswith(self.SLASH)
+        )
 
     def issamedoc(self):
         """Return :const:`True` if this is a same-document reference."""
-        return (self.scheme is None and self.authority is None and
-                not self.path and self.query is None)
+        return (
+            self.scheme is None
+            and self.authority is None
+            and not self.path
+            and self.query is None
+        )
 
     def transform(self, ref, strict=False):
         """Transform a URI reference relative to `self` into a
@@ -325,25 +335,34 @@ class SplitResultBytes(SplitResult):
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
-    RE = re.compile(br"""
+    RE = re.compile(
+        br"""
     (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
     (?://([^/?#]*))?                 # authority
     ([^?#]*)                         # path
     (?:\?([^#]*))?                   # query
     (?:\#(.*))?                      # fragment
-    """, flags=re.VERBOSE)
+    """,
+        flags=re.VERBOSE,
+    )
 
     # RFC 3986 2.2 gen-delims
     COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = (
-        b':', b'/', b'?', b'#', b'[', b']', b'@'
+        b":",
+        b"/",
+        b"?",
+        b"#",
+        b"[",
+        b"]",
+        b"@",
     )
 
     # RFC 3986 3.3 dot-segments
-    DOT, DOTDOT = b'.', b'..'
+    DOT, DOTDOT = b".", b".."
 
-    EMPTY, EQ = b'', b'='
+    EMPTY, EQ = b"", b"="
 
-    DIGITS = b'0123456789'
+    DIGITS = b"0123456789"
 
 
 class SplitResultString(SplitResult):
@@ -351,25 +370,34 @@ class SplitResultString(SplitResult):
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
-    RE = re.compile(r"""
+    RE = re.compile(
+        r"""
     (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
     (?://([^/?#]*))?                 # authority
     ([^?#]*)                         # path
     (?:\?([^#]*))?                   # query
     (?:\#(.*))?                      # fragment
-    """, flags=re.VERBOSE)
+    """,
+        flags=re.VERBOSE,
+    )
 
     # RFC 3986 2.2 gen-delims
     COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = (
-        ':', '/', '?', '#', '[', ']', '@'
+        ":",
+        "/",
+        "?",
+        "#",
+        "[",
+        "]",
+        "@",
     )
 
     # RFC 3986 3.3 dot-segments
-    DOT, DOTDOT = '.', '..'
+    DOT, DOTDOT = ".", ".."
 
-    EMPTY, EQ = '', '='
+    EMPTY, EQ = "", "="
 
-    DIGITS = '0123456789'
+    DIGITS = "0123456789"
 
 
 def urisplit(uristring):

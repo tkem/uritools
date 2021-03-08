@@ -6,6 +6,8 @@ v3.0.1 (UNRELEASED)
 
 - Officially support Python 3.9.
 
+- Format code with Black.
+  
 
 v3.0.0 (2019-12-15)
 ===================

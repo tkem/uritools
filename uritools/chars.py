@@ -7,7 +7,7 @@
 #   sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
 #               / "*" / "+" / "," / ";" / "="
 #
-GEN_DELIMS = ':/?#[]@'
+GEN_DELIMS = ":/?#[]@"
 SUB_DELIMS = "!$&'()*+,;="
 RESERVED = GEN_DELIMS + SUB_DELIMS
 
@@ -16,8 +16,5 @@ RESERVED = GEN_DELIMS + SUB_DELIMS
 #   unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 #
 UNRESERVED = (
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    'abcdefghijklmnopqrstuvwxyz'
-    '0123456789'
-    '-._~'
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz" "0123456789" "-._~"
 )

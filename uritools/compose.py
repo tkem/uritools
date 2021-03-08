@@ -9,25 +9,25 @@ from .encoding import uriencode
 from .split import uriunsplit
 
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-_SCHEME_RE = re.compile(b'^[A-Za-z][A-Za-z0-9+.-]*$')
+_SCHEME_RE = re.compile(b"^[A-Za-z][A-Za-z0-9+.-]*$")
 
 # RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
-_AUTHORITY_RE_BYTES = re.compile(b'^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
-_AUTHORITY_RE_STR = re.compile('^(?:(.*)@)?(.*?)(?::([0-9]*))?$')
+_AUTHORITY_RE_BYTES = re.compile(b"^(?:(.*)@)?(.*?)(?::([0-9]*))?$")
+_AUTHORITY_RE_STR = re.compile("^(?:(.*)@)?(.*?)(?::([0-9]*))?$")
 
 # safe component characters
-_SAFE_USERINFO = SUB_DELIMS + ':'
+_SAFE_USERINFO = SUB_DELIMS + ":"
 _SAFE_HOST = SUB_DELIMS
-_SAFE_PATH = SUB_DELIMS + ':@/'
-_SAFE_QUERY = SUB_DELIMS + ':@/?'
-_SAFE_FRAGMENT = SUB_DELIMS + ':@/?'
+_SAFE_PATH = SUB_DELIMS + ":@/"
+_SAFE_QUERY = SUB_DELIMS + ":@/?"
+_SAFE_FRAGMENT = SUB_DELIMS + ":@/?"
 
 
 def _scheme(scheme):
     if _SCHEME_RE.match(scheme):
         return scheme.lower()
     else:
-        raise ValueError('Invalid scheme component')
+        raise ValueError("Invalid scheme component")
 
 
 def _authority(userinfo, host, port, encoding):
@@ -35,16 +35,16 @@ def _authority(userinfo, host, port, encoding):
 
     if userinfo is not None:
         authority.append(uriencode(userinfo, _SAFE_USERINFO, encoding))
-        authority.append(b'@')
+        authority.append(b"@")
 
     if isinstance(host, ipaddress.IPv6Address):
-        authority.append(b'[' + host.compressed.encode() + b']')
+        authority.append(b"[" + host.compressed.encode() + b"]")
     elif isinstance(host, ipaddress.IPv4Address):
         authority.append(host.compressed.encode())
     elif isinstance(host, bytes):
         authority.append(_host(host))
     elif host is not None:
-        authority.append(_host(host.encode('utf-8')))
+        authority.append(_host(host.encode("utf-8")))
 
     if isinstance(port, numbers.Number):
         authority.append(_port(str(port).encode()))
@@ -53,14 +53,14 @@ def _authority(userinfo, host, port, encoding):
     elif port is not None:
         authority.append(_port(port.encode()))
 
-    return b''.join(authority) if authority else None
+    return b"".join(authority) if authority else None
 
 
 def _ip_literal(address):
-    if address.startswith('v'):
-        raise ValueError('Address mechanism not supported')
+    if address.startswith("v"):
+        raise ValueError("Address mechanism not supported")
     else:
-        return b'[' + ipaddress.IPv6Address(address).compressed.encode() + b']'
+        return b"[" + ipaddress.IPv6Address(address).compressed.encode() + b"]"
 
 
 def _host(host):
@@ -68,40 +68,40 @@ def _host(host):
     # normalizers should use lowercase for registered names and
     # hexadecimal addresses for the sake of uniformity, while only
     # using uppercase letters for percent-encodings.
-    if host.startswith(b'[') and host.endswith(b']'):
+    if host.startswith(b"[") and host.endswith(b"]"):
         return _ip_literal(host[1:-1].decode())
     # check for IPv6 addresses as returned by SplitResult.gethost()
     try:
-        return _ip_literal(host.decode('utf-8'))
+        return _ip_literal(host.decode("utf-8"))
     except ValueError:
-        return uriencode(host.lower(), _SAFE_HOST, 'utf-8')
+        return uriencode(host.lower(), _SAFE_HOST, "utf-8")
 
 
 def _port(port):
     # RFC 3986 3.2.3: URI producers and normalizers should omit the
     # port component and its ":" delimiter if port is empty or if its
     # value would be the same as that of the scheme's default.
-    if port.lstrip(b'0123456789'):
-        raise ValueError('Invalid port subcomponent')
+    if port.lstrip(b"0123456789"):
+        raise ValueError("Invalid port subcomponent")
     elif port:
-        return b':' + port
+        return b":" + port
     else:
-        return b''
+        return b""
 
 
 def _querylist(items, sep, encoding):
     terms = []
     append = terms.append
-    safe = _SAFE_QUERY.replace(sep, '')
+    safe = _SAFE_QUERY.replace(sep, "")
     for key, value in items:
         name = uriencode(key, safe, encoding)
         if value is None:
             append(name)
         elif isinstance(value, (bytes, str)):
-            append(name + b'=' + uriencode(value, safe, encoding))
+            append(name + b"=" + uriencode(value, safe, encoding))
         else:
-            append(name + b'=' + uriencode(str(value), safe, encoding))
-    return sep.encode('ascii').join(terms)
+            append(name + b"=" + uriencode(str(value), safe, encoding))
+    return sep.encode("ascii").join(terms)
 
 
 def _querydict(mapping, sep, encoding):
@@ -116,9 +116,18 @@ def _querydict(mapping, sep, encoding):
     return _querylist(items, sep, encoding)
 
 
-def uricompose(scheme=None, authority=None, path='', query=None,
-               fragment=None, userinfo=None, host=None, port=None,
-               querysep='&', encoding='utf-8'):
+def uricompose(
+    scheme=None,
+    authority=None,
+    path="",
+    query=None,
+    fragment=None,
+    userinfo=None,
+    host=None,
+    port=None,
+    querysep="&",
+    encoding="utf-8",
+):
     """Compose a URI reference string from its individual components."""
 
     # RFC 3986 3.1: Scheme names consist of a sequence of characters
@@ -143,14 +152,14 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     elif isinstance(authority, str):
         authority = _AUTHORITY_RE_STR.match(authority).groups()
     elif not isinstance(authority, collections.abc.Iterable):
-        raise TypeError('Invalid authority type')
+        raise TypeError("Invalid authority type")
     elif len(authority) != 3:
-        raise ValueError('Invalid authority length')
+        raise ValueError("Invalid authority length")
     authority = _authority(
         userinfo if userinfo is not None else authority[0],
         host if host is not None else authority[1],
         port if port is not None else authority[2],
-        encoding
+        encoding,
     )
 
     # RFC 3986 3.3: If a URI contains an authority component, then the
@@ -158,19 +167,19 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     # character.  If a URI does not contain an authority component,
     # then the path cannot begin with two slash characters ("//").
     path = uriencode(path, _SAFE_PATH, encoding)
-    if authority is not None and path and not path.startswith(b'/'):
-        raise ValueError('Invalid path with authority component')
-    if authority is None and path.startswith(b'//'):
-        raise ValueError('Invalid path without authority component')
+    if authority is not None and path and not path.startswith(b"/"):
+        raise ValueError("Invalid path with authority component")
+    if authority is None and path.startswith(b"//"):
+        raise ValueError("Invalid path without authority component")
 
     # RFC 3986 4.2: A path segment that contains a colon character
     # (e.g., "this:that") cannot be used as the first segment of a
     # relative-path reference, as it would be mistaken for a scheme
     # name.  Such a segment must be preceded by a dot-segment (e.g.,
     # "./this:that") to make a relative-path reference.
-    if scheme is None and authority is None and not path.startswith(b'/'):
-        if b':' in path.partition(b'/')[0]:
-            path = b'./' + path
+    if scheme is None and authority is None and not path.startswith(b"/"):
+        if b":" in path.partition(b"/")[0]:
+            path = b"./" + path
 
     # RFC 3986 3.4: The characters slash ("/") and question mark ("?")
     # may represent data within the query component.  Beware that some
@@ -190,7 +199,7 @@ def uricompose(scheme=None, authority=None, path='', query=None,
     elif isinstance(query, collections.abc.Iterable):
         query = _querylist(query, querysep, encoding)
     elif query is not None:
-        raise TypeError('Invalid query type')
+        raise TypeError("Invalid query type")
 
     # RFC 3986 3.5: The characters slash ("/") and question mark ("?")
     # are allowed to represent data within the fragment identifier.

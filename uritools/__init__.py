@@ -7,8 +7,7 @@ commonly used functions of the Python Standard Library
 """
 
 from .chars import GEN_DELIMS, RESERVED, SUB_DELIMS, UNRESERVED
-from .classify import isabspath, isabsuri, isnetpath, isrelpath
-from .classify import issamedoc, isuri
+from .classify import isabspath, isabsuri, isnetpath, isrelpath, issamedoc, isuri
 from .compose import uricompose
 from .defrag import DefragResult, uridefrag
 from .encoding import uridecode, uriencode
@@ -16,25 +15,25 @@ from .join import urijoin
 from .split import SplitResult, urisplit, uriunsplit
 
 __all__ = (
-    'GEN_DELIMS',
-    'RESERVED',
-    'SUB_DELIMS',
-    'UNRESERVED',
-    'DefragResult',
-    'SplitResult',
-    'isabspath',
-    'isabsuri',
-    'isnetpath',
-    'isrelpath',
-    'issamedoc',
-    'isuri',
-    'uricompose',
-    'uridecode',
-    'uridefrag',
-    'uriencode',
-    'urijoin',
-    'urisplit',
-    'uriunsplit'
+    "GEN_DELIMS",
+    "RESERVED",
+    "SUB_DELIMS",
+    "UNRESERVED",
+    "DefragResult",
+    "SplitResult",
+    "isabspath",
+    "isabsuri",
+    "isnetpath",
+    "isrelpath",
+    "issamedoc",
+    "isuri",
+    "uricompose",
+    "uridecode",
+    "uridefrag",
+    "uriencode",
+    "urijoin",
+    "urisplit",
+    "uriunsplit",
 )
 
-__version__ = '3.0.0'
+__version__ = "3.0.0"
