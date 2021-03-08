@@ -18,7 +18,7 @@ uritools
    :alt: Test coverage
 
 .. image:: https://img.shields.io/github/license/tkem/uritools
-   :target: http://raw.github.com/tkem/uritools/master/LICENSE
+   :target: https://raw.github.com/tkem/uritools/master/LICENSE
    :alt: License
 
 This module provides RFC 3986 compliant functions for parsing,
@@ -96,4 +96,4 @@ Licensed under the `MIT License`_.
 .. _Issue tracker: https://github.com/tkem/uritools/issues/
 .. _Source code: https://github.com/tkem/uritools/
 .. _Change log: https://github.com/tkem/uritools/blob/master/CHANGELOG.rst
-.. _MIT License: http://raw.github.com/tkem/uritools/master/LICENSE
+.. _MIT License: https://raw.github.com/tkem/uritools/master/LICENSE
