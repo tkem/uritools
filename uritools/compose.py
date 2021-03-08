@@ -74,7 +74,7 @@ def _host(host):
     try:
         return _ip_literal(host.decode('utf-8'))
     except ValueError:
-        return uriencode(host, _SAFE_HOST, 'utf-8').lower()
+        return uriencode(host.lower(), _SAFE_HOST, 'utf-8')
 
 
 def _port(port):

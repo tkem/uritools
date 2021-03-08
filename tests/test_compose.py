@@ -143,6 +143,16 @@ class ComposeTest(unittest.TestCase):
             self.check(uri, authority=authority, userinfo=userinfo, host=host,
                        port=port)
 
+    def test_host_lowercase(self):
+        cases = [
+            ('//hostname', 'HostName'),
+            ('//[2001:db8::1]', '[2001:DB8::1]'),
+            ('//uuid%3A228f0766-a241-4050-a7a8-2c153073e3d7',
+             'UUID:228F0766-A241-4050-A7A8-2C153073E3D7'),
+        ]
+        for uri, host in cases:
+            self.check(uri, host=host)
+
     def test_path(self):
         cases = [
             ('foo', 'foo'),
