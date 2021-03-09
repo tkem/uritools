@@ -1,4 +1,4 @@
-v3.0.1 (UNRELEASED)
+v3.0.1 (2021-03-09)
 ===================
 
 - Do not convert percent-encodings to uppercase in host components
@@ -7,7 +7,7 @@ v3.0.1 (UNRELEASED)
 - Officially support Python 3.9.
 
 - Format code with Black.
-  
+
 
 v3.0.0 (2019-12-15)
 ===================
