@@ -9,12 +9,12 @@ uritools
    :target: https://uritools.readthedocs.io
    :alt: Documentation build status
 
-.. image:: https://img.shields.io/travis/tkem/uritools
-    :target: https://travis-ci.org/tkem/uritools
-    :alt: Travis CI build status
+.. image:: https://img.shields.io/github/workflow/status/tkem/uritools/CI
+   :target: https://github.com/tkem/uritools/actions/workflows/ci.yml
+   :alt: CI build status
 
-.. image:: https://img.shields.io/coveralls/tkem/uritools
-   :target: https://coveralls.io/r/tkem/uritools
+.. image:: https://img.shields.io/codecov/c/github/tkem/uritools/master.svg
+   :target: https://codecov.io/gh/tkem/uritools
    :alt: Test coverage
 
 .. image:: https://img.shields.io/github/license/tkem/uritools
