@@ -34,7 +34,7 @@ __all__ = (
     "uriunsplit",
 )
 
-__version__ = "3.0.2"
+__version__ = "4.0.0"
 
 
 # RFC 3986 2.2.  Reserved Characters

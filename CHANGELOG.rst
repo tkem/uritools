@@ -1,3 +1,23 @@
+v4.0.0 (UNRELEASED)
+===================
+
+- Require Python 3.7 or later (breaking change).
+
+- Remove undocumented submodules (breaking change).
+
+  The ``chars``, ``classify``, ``compose``, ``defrag``, ``encoding``,
+  ``join`` and ``split`` submodules have been deleted.  Therefore,
+  statements like
+
+  ``from uritools.classify import isuri``
+
+  will no longer work. Use
+
+  ``from uritools import isuri``
+
+  instead.
+
+
 v3.0.2 (2021-04-27)
 ===================
 
