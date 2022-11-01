@@ -460,7 +460,7 @@ class SplitResultBytes(SplitResult):
 
     # RFC 3986 Appendix B
     RE = re.compile(
-        br"""
+        rb"""
     (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
     (?://([^/?#]*))?                 # authority
     ([^?#]*)                         # path
