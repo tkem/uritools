@@ -1,16 +1,7 @@
-def get_version():
-    import configparser
-    import pathlib
-
-    cp = configparser.ConfigParser()
-    cp.read(pathlib.Path(__file__).parent.parent / "setup.cfg")
-    return cp["metadata"]["version"]
-
-
 project = "uritools"
 copyright = "2014-2022 Thomas Kemmer"
-version = get_version()
-release = version
+version = "4.0"
+release = "4.0.0"
 
 extensions = [
     "sphinx.ext.autodoc",
