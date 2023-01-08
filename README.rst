@@ -9,7 +9,7 @@ uritools
    :target: https://uritools.readthedocs.io
    :alt: Documentation build status
 
-.. image:: https://img.shields.io/github/workflow/status/tkem/uritools/CI
+.. image:: https://img.shields.io/github/actions/workflow/status/tkem/uritools/ci.yml
    :target: https://github.com/tkem/uritools/actions/workflows/ci.yml
    :alt: CI build status
 
