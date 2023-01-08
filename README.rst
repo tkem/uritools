@@ -5,17 +5,21 @@ uritools
     :target: https://pypi.org/project/uritools
     :alt: Latest PyPI version
 
-.. image:: https://img.shields.io/readthedocs/uritools
-   :target: https://uritools.readthedocs.io
-   :alt: Documentation build status
-
 .. image:: https://img.shields.io/github/actions/workflow/status/tkem/uritools/ci.yml
    :target: https://github.com/tkem/uritools/actions/workflows/ci.yml
    :alt: CI build status
 
+.. image:: https://img.shields.io/readthedocs/uritools
+   :target: https://uritools.readthedocs.io
+   :alt: Documentation build status
+
 .. image:: https://img.shields.io/codecov/c/github/tkem/uritools/master.svg
    :target: https://codecov.io/gh/tkem/uritools
    :alt: Test coverage
+
+.. image:: https://img.shields.io/librariesio/sourcerank/pypi/uritools
+   :target: https://libraries.io/pypi/uritools
+   :alt: Libraries.io SourceRank
 
 .. image:: https://img.shields.io/github/license/tkem/uritools
    :target: https://raw.github.com/tkem/uritools/master/LICENSE
