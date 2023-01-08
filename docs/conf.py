@@ -1,7 +1,7 @@
 project = "uritools"
-copyright = "2014-2022 Thomas Kemmer"
+copyright = "2014-2023 Thomas Kemmer"
 version = "4.0"
-release = "4.0.0"
+release = "4.0.1"
 
 extensions = [
     "sphinx.ext.autodoc",
