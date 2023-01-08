@@ -1,4 +1,4 @@
-v4.0.1 (UNRELEASED)
+v4.0.1 (2023-01-08)
 ===================
 
 - Add support for Python 3.11.
