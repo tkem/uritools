@@ -455,7 +455,6 @@ class SplitResult(
 
 
 class SplitResultBytes(SplitResult):
-
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
@@ -490,7 +489,6 @@ class SplitResultBytes(SplitResult):
 
 
 class SplitResultString(SplitResult):
-
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B

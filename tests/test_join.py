@@ -4,7 +4,6 @@ from uritools import urijoin
 
 
 class JoinTest(unittest.TestCase):
-
     RFC3986_BASE = "http://a/b/c/d;p?q"
 
     def check(self, base, ref, expected, strict=False):
