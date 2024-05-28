@@ -1,4 +1,4 @@
-v4.0.3 (UNRELEASED)
+v4.0.3 (2024-05-28)
 ===================
 
 - Prepare for Python 3.13.
