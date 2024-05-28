@@ -406,52 +406,133 @@ class SplitTest(unittest.TestCase):
                 "Error parsing query list for %r" % query,
             )
 
-    def test_ip_literal(self):
+    def test_ipv4_literal(self):
         cases = [
-            ("http://Test.python.org:5432/foo/", "test.python.org", 5432),
+            ("http://12.34.56.78/foo/", "12.34.56.78", None),
+            ("http://12.34.56.78:/foo/", "12.34.56.78", None),
             ("http://12.34.56.78:5432/foo/", "12.34.56.78", 5432),
-            ("http://[::1]:5432/foo/", "::1", 5432),
-            ("http://[dead:beef::1]:5432/foo/", "dead:beef::1", 5432),
-            ("http://[dead:beef::]:5432/foo/", "dead:beef::", 5432),
+        ]
+        for uri, host, port in cases:
+            for parts in (urisplit(uri), urisplit(uri.encode("ascii"))):
+                self.assertEqual(host, str(parts.gethost()))
+                self.assertEqual(port, parts.getport())
+
+    def test_ipv6_literal(self):
+        cases = [
+            ("http://[::1]:5432/foo/", "0000:0000:0000:0000:0000:0000:0000:0001", 5432),
+            (
+                "http://[dead:beef::1]:5432/foo/",
+                "dead:beef:0000:0000:0000:0000:0000:0001",
+                5432,
+            ),
+            (
+                "http://[dead:beef::]:5432/foo/",
+                "dead:beef:0000:0000:0000:0000:0000:0000",
+                5432,
+            ),
             (
                 "http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:5432/foo/",
                 "dead:beef:cafe:5417:affe:8fa3:deaf:feed",
                 5432,
             ),
-            ("http://[::12.34.56.78]:5432/foo/", "::c22:384e", 5432),
-            ("http://[::ffff:12.34.56.78]:5432/foo/", "::ffff:c22:384e", 5432),
-            ("http://Test.python.org/foo/", "test.python.org", None),
-            ("http://12.34.56.78/foo/", "12.34.56.78", None),
-            ("http://[::1]/foo/", "::1", None),
-            ("http://[dead:beef::1]/foo/", "dead:beef::1", None),
-            ("http://[dead:beef::]/foo/", "dead:beef::", None),
+            ("http://[::1]/foo/", "0000:0000:0000:0000:0000:0000:0000:0001", None),
+            (
+                "http://[dead:beef::1]/foo/",
+                "dead:beef:0000:0000:0000:0000:0000:0001",
+                None,
+            ),
+            (
+                "http://[dead:beef::]/foo/",
+                "dead:beef:0000:0000:0000:0000:0000:0000",
+                None,
+            ),
             (
                 "http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]/foo/",
                 "dead:beef:cafe:5417:affe:8fa3:deaf:feed",
                 None,
             ),
-            ("http://[::12.34.56.78]/foo/", "::c22:384e", None),
-            ("http://[::ffff:12.34.56.78]/foo/", "::ffff:c22:384e", None),
-            ("http://Test.python.org:/foo/", "test.python.org", None),
-            ("http://12.34.56.78:/foo/", "12.34.56.78", None),
-            ("http://[::1]:/foo/", "::1", None),
-            ("http://[dead:beef::1]:/foo/", "dead:beef::1", None),
-            ("http://[dead:beef::]:/foo/", "dead:beef::", None),
+            ("http://[::1]:/foo/", "0000:0000:0000:0000:0000:0000:0000:0001", None),
+            (
+                "http://[dead:beef::1]:/foo/",
+                "dead:beef:0000:0000:0000:0000:0000:0001",
+                None,
+            ),
+            (
+                "http://[dead:beef::]:/foo/",
+                "dead:beef:0000:0000:0000:0000:0000:0000",
+                None,
+            ),
             (
                 "http://[dead:beef:cafe:5417:affe:8FA3:deaf:feed]:/foo/",
                 "dead:beef:cafe:5417:affe:8fa3:deaf:feed",
                 None,
             ),
-            ("http://[::12.34.56.78]:/foo/", "::c22:384e", None),
-            ("http://[::ffff:12.34.56.78]:/foo/", "::ffff:c22:384e", None),
         ]
         for uri, host, port in cases:
+            for parts in (urisplit(uri), urisplit(uri.encode("ascii"))):
+                self.assertEqual(host, parts.gethost().exploded)
+                self.assertEqual(port, parts.getport())
+
+    def test_ipv4_mapped_literal(self):
+        # since Python 3.13, the "alternative form" is used for
+        # IPv4-mapped addresses, see RFC 4291 2.2 p.3
+        cases = [
+            (
+                "http://[::12.34.56.78]:5432/foo/",
+                [
+                    "0000:0000:0000:0000:0000:0000:0c22:384e",
+                    "0000:0000:0000:0000:0000:0000:12.34.56.78",
+                ],
+                5432,
+            ),
+            (
+                "http://[::ffff:12.34.56.78]:5432/foo/",
+                [
+                    "0000:0000:0000:0000:0000:ffff:0c22:384e",
+                    "0000:0000:0000:0000:0000:ffff:12.34.56.78",
+                ],
+                5432,
+            ),
+            (
+                "http://[::12.34.56.78]/foo/",
+                [
+                    "0000:0000:0000:0000:0000:0000:0c22:384e",
+                    "0000:0000:0000:0000:0000:0000:12.34.56.78",
+                ],
+                None,
+            ),
+            (
+                "http://[::ffff:12.34.56.78]/foo/",
+                [
+                    "0000:0000:0000:0000:0000:ffff:0c22:384e",
+                    "0000:0000:0000:0000:0000:ffff:12.34.56.78",
+                ],
+                None,
+            ),
+            (
+                "http://[::12.34.56.78]:/foo/",
+                [
+                    "0000:0000:0000:0000:0000:0000:0c22:384e",
+                    "0000:0000:0000:0000:0000:0000:12.34.56.78",
+                ],
+                None,
+            ),
+            (
+                "http://[::ffff:12.34.56.78]:/foo/",
+                [
+                    "0000:0000:0000:0000:0000:ffff:0c22:384e",
+                    "0000:0000:0000:0000:0000:ffff:12.34.56.78",
+                ],
+                None,
+            ),
+        ]
+        for uri, hosts, port in cases:
             parts = urisplit(uri)
-            self.assertEqual(host, str(parts.gethost()))
-            self.assertEqual(port, parts.getport())
+            self.assertIn(parts.gethost().exploded, hosts)
+            self.assertEqual(parts.getport(), port)
             parts = urisplit(uri.encode("ascii"))
-            self.assertEqual(host, str(parts.gethost()))
-            self.assertEqual(port, parts.getport())
+            self.assertIn(parts.gethost().exploded, hosts)
+            self.assertEqual(parts.getport(), port)
 
     def test_invalid_ip_literal(self):
         uris = [
