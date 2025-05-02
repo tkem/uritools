@@ -92,6 +92,15 @@ Project Resources
 - `Change log`_
 
 
+Related Projects
+------------------------------------------------------------------------
+
+- rfc3986_: A Python implementation of RFC 3986 including validation
+  and authority parsing.
+- rfc3987_: Parsing and validation of URIs (RFC 3896) and IRIs (RFC
+  3987).
+
+
 License
 ------------------------------------------------------------------------
 
@@ -106,3 +115,6 @@ Licensed under the `MIT License`_.
 .. _Source code: https://github.com/tkem/uritools/
 .. _Change log: https://github.com/tkem/uritools/blob/master/CHANGELOG.rst
 .. _MIT License: https://raw.github.com/tkem/uritools/master/LICENSE
+
+.. _rfc3986: https://pypi.org/project/rfc3986/
+.. _rfc3987: https://pypi.org/project/rfc3987/
