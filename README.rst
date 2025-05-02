@@ -29,6 +29,7 @@ uritools
    :target: https://github.com/psf/black
    :alt: Code style: black
 
+
 This module provides RFC 3986 compliant functions for parsing,
 classifying and composing URIs and URI references, largely replacing
 the Python Standard Library's ``urllib.parse`` module.
@@ -94,7 +95,7 @@ Project Resources
 License
 ------------------------------------------------------------------------
 
-Copyright (c) 2014-2023 Thomas Kemmer.
+Copyright (c) 2014-2025 Thomas Kemmer.
 
 Licensed under the `MIT License`_.
 

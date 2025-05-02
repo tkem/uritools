@@ -19,15 +19,17 @@ def get_version():
 
 
 project = "uritools"
-copyright = "2014-2024 Thomas Kemmer"
+copyright = "2014-2025 Thomas Kemmer"
 release, version = get_version()
 
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
 ]
 exclude_patterns = ["_build"]
 master_doc = "index"
 html_theme = "classic"
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}

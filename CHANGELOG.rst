@@ -1,3 +1,11 @@
+v5.0.0 (UNRELEASED)
+===================
+
+- Require Python 3.9 or later (breaking change).
+
+- Update CI environment.
+
+
 v4.0.3 (2024-05-28)
 ===================
 
