@@ -60,7 +60,7 @@ the Python Standard Library's ``urllib.parse`` module.
 For various reasons, ``urllib.parse`` and its Python 2 predecessor
 ``urlparse`` are not compliant with current Internet standards.  As
 stated in `Lib/urllib/parse.py
-<https://github.com/python/cpython/blob/3.8/Lib/urllib/parse.py>`_:
+<https://github.com/python/cpython/blob/main/Lib/urllib/parse.py#L22>`_:
 
     RFC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
