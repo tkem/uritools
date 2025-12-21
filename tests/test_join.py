@@ -94,3 +94,6 @@ class JoinTest(unittest.TestCase):
         self.check("../", "../bar", "../../bar")
         self.check("../foo", "../bar", "../../bar")
         self.check("../foo/", "../bar", "../bar")
+
+    def test_path_traversal_limits(self):
+        self.assertEqual(urijoin("http://a/", "../" * 100), "http://a/")

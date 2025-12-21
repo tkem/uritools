@@ -245,6 +245,16 @@ class SplitTest(unittest.TestCase):
                 ("userinfo", IPv6Address("::1"), 5432),
             ),
             (
+                "http://@host/",
+                None,
+                ("", "host", None),
+            ),
+            (
+                "http://user@domain@host:80/",
+                None,
+                ("user@domain", "host", 80),
+            ),
+            (
                 "urn:example:animal:ferret:nose",
                 ("nobody", "localhost", 42),
                 ("nobody", "localhost", 42),

@@ -54,9 +54,7 @@ RESERVED = GEN_DELIMS + SUB_DELIMS
 #
 #   unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 #
-UNRESERVED = (
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz" "0123456789" "-._~"
-)
+UNRESERVED = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
 
 _unreserved = frozenset(UNRESERVED.encode())
 
@@ -250,7 +248,7 @@ class SplitResult(
         elif host.startswith(self.LBRACKET) and host.endswith(self.RBRACKET):
             return self.__parse_ip_literal(host[1:-1])
         elif host.startswith(self.LBRACKET) or host.endswith(self.RBRACKET):
-            raise ValueError("Invalid host %r" % host)
+            raise ValueError("Invalid host %r: mismatched brackets" % host)
         # TODO: faster check for IPv4 address?
         try:
             if isinstance(host, bytes):
