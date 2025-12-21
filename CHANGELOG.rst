@@ -1,3 +1,17 @@
+v6.0.0 (2025-12-21)
+===================
+
+- Drop Python 3.9 support (breaking change).
+
+- Add support for Python 3.14.
+
+- Minor improvements from GitHub Copilot code review.
+
+- Modernize build environment.
+
+- Update CI environment.
+
+
 v5.0.0 (2025-05-02)
 ===================
 
