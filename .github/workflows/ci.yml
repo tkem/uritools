@@ -15,7 +15,7 @@ jobs:
         python: ["3.10", "3.11", "3.12", "3.13", "3.13t", "3.14", "3.14t", "pypy3.10", "pypy3.11"]
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ matrix.python }}
           allow-prereleases: true
