@@ -13,7 +13,6 @@ import numbers
 import re
 from string import hexdigits
 
-
 __all__ = (
     "GEN_DELIMS",
     "RESERVED",
