@@ -32,6 +32,11 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/tkem/uritools/"
+Documentation = "https://uritools.readthedocs.io/en/stable/"
+Source = "https://github.com/tkem/uritools/"
+Repository = "https://github.com/tkem/uritools/"
+Issues = "https://github.com/tkem/uritools/issues"
+Changelog = "https://github.com/tkem/uritools/blob/master/CHANGELOG.rst"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
