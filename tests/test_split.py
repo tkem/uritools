@@ -4,7 +4,7 @@ from uritools import urisplit
 
 
 class SplitTest(unittest.TestCase):
-    def check(self, uri, parts, decoded=None):
+    def check(self, uri, parts):
         result = urisplit(uri)
         self.assertEqual(result, parts, "Error parsing %r" % uri)
         self.assertEqual(result.geturi(), uri, "Error recomposing %r" % uri)
@@ -387,12 +387,12 @@ class SplitTest(unittest.TestCase):
             self.assertEqual(
                 parts.getquerylist(),
                 querylist,
-                "Error parsing query dict for %r" % query,
+                "Error parsing query list for %r" % query,
             )
             self.assertEqual(
                 parts.getquerydict(),
                 querydict,
-                "Error parsing query list for %r" % query,
+                "Error parsing query dict for %r" % query,
             )
 
     def test_getquerysep(self):

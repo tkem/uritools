@@ -57,13 +57,13 @@ class EncodingTest(unittest.TestCase):
             ("%F6lk%FCrbis", b"\xf6lk\xfcrbis"),
             (b"%F6lk%FCrbis", b"\xf6lk\xfcrbis"),
         ]
-        for input, output in cases:
-            self.assertEqual(uridecode(input, encoding=None), output)
+        for uristring, expected in cases:
+            self.assertEqual(uridecode(uristring, encoding=None), expected)
 
     def test_encode_bytes(self):
         cases = [(b"\xf6lk\xfcrbis", b"%F6lk%FCrbis")]
-        for input, output in cases:
-            self.assertEqual(uriencode(input, encoding=None), output)
+        for uristring, expected in cases:
+            self.assertEqual(uriencode(uristring, encoding=None), expected)
 
     def test_decode_errors(self):
         cases = [

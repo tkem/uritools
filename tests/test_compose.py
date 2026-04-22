@@ -115,9 +115,9 @@ class ComposeTest(unittest.TestCase):
                 uricompose(authority=authority)
         # invalid host type
         for host in (True, 42, 3.14, ipaddress.IPv6Network("2001:db00::0/24")):
-            with self.assertRaises(AttributeError, msg="host=%r" % host):
+            with self.assertRaises(TypeError, msg="host=%r" % host):
                 uricompose(authority=[None, host, None])
-            with self.assertRaises(AttributeError, msg="host=%r" % host):
+            with self.assertRaises(TypeError, msg="host=%r" % host):
                 uricompose(host=host)
         # invalid host ip-literal
         for host in ("[foo]", "[v1.x]"):

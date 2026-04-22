@@ -2,8 +2,8 @@ uritools
 ========================================================================
 
 .. image:: https://img.shields.io/pypi/v/uritools
-    :target: https://pypi.org/project/uritools
-    :alt: Latest PyPI version
+   :target: https://pypi.org/project/uritools
+   :alt: Latest PyPI version
 
 .. image:: https://img.shields.io/github/actions/workflow/status/tkem/uritools/ci.yml
    :target: https://github.com/tkem/uritools/actions/workflows/ci.yml
@@ -97,14 +97,14 @@ Related Projects
 
 - rfc3986_: A Python implementation of RFC 3986 including validation
   and authority parsing.
-- rfc3987_: Parsing and validation of URIs (RFC 3896) and IRIs (RFC
+- rfc3987_: Parsing and validation of URIs (RFC 3986) and IRIs (RFC
   3987).
 
 
 License
 ------------------------------------------------------------------------
 
-Copyright (c) 2014-2025 Thomas Kemmer.
+Copyright (c) 2014-2026 Thomas Kemmer.
 
 Licensed under the `MIT License`_.
 

@@ -28,5 +28,5 @@ class UnsplitTest(unittest.TestCase):
                 b"urn:example:animal:ferret:nose",
             ),
         ]
-        for uri, parts in cases:
-            self.check(uri, parts)
+        for parts, uri in cases:
+            self.check(parts, uri)

@@ -76,6 +76,9 @@ def uriencode(uristring, safe="", encoding="utf-8", errors="strict"):
         uristring = uristring.encode(encoding, errors)
     if not isinstance(safe, bytes):
         safe = safe.encode("ascii")
+    # FIXME: though unlikely, _encoded may grow without bounds if arbitrary
+    # safe values are passed by a caller - consider using @functools.lru_cache
+    # instead of plain dict?
     try:
         encoded = _encoded[safe]
     except KeyError:
@@ -292,10 +295,10 @@ class SplitResult(
         the values are lists of values for each name.
 
         """
-        dict = collections.defaultdict(list)
+        result = collections.defaultdict(list)
         for name, value in self.getquerylist(sep, encoding, errors):
-            dict[name].append(value)
-        return dict
+            result[name].append(value)
+        return result
 
     def getquerylist(self, sep="&", encoding="utf-8", errors="strict"):
         """Split the query component into individual `name=value` pairs
@@ -311,15 +314,15 @@ class SplitResult(
             qsl = self.query.split(sep.decode("ascii"))
         else:
             qsl = self.query.split(sep.encode("ascii"))
-        items = []
+        result = []
         for parts in [qs.partition(self.EQ) for qs in qsl if qs]:
             name = uridecode(parts[0], encoding, errors)
             if parts[1]:
                 value = uridecode(parts[2], encoding, errors)
             else:
                 value = None
-            items.append((name, value))
-        return items
+            result.append((name, value))
+        return result
 
     def getfragment(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded fragment identifier, or `default` if the
@@ -635,8 +638,10 @@ def _authority(userinfo, host, port, encoding):
         authority.append(host.compressed.encode())
     elif isinstance(host, bytes):
         authority.append(_host(host))
-    elif host is not None:
+    elif isinstance(host, str):
         authority.append(_host(host.encode("utf-8")))
+    elif host is not None:
+        raise TypeError("Invalid host type: %r" % type(host))
 
     if isinstance(port, numbers.Number):
         authority.append(_port(str(port).encode()))
