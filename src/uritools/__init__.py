@@ -84,7 +84,7 @@ def uriencode(uristring, safe="", encoding="utf-8", errors="strict"):
     except KeyError:
         encoded = _encoded[b""][:]
         for i in safe:
-            encoded[i] = bytes([i])
+            encoded[i] = bytes([i])  # type: ignore
         _encoded[safe] = encoded
     return b"".join(map(encoded.__getitem__, uristring))
 
@@ -126,6 +126,7 @@ class DefragResult(collections.namedtuple("DefragResult", "uri fragment")):
         original URI did not contain a fragment component.
 
         """
+        # FIXME: by default, getfragment() should return bytes if geturi() returns bytes
         fragment = self.fragment
         if fragment is not None:
             return uridecode(fragment, encoding, errors)
@@ -145,7 +146,7 @@ class SplitResult(
         authority = self.authority
         if authority is None:
             return None
-        userinfo, present, _ = authority.rpartition(self.AT)
+        userinfo, present, _ = authority.rpartition(self._AT)
         if present:
             return userinfo
         else:
@@ -156,9 +157,9 @@ class SplitResult(
         authority = self.authority
         if authority is None:
             return None
-        _, _, hostinfo = authority.rpartition(self.AT)
-        host, _, port = hostinfo.rpartition(self.COLON)
-        if port.lstrip(self.DIGITS):
+        _, _, hostinfo = authority.rpartition(self._AT)
+        host, _, port = hostinfo.rpartition(self._COLON)
+        if port.lstrip(self._DIGITS):
             return hostinfo
         else:
             return host
@@ -168,8 +169,8 @@ class SplitResult(
         authority = self.authority
         if authority is None:
             return None
-        _, present, port = authority.rpartition(self.COLON)
-        if present and not port.lstrip(self.DIGITS):
+        _, present, port = authority.rpartition(self._COLON)
+        if present and not port.lstrip(self._DIGITS):
             return port
         else:
             return None
@@ -184,21 +185,22 @@ class SplitResult(
         # RFC 3986 5.3. Component Recomposition
         result = []
         if scheme is not None:
-            result.extend([scheme, self.COLON])
+            result.extend([scheme, self._COLON])
         if authority is not None:
-            result.extend([self.SLASH, self.SLASH, authority])
+            result.extend([self._SLASH, self._SLASH, authority])
         result.append(path)
         if query is not None:
-            result.extend([self.QUEST, query])
+            result.extend([self._QUEST, query])
         if fragment is not None:
-            result.extend([self.HASH, fragment])
-        return self.EMPTY.join(result)
+            result.extend([self._HASH, fragment])
+        return self._EMPTY.join(result)
 
     def getscheme(self, default=None):
         """Return the URI scheme in canonical (lowercase) form, or `default`
         if the original URI reference did not contain a scheme component.
 
         """
+        # FIXME: should getscheme() return bytes if geturi() returns bytes?
         scheme = self.scheme
         if scheme is None:
             return default
@@ -215,7 +217,7 @@ class SplitResult(
         # TBD: (userinfo, host, port) kwargs, default string?
         if default is None:
             default = (None, None, None)
-        elif not isinstance(default, collections.abc.Iterable):
+        elif not isinstance(default, collections.abc.Sequence):
             raise TypeError("Invalid default type")
         elif len(default) != 3:
             raise ValueError("Invalid default length")
@@ -247,9 +249,9 @@ class SplitResult(
         host = self.host
         if host is None or (not host and default is not None):
             return default
-        elif host.startswith(self.LBRACKET) and host.endswith(self.RBRACKET):
+        elif host.startswith(self._LBRACKET) and host.endswith(self._RBRACKET):
             return self.__parse_ip_literal(host[1:-1])
-        elif host.startswith(self.LBRACKET) or host.endswith(self.RBRACKET):
+        elif host.startswith(self._LBRACKET) or host.endswith(self._RBRACKET):
             raise ValueError("Invalid host %r: mismatched brackets" % host)
         # TODO: faster check for IPv4 address?
         try:
@@ -315,7 +317,7 @@ class SplitResult(
         else:
             qsl = self.query.split(sep.encode("ascii"))
         result = []
-        for parts in [qs.partition(self.EQ) for qs in qsl if qs]:
+        for parts in [qs.partition(self._EQ) for qs in qsl if qs]:
             name = uridecode(parts[0], encoding, errors)
             if parts[1]:
                 value = uridecode(parts[2], encoding, errors)
@@ -352,7 +354,7 @@ class SplitResult(
         return (
             self.scheme is None
             and self.authority is None
-            and self.path.startswith(self.SLASH)
+            and self.path.startswith(self._SLASH)
         )
 
     def isrelpath(self):
@@ -360,7 +362,7 @@ class SplitResult(
         return (
             self.scheme is None
             and self.authority is None
-            and not self.path.startswith(self.SLASH)
+            and not self.path.startswith(self._SLASH)
         )
 
     def issamedoc(self):
@@ -377,7 +379,7 @@ class SplitResult(
         :class:`SplitResult` representing its target URI.
 
         """
-        scheme, authority, path, query, fragment = self.RE.match(ref).groups()
+        scheme, authority, path, query, fragment = self._match(ref).groups()
 
         # RFC 3986 5.2.2. Transform References
         if scheme is not None and (strict or scheme != self.scheme):
@@ -390,7 +392,7 @@ class SplitResult(
             authority = self.authority
             path = self.path
             query = self.query if query is None else query
-        elif path.startswith(self.SLASH):
+        elif path.startswith(self._SLASH):
             scheme = self.scheme
             authority = self.authority
             path = self.__remove_dot_segments(path)
@@ -403,32 +405,32 @@ class SplitResult(
     def __merge(self, path):
         # RFC 3986 5.2.3. Merge Paths
         if self.authority is not None and not self.path:
-            return self.SLASH + path
+            return self._SLASH + path
         else:
-            parts = self.path.rpartition(self.SLASH)
+            parts = self.path.rpartition(self._SLASH)
             return parts[1].join((parts[0], path))
 
     @classmethod
     def __remove_dot_segments(cls, path):
         # RFC 3986 5.2.4. Remove Dot Segments
         pseg = []
-        for s in path.split(cls.SLASH):
-            if s == cls.DOT:
+        for s in path.split(cls._SLASH):
+            if s == cls._DOT:
                 continue
-            elif s != cls.DOTDOT:
+            elif s != cls._DOTDOT:
                 pseg.append(s)
             elif len(pseg) == 1 and not pseg[0]:
                 continue
-            elif pseg and pseg[-1] != cls.DOTDOT:
+            elif pseg and pseg[-1] != cls._DOTDOT:
                 pseg.pop()
             else:
                 pseg.append(s)
         # adjust for trailing '/.' or '/..'
-        if path.rpartition(cls.SLASH)[2] in (cls.DOT, cls.DOTDOT):
-            pseg.append(cls.EMPTY)
-        if path and len(pseg) == 1 and pseg[0] == cls.EMPTY:
-            pseg.insert(0, cls.DOT)
-        return cls.SLASH.join(pseg)
+        if path.rpartition(cls._SLASH)[2] in (cls._DOT, cls._DOTDOT):
+            pseg.append(cls._EMPTY)
+        if path and len(pseg) == 1 and pseg[0] == cls._EMPTY:
+            pseg.insert(0, cls._DOT)
+        return cls._SLASH.join(pseg)
 
     @classmethod
     def __parse_ip_literal(cls, address):
@@ -454,11 +456,12 @@ class SplitResult(
         return ipaddress.IPv6Address(address)
 
 
+# TODO: make private?
 class SplitResultBytes(SplitResult):
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
-    RE = re.compile(
+    _RE = re.compile(
         rb"""
     (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
     (?://([^/?#]*))?                 # authority
@@ -469,8 +472,12 @@ class SplitResultBytes(SplitResult):
         flags=re.VERBOSE,
     )
 
+    @classmethod
+    def _match(cls, ref):
+        return cls._RE.match(ref)
+
     # RFC 3986 2.2 gen-delims
-    COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = (
+    _COLON, _SLASH, _QUEST, _HASH, _LBRACKET, _RBRACKET, _AT = (
         b":",
         b"/",
         b"?",
@@ -481,18 +488,19 @@ class SplitResultBytes(SplitResult):
     )
 
     # RFC 3986 3.3 dot-segments
-    DOT, DOTDOT = b".", b".."
+    _DOT, _DOTDOT = b".", b".."
 
-    EMPTY, EQ = b"", b"="
+    _EMPTY, _EQ = b"", b"="
 
-    DIGITS = b"0123456789"
+    _DIGITS = b"0123456789"
 
 
+# TODO: make private?
 class SplitResultString(SplitResult):
     __slots__ = ()  # prevent creation of instance dictionary
 
     # RFC 3986 Appendix B
-    RE = re.compile(
+    _RE = re.compile(
         r"""
     (?:([A-Za-z][A-Za-z0-9+.-]*):)?  # scheme (RFC 3986 3.1)
     (?://([^/?#]*))?                 # authority
@@ -503,8 +511,12 @@ class SplitResultString(SplitResult):
         flags=re.VERBOSE,
     )
 
+    @classmethod
+    def _match(cls, ref):
+        return cls._RE.match(ref)
+
     # RFC 3986 2.2 gen-delims
-    COLON, SLASH, QUEST, HASH, LBRACKET, RBRACKET, AT = (
+    _COLON, _SLASH, _QUEST, _HASH, _LBRACKET, _RBRACKET, _AT = (
         ":",
         "/",
         "?",
@@ -515,11 +527,11 @@ class SplitResultString(SplitResult):
     )
 
     # RFC 3986 3.3 dot-segments
-    DOT, DOTDOT = ".", ".."
+    _DOT, _DOTDOT = ".", ".."
 
-    EMPTY, EQ = "", "="
+    _EMPTY, _EQ = "", "="
 
-    DIGITS = "0123456789"
+    _DIGITS = "0123456789"
 
 
 def uridefrag(uristring):
@@ -542,7 +554,7 @@ def urisplit(uristring):
         result = SplitResultBytes
     else:
         result = SplitResultString
-    return result(*result.RE.match(uristring).groups())
+    return result(*result._match(uristring).groups())
 
 
 def uriunsplit(parts):
@@ -741,14 +753,14 @@ def uricompose(
     elif scheme is not None:
         scheme = _scheme(scheme.encode())
 
-    # authority must be string type or three-item iterable
+    # authority must be string type or three-item sequence
     if authority is None:
         authority = (None, None, None)
     elif isinstance(authority, bytes):
         authority = _AUTHORITY_RE_BYTES.match(authority).groups()
     elif isinstance(authority, str):
         authority = _AUTHORITY_RE_STR.match(authority).groups()
-    elif not isinstance(authority, collections.abc.Iterable):
+    elif not isinstance(authority, collections.abc.Sequence):
         raise TypeError("Invalid authority type")
     elif len(authority) != 3:
         raise ValueError("Invalid authority length")

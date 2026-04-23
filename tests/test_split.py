@@ -1,3 +1,4 @@
+import ipaddress
 import unittest
 
 from uritools import urisplit
@@ -288,10 +289,10 @@ class SplitTest(unittest.TestCase):
                 urisplit(uri).getauthority()
             with self.assertRaises(ValueError, msg="%r" % uri):
                 urisplit(uri.encode()).getauthority()
-        with self.assertRaises(TypeError, msg="%r" % uri):
-            urisplit("").getauthority(42)
-        with self.assertRaises(ValueError, msg="%r" % uri):
-            urisplit("").getauthority(("userinfo", "test.python.org"))
+        with self.assertRaises(TypeError):
+            urisplit("").getauthority(42)  # type: ignore
+        with self.assertRaises(ValueError):
+            urisplit("").getauthority(("userinfo", "test.python.org"))  # type: ignore
 
     def test_gethost(self):
         from ipaddress import IPv4Address, IPv6Address
@@ -480,7 +481,9 @@ class SplitTest(unittest.TestCase):
         ]
         for uri, host, port in cases:
             for parts in (urisplit(uri), urisplit(uri.encode("ascii"))):
-                self.assertEqual(host, parts.gethost().exploded)
+                result = parts.gethost()
+                assert isinstance(result, ipaddress.IPv6Address)
+                self.assertEqual(host, result.exploded)
                 self.assertEqual(port, parts.getport())
 
     def test_ipv4_mapped_literal(self):
@@ -538,10 +541,14 @@ class SplitTest(unittest.TestCase):
         ]
         for uri, hosts, port in cases:
             parts = urisplit(uri)
-            self.assertIn(parts.gethost().exploded, hosts)
+            result = parts.gethost()
+            assert isinstance(result, ipaddress.IPv6Address)
+            self.assertIn(result.exploded, hosts)
             self.assertEqual(parts.getport(), port)
             parts = urisplit(uri.encode("ascii"))
-            self.assertIn(parts.gethost().exploded, hosts)
+            result = parts.gethost()
+            assert isinstance(result, ipaddress.IPv6Address)
+            self.assertIn(result.exploded, hosts)
             self.assertEqual(parts.getport(), port)
 
     def test_invalid_ip_literal(self):

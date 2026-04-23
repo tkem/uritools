@@ -103,7 +103,7 @@ URI Composition
    All components may be specified as either Unicode strings, which
    will be encoded according to `encoding`, or :class:`bytes` objects.
 
-   `authority` may also be passed a three-item iterable specifying
+   `authority` may also be passed a three-item sequence specifying
    userinfo, host and port subcomponents.  If both `authority` and any
    of the `userinfo`, `host` or `port` keyword arguments are given,
    the keyword argument will override the corresponding `authority`

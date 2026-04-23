@@ -68,7 +68,7 @@ class ComposeTest(unittest.TestCase):
         # invalid authority type
         for authority in (True, 42, 3.14, ipaddress.IPv6Address("::1")):
             with self.assertRaises(TypeError, msg="authority=%r" % authority):
-                uricompose(authority=authority)
+                uricompose(authority=authority)  # type: ignore
 
     def test_authority_kwargs(self):
         from ipaddress import IPv4Address, IPv6Address
@@ -116,9 +116,9 @@ class ComposeTest(unittest.TestCase):
         # invalid host type
         for host in (True, 42, 3.14, ipaddress.IPv6Network("2001:db00::0/24")):
             with self.assertRaises(TypeError, msg="host=%r" % host):
-                uricompose(authority=[None, host, None])
+                uricompose(authority=[None, host, None])  # type: ignore
             with self.assertRaises(TypeError, msg="host=%r" % host):
-                uricompose(host=host)
+                uricompose(host=host)  # type: ignore
         # invalid host ip-literal
         for host in ("[foo]", "[v1.x]"):
             with self.assertRaises(ValueError, msg="host=%r" % host):
@@ -128,9 +128,9 @@ class ComposeTest(unittest.TestCase):
         # invalid port value
         for port in (-1, "foo", 3.14):
             with self.assertRaises(ValueError, msg="port=%r" % port):
-                uricompose(authority=[None, "", port])
+                uricompose(authority=[None, "", port])  # type: ignore
             with self.assertRaises(ValueError, msg="port=%r" % port):
-                uricompose(port=port)
+                uricompose(port=port)  # type: ignore
 
     def test_authority_override(self):
         cases = [
@@ -225,7 +225,7 @@ class ComposeTest(unittest.TestCase):
         # invalid query type
         for query in (0, [1]):
             with self.assertRaises(TypeError, msg="query=%r" % query):
-                uricompose(query=query)
+                uricompose(query=query)  # type: ignore
 
     def test_query_sep(self):
         cases = [
