@@ -53,4 +53,10 @@ exclude = [".git", ".tox", "build"]
 select = ["C", "E", "F", "W", "B", "B950", "I", "N"]
 # E501: line too long (black)
 # W503 line break before binary operator (black)
-ignore = ["E501", "W503"]
+# E704: multiple statements on one line (typehints)
+ignore = ["E501", "W503", "E704"]
+
+[tool.pyright]
+typeCheckingMode = "standard"
+reportOptionalMemberAccess = false
+reportAttributeAccessIssue = false
