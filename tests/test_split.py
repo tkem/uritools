@@ -565,3 +565,38 @@ class SplitTest(unittest.TestCase):
                 urisplit(uri).gethost()
             with self.assertRaises(ValueError, msg="%r" % uri.encode("ascii")):
                 urisplit(uri.encode("ascii")).gethost()
+
+    def test_encoding_none(self):
+        uri = "foo://user@example.com:8042/over/there?name=ferret#nose"
+        for ref in [uri, uri.encode("ascii")]:
+            parts = urisplit(ref)
+            self.assertEqual(
+                parts.getauthority(encoding=None),
+                (b"user", "example.com", 8042),
+            )
+            self.assertEqual(parts.getuserinfo(encoding=None), b"user")
+            self.assertEqual(parts.getpath(encoding=None), b"/over/there")
+            self.assertEqual(parts.getquery(encoding=None), b"name=ferret")
+            self.assertEqual(parts.getfragment(encoding=None), b"nose")
+            self.assertEqual(parts.getquerylist(encoding=None), [(b"name", b"ferret")])
+            self.assertEqual(
+                dict(parts.getquerydict(encoding=None)), {b"name": [b"ferret"]}
+            )
+
+    def test_encoding_none_percent(self):
+        uri = "foo:///foo%20bar?name=foo%20bar#foo%20bar"
+        for ref in [uri, uri.encode("ascii")]:
+            parts = urisplit(ref)
+            self.assertEqual(parts.getpath(encoding=None), b"/foo bar")
+            self.assertEqual(parts.getquery(encoding=None), b"name=foo bar")
+            self.assertEqual(parts.getfragment(encoding=None), b"foo bar")
+            self.assertEqual(parts.getquerylist(encoding=None), [(b"name", b"foo bar")])
+
+    def test_encoding_none_defaults(self):
+        parts = urisplit("")
+        self.assertEqual(parts.getuserinfo(encoding=None), None)
+        self.assertEqual(parts.getquery(encoding=None), None)
+        self.assertEqual(parts.getfragment(encoding=None), None)
+        self.assertEqual(parts.getpath(encoding=None), b"")
+        self.assertEqual(parts.getquerylist(encoding=None), [])
+        self.assertEqual(dict(parts.getquerydict(encoding=None)), {})
