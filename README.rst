@@ -17,10 +17,6 @@ uritools
    :target: https://codecov.io/gh/tkem/uritools
    :alt: Test coverage
 
-.. image:: https://img.shields.io/librariesio/sourcerank/pypi/uritools
-   :target: https://libraries.io/pypi/uritools
-   :alt: Libraries.io SourceRank
-
 .. image:: https://img.shields.io/github/license/tkem/uritools
    :target: https://raw.github.com/tkem/uritools/master/LICENSE
    :alt: License
