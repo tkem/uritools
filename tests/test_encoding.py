@@ -8,9 +8,7 @@ class EncodingTest(unittest.TestCase):
         self.assertEqual(uriencode(decoded, safe, encoding), encoded)
         self.assertEqual(uridecode(encoded, encoding), decoded)
         # swap bytes/string types
-        self.assertEqual(
-            uriencode(decoded.encode(encoding), safe, encoding), encoded
-        )  # noqa
+        self.assertEqual(uriencode(decoded.encode(encoding), safe, encoding), encoded)  # noqa
         self.assertEqual(uridecode(encoded.decode("ascii"), encoding), decoded)
 
     def test_encoding(self):
