@@ -7,6 +7,7 @@ RFC 3986 compliant URI parsing library replacing Python's `urllib.parse`. Requir
 - **Single-file design**: Everything in `src/uritools/__init__.py` — do not create submodules
 - **Dual type support**: All public functions handle both `str` and `bytes` via `SplitResultString` / `SplitResultBytes`
 - **Public API**: Defined in `__all__` — changes are breaking
+- **Type stubs**: `src/uritools/__init__.pyi` — keep in sync with runtime API
 
 ## Architecture
 
@@ -34,16 +35,26 @@ else:
 - Use `ipaddress` module; reject IPvFuture (addresses starting with `v`)
 - IPv6 bracketed in output: `[2001:db8::1]`, always compressed form
 
+### Design decisions (intentional — do not "fix")
+- `getscheme()` always returns `str` (decodes bytes schemes)
+- `getfragment()` and other `get*()` methods decode to `str` by default, even for bytes input
+- `gethost()` returns `""` for empty host when `default=None`, but returns `default` when it's not None
+- `SplitResultBytes` / `SplitResultString` are semi-private (not in `__all__`)
+
 ## Development
 
 ### Running checks
 ```bash
 tox              # all environments (recommended)
 tox -e py        # tests with coverage
-tox -e flake8    # linting (black, bugbear, import-order)
+tox -e ruff-format  # formatting (ruff format)
+tox -e ruff      # linting (ruff check)
+tox -e pyright   # type checking
 tox -e docs      # Sphinx HTML build
 tox -e doctest   # Sphinx doctest
 ```
+
+Use `tox` or `PYTHONPATH=src python3 -m pytest tests/` to test against the workspace source (not the system-installed package).
 
 ### Testing conventions
 - `unittest.TestCase` with `check()` helpers — not pytest-style
@@ -57,3 +68,9 @@ tox -e doctest   # Sphinx doctest
 - Sphinx docs in `docs/`, built with `tox -e docs`
 - `README.rst` examples must work as doctests
 - Docstrings describe types in prose (no type annotations in signatures)
+- Directive body content uses 3-space indentation in `docs/index.rst`
+
+### Changelog
+- `CHANGELOG.rst` uses `vX.Y.Z (YYYY-MM-DD)` headers with `===` underlines
+- Unreleased changes go under `vX.Y.Z (UNRELEASED)`
+- Each entry is a `- ` bullet (imperative mood, no trailing period)

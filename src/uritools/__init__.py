@@ -33,7 +33,7 @@ __all__ = (
     "uriunsplit",
 )
 
-__version__ = "6.1.0"
+__version__ = "6.1.1"
 
 
 # RFC 3986 2.2.  Reserved Characters
