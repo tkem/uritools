@@ -613,8 +613,6 @@ def issamedoc(uristring):
     return urisplit(uristring).issamedoc()
 
 
-# TBD: move compose to its own submodule?
-
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 _SCHEME_RE = re.compile(b"^[A-Za-z][A-Za-z0-9+.-]*$")
 

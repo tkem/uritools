@@ -31,10 +31,9 @@ the Python Standard Library's :mod:`urllib.parse` module.
     >>> urijoin(uriunsplit(parts), '/right/here?name=swallow#beak')
     'foo://example.com:8042/right/here?name=swallow#beak'
 
-For various reasons, :mod:`urllib.parse` and its Python 2 predecessor
-:mod:`urlparse` are not compliant with current Internet standards.  As
-stated in `Lib/urllib/parse.py
-<https://github.com/python/cpython/blob/main/Lib/urllib/parse.py#L22>`_:
+For various reasons, :mod:`urllib.parse` is not compliant with current
+Internet standards.  As stated in `Lib/urllib/parse.py
+<https://github.com/python/cpython/blob/3.14/Lib/urllib/parse.py#L22>`_:
 
     RFC 3986 is considered the current standard and any future changes
     to urlparse module should conform with it.  The urlparse module is
@@ -117,8 +116,8 @@ URI Composition
 
 .. autofunction:: urijoin
 
-    If `strict` is :const:`False`, a scheme in the reference is
-    ignored if it is identical to the base URI's scheme.
+   If `strict` is :const:`False`, a scheme in the reference is
+   ignored if it is identical to the base URI's scheme.
 
 .. autofunction:: uriunsplit
 
