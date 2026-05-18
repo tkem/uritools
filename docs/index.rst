@@ -36,10 +36,11 @@ Internet standards.  As stated in `Lib/urllib/parse.py
 <https://github.com/python/cpython/blob/3.14/Lib/urllib/parse.py#L22>`_:
 
     RFC 3986 is considered the current standard and any future changes
-    to urlparse module should conform with it.  The urlparse module is
-    currently not entirely compliant with this RFC due to defacto
-    scenarios for parsing, and for backward compatibility purposes,
-    some parsing quirks from older RFCs are retained.
+    to :mod:`urllib.parse` module should conform with it.  The
+    :mod:`urllib.parse` module is currently not entirely compliant
+    with this RFC due to defacto scenarios for parsing, and for
+    backward compatibility purposes, some parsing quirks from older
+    RFCs are retained.
 
 This module aims to provide fully RFC 3986 compliant replacements for
 the most commonly used functions found in :mod:`urllib.parse`.  It
