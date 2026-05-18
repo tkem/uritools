@@ -1,4 +1,4 @@
-v6.1.1 (UNRELEASED)
+v6.1.1 (2026-05-18)
 ===================
 
 - Minor documentation improvements.
