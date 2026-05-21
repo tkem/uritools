@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 78", "setuptools-scm >= 8.2"]
+requires = ["setuptools >= 80", "setuptools-scm >= 8.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -49,5 +49,5 @@ version = {attr = "uritools.__version__"}
 
 [tool.pyright]
 typeCheckingMode = "standard"
-reportOptionalMemberAccess = false
-reportAttributeAccessIssue = false
+reportAttributeAccessIssue = "information"
+reportOptionalMemberAccess = "warning"
