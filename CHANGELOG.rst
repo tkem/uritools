@@ -1,3 +1,11 @@
+v6.1.2 (2026-05-22)
+===================
+
+- Minor documentation improvements.
+
+- Update build environment.
+
+
 v6.1.1 (2026-05-18)
 ===================
 
