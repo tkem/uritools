@@ -158,11 +158,12 @@ class SplitResult(
         if authority is None:
             return None
         _, _, hostinfo = authority.rpartition(self._AT)
-        host, _, port = hostinfo.rpartition(self._COLON)
-        if port.lstrip(self._DIGITS):
-            return hostinfo
-        else:
+        # Without a ":", rpartition puts the whole hostinfo in the port slot.
+        host, present, port = hostinfo.rpartition(self._COLON)
+        if present and not port.lstrip(self._DIGITS):
             return host
+        else:
+            return hostinfo
 
     @property
     def port(self):

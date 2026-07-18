@@ -311,6 +311,33 @@ class SplitTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg="%r" % uri):
                 urisplit(uri.encode()).gethost()
 
+    def test_all_digit_host_without_port(self):
+        cases = [
+            ("http://123", "123", None, (None, "123", None)),
+            ("http://0", "0", None, (None, "0", None)),
+            ("http://2130706433", "2130706433", None, (None, "2130706433", None)),
+            ("http://0123", "0123", None, (None, "0123", None)),
+            ("http://user@123", "123", None, ("user", "123", None)),
+            ("http://123:80", "123", 80, (None, "123", 80)),
+            ("http://user@123:80", "123", 80, ("user", "123", 80)),
+            ("//123/path", "123", None, (None, "123", None)),
+            ("http://123/", "123", None, (None, "123", None)),
+            ("http://123?q", "123", None, (None, "123", None)),
+            ("http://123#f", "123", None, (None, "123", None)),
+            ("http://123:", "123", None, (None, "123", None)),
+            ("http://example.com", "example.com", None, (None, "example.com", None)),
+            ("http://", "", None, (None, "", None)),
+        ]
+        for uri, host, port, authority in cases:
+            for ref in (uri, uri.encode("ascii")):
+                parts = urisplit(ref)
+                self.assertEqual(
+                    parts.host, host if isinstance(ref, str) else host.encode()
+                )
+                self.assertEqual(parts.gethost(), host)
+                self.assertEqual(parts.getport(), port)
+                self.assertEqual(parts.getauthority(), authority)
+
     def test_getport(self):
         for uri in ["foo://bar", "foo://bar:", "foo://bar/", "foo://bar:/"]:
             result = urisplit(uri)
