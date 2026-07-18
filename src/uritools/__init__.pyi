@@ -232,7 +232,7 @@ def uricompose(
     | bytes
     | Sequence[str | bytes | ipaddress.IPv4Address | ipaddress.IPv6Address | int | None]
     | None = ...,
-    path: str | bytes = ...,
+    path: str | bytes | None = ...,
     query: _QueryType | None = ...,
     fragment: str | bytes | None = ...,
     userinfo: str | bytes | None = ...,
