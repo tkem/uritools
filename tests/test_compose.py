@@ -180,6 +180,10 @@ class ComposeTest(unittest.TestCase):
             with self.assertRaises(ValueError, msg="path=%r" % path):
                 uricompose(path=path)
 
+        # None path matches the empty-path default
+        self.check("https://ex.com", scheme="https", host="ex.com", path=None)
+        self.check("https://ex.com/", scheme="https", host="ex.com", path="/")
+
     def test_query(self):
         from collections import OrderedDict as od
 
