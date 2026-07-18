@@ -773,6 +773,8 @@ def uricompose(
     # path component must either be empty or begin with a slash ("/")
     # character.  If a URI does not contain an authority component,
     # then the path cannot begin with two slash characters ("//").
+    if path is None:
+        path = ""
     path = uriencode(path, _SAFE_PATH, encoding)
     if authority is not None and path and not path.startswith(b"/"):
         raise ValueError("Invalid path with authority component")
