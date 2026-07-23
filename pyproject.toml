@@ -51,3 +51,6 @@ version = {attr = "uritools.__version__"}
 typeCheckingMode = "standard"
 reportAttributeAccessIssue = "information"
 reportOptionalMemberAccess = "warning"
+
+[tool.ruff.lint]
+ignore = ["DTZ005", "SIM102", "UP031"]

@@ -1,7 +1,6 @@
 import ipaddress
 from collections.abc import Iterable, Mapping, Sequence
-from typing import Any, AnyStr, Generic, NamedTuple, overload
-from typing_extensions import TypeAlias
+from typing import Any, AnyStr, Generic, NamedTuple, TypeAlias, overload
 
 __all__ = [
     "GEN_DELIMS",

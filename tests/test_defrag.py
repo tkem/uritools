@@ -23,7 +23,7 @@ class DefragTest(unittest.TestCase):
         def encode(s):
             return s.encode() if s is not None else None
 
-        cases += list(map(encode, case) for case in cases)
+        cases += [map(encode, case) for case in cases]
 
         for uri, base, fragment in cases:
             defrag = uridefrag(uri)
