@@ -1,3 +1,11 @@
+v6.1.3 (2026-07-24)
+===================
+
+- Minor style improvements to keep ``ruff`` happy.
+
+- Update build environment.
+
+
 v6.1.2 (2026-05-22)
 ===================
 
