@@ -36,10 +36,13 @@ else:
 - IPv6 bracketed in output: `[2001:db8::1]`, always compressed form
 
 ### Design decisions (intentional — do not "fix")
-- `getscheme()` always returns `str` (decodes bytes schemes)
+- The `_encoded` cache may grow unbounded for arbitrary `safe` values — a known, low-impact trade-off
 - `getfragment()` and other `get*()` methods decode to `str` by default, even for bytes input
+- `getscheme()` always returns `str` (decodes bytes schemes); the FIXME in the source is resolved-by-design
+- `getauthority()` calls three separate getters; the TODO about a dedicated regex is a micro-optimization, not a bug
 - `gethost()` returns `""` for empty host when `default=None`, but returns `default` when it's not None
-- `SplitResultBytes` / `SplitResultString` are semi-private (not in `__all__`)
+- `SplitResultBytes` / `SplitResultString` are semi-private (not in `__all__`); the `# TODO: make private?` comments stay as-is, since renaming would break direct importers
+- An empty port (`http://host:`) matches as `""`, not `None`; `getport()` still returns the default
 
 ## Development
 

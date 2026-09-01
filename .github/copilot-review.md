@@ -19,10 +19,21 @@ return `str` (decoding bytes when needed), and type stubs reflect this.
 | 2 | Info | `gethost()` default behavior | Returns `""` when host is empty and `default=None`, but returns `default` when default is not None. Edge case (`"file:///"` → `gethost()` returns `""`) is tested and documented; intentional. |
 | 3 | Info | `_AUTHORITY_RE_*` port group | Regex `(?::([0-9]*))?$` captures empty port string for URIs like `http://host:`. Handled correctly downstream (`getport()` returns default for empty port). No bug. |
 
+No implementation bugs found.
 
-No implementation bugs found. Design notes C2–C6 from prior review remain
-valid (FIXMEs about bytes return types are intentional; semi-private classes
-not in `__all__` are acceptable).
+## Code — Design Notes
+
+Intentional behaviors and acknowledged trade-offs, in source order. None
+require action; the FIXME/TODO comments they refer to are kept deliberately.
+
+| # | Location | Note |
+|---|----------|------|
+| 1 | `DefragResult.getfragment()`, FIXME line 129 | Decodes to `str` even when `geturi()` returns `bytes`. Consistent with every other `get*()` method; changing it would break the public API. Resolved-by-design. |
+| 2 | `getscheme()`, FIXME line 203 | Decodes `bytes` schemes to `str`. `__init__.pyi` types this as `-> str \| None`, confirming intent. |
+| 3 | `getauthority()`, TODO line 224 | Calls three separate getters; a single dedicated regex would be faster. Micro-optimization only. |
+| 4 | `gethost()` line 243 | Returns `""` for an empty host when `default=None`, but returns `default` otherwise. Asymmetric, but tested and documented (see Potential Issues #2). |
+| 5 | `SplitResultBytes` / `SplitResultString`, TODO lines 459 and 498 | Already semi-private (absent from `__all__`). Renaming with a leading underscore would break direct importers for little gain. |
+| 6 | `_AUTHORITY_RE_*` lines 620–621 | Empty port matches as `""` rather than `None`. Subtle, but handled downstream (see Potential Issues #3). |
 
 ## Tests — Gaps
 
