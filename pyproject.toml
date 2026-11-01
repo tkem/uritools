@@ -27,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
@@ -49,8 +50,7 @@ version = {attr = "uritools.__version__"}
 
 [tool.pyright]
 typeCheckingMode = "standard"
-reportAttributeAccessIssue = "information"
-reportOptionalMemberAccess = "warning"
+reportUnnecessaryTypeIgnoreComment = "error"
 
 [tool.ruff.lint]
 ignore = ["DTZ005", "SIM102", "UP031"]
