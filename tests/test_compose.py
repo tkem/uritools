@@ -67,6 +67,7 @@ class ComposeTest(unittest.TestCase):
             ("//a%0Ab@example.com", "a\nb@example.com"),
             ("//a%0Ab@example.com", b"a\nb@example.com"),
             ("//example.com%3A42%0A", "example.com:42\n"),
+            ("//example.com%3A42%0A", b"example.com:42\n"),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)
@@ -143,6 +144,25 @@ class ComposeTest(unittest.TestCase):
             ("//user@example.com:42", "", "user", "example.com", 42),
             ("//user@example.com:42", "example.com", "user", None, 42),
             ("//user@example.com:42", "user@:42", None, "example.com", None),
+            ("//user@example.com:42", b"", b"user", b"example.com", b"42"),
+            ("//user@example.com:42", b"example.com", b"user", None, 42),
+            ("//user@example.com:42", b"user@:42", None, b"example.com", None),
+            ("//user@example.com:42", b"user@:42", None, "example.com", None),
+            ("//user@example.com:42", "user@:42", None, b"example.com", None),
+            (
+                "//user@example.com:42",
+                b"nobody@localhost:80",
+                "user",
+                b"example.com",
+                "42",
+            ),
+            (
+                "//user@example.com:42",
+                "nobody@localhost:80",
+                b"user",
+                "example.com",
+                b"42",
+            ),
         ]
         for uri, authority, userinfo, host, port in cases:
             self.check(
@@ -241,3 +261,41 @@ class ComposeTest(unittest.TestCase):
         ]
         for sep, uri, query in cases:
             self.check(uri, query=query, querysep=sep)
+
+    def test_encoding(self):
+        cases = [
+            ("//%E4@example.com", {"userinfo": "\xe4", "host": "example.com"}),
+            ("/%E4", {"path": "/\xe4"}),
+            ("?name=%E4", {"query": "name=\xe4"}),
+            ("?name=%E4", {"query": {"name": "\xe4"}}),
+            ("?name=%E4", {"query": [("name", "\xe4")]}),
+            ("#%E4", {"fragment": "\xe4"}),
+        ]
+        for uri, kwargs in cases:
+            self.check(uri, encoding="latin-1", **kwargs)
+        # host is always encoded as UTF-8
+        self.check("//%C3%A4", host="\xe4", encoding="latin-1")
+        # bytes components are not affected by encoding
+        self.check("/%C3%A4", path=b"/\xc3\xa4", encoding="latin-1")
+        # characters not representable in encoding
+        with self.assertRaises(UnicodeEncodeError):
+            uricompose(path="/\u20ac", encoding="latin-1")
+
+    def test_fragment(self):
+        cases = [
+            ("", None),
+            ("#", ""),
+            ("#", b""),
+            ("#nose", "nose"),
+            ("#nose", b"nose"),
+            ("#foo%20bar", "foo bar"),
+            ("#foo%20bar", b"foo bar"),
+            ("#a/b?c:d@e", "a/b?c:d@e"),
+            ("#a/b?c:d@e", b"a/b?c:d@e"),
+            ("#a%23b", "a#b"),
+            ("#a%23b", b"a#b"),
+            ("#%C3%A4", "\xe4"),
+            ("#%C3%A4", b"\xc3\xa4"),
+        ]
+        for uri, fragment in cases:
+            self.check(uri, fragment=fragment)

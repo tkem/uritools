@@ -79,6 +79,8 @@ class SplitTest(unittest.TestCase):
             (b"?:", (None, None, b"", b":", None)),
             (b"#:", (None, None, b"", None, b":")),
             (b"_:", (None, None, b"_:", None, None)),
+            (b"#foo\nbar", (None, None, b"", None, b"foo\nbar")),
+            (b"?foo\nbar#baz\n", (None, None, b"", b"foo\nbar", b"baz\n")),
         ]
         for uri, parts in cases:
             self.check(uri, parts)
@@ -283,9 +285,31 @@ class SplitTest(unittest.TestCase):
                 ("nobody", "localhost", 42),
                 ("userinfo", "test.python.org", 5432),
             ),
+            (
+                "urn:example:animal:ferret:nose",
+                (b"nobody", b"localhost", 42),
+                (b"nobody", b"localhost", 42),
+            ),
+            ("file:///", (b"nobody", b"localhost", 42), (b"nobody", b"localhost", 42)),
+            (
+                "http://Test.python.org/foo/",
+                (b"nobody", b"localhost", 42),
+                (b"nobody", "test.python.org", 42),
+            ),
+            (
+                "http://@Test.python.org:5432/foo/",
+                (b"nobody", b"localhost", 42),
+                ("", "test.python.org", 5432),
+            ),
+            (
+                "http://userinfo@Test.python.org:5432/foo/",
+                (b"nobody", b"localhost", 42),
+                ("userinfo", "test.python.org", 5432),
+            ),
         ]
         for uri, default, authority in cases:
             self.assertEqual(urisplit(uri).getauthority(default), authority)
+            self.assertEqual(urisplit(uri.encode()).getauthority(default), authority)
         for uri in ["http://[::1/", "http://::1]/"]:
             with self.assertRaises(ValueError, msg="%r" % uri):
                 urisplit(uri).getauthority()

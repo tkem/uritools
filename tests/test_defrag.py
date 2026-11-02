@@ -42,6 +42,18 @@ class DefragTest(unittest.TestCase):
         self.assertEqual(uridefrag("#foo%20bar").getfragment(), "foo bar")
         self.assertEqual(uridefrag(b"#foo%20bar").getfragment(), "foo bar")
 
+    def test_getfragment_default(self):
+        self.assertEqual(uridefrag("").getfragment("baz"), "baz")
+        self.assertEqual(uridefrag(b"").getfragment("baz"), "baz")
+        self.assertEqual(uridefrag("").getfragment(default="baz"), "baz")
+        self.assertEqual(uridefrag(b"").getfragment(default="baz"), "baz")
+        self.assertEqual(uridefrag("#").getfragment("baz"), "")
+        self.assertEqual(uridefrag(b"#").getfragment("baz"), "")
+        self.assertEqual(uridefrag("#foo").getfragment("baz"), "foo")
+        self.assertEqual(uridefrag(b"#foo").getfragment("baz"), "foo")
+        self.assertEqual(uridefrag("#foo%20bar").getfragment("baz"), "foo bar")
+        self.assertEqual(uridefrag(b"#foo%20bar").getfragment("baz"), "foo bar")
+
     def test_getfragment_encoding_none(self):
         self.assertEqual(uridefrag("").getfragment(encoding=None), None)
         self.assertEqual(uridefrag(b"").getfragment(encoding=None), None)

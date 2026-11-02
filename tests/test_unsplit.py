@@ -30,3 +30,17 @@ class UnsplitTest(unittest.TestCase):
         ]
         for parts, uri in cases:
             self.check(parts, uri)
+
+    def test_mixed_types(self):
+        # the type of `path` selects the result type; all other parts must match
+        cases = [
+            ("foo", None, b"/over/there", None, None),
+            (b"foo", None, "/over/there", None, None),
+            (None, "example.com", b"/over/there", None, None),
+            (None, b"example.com", "/over/there", None, None),
+            (None, None, "/over/there", None, b"nose"),
+            (None, None, "/over/there", b"name=ferret", None),
+        ]
+        for parts in cases:
+            with self.assertRaises(TypeError):
+                uriunsplit(parts)
