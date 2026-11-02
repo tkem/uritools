@@ -37,7 +37,7 @@ class ComposeTest(unittest.TestCase):
         for uri, scheme in cases:
             self.check(uri, scheme=scheme)
         # invalid scheme
-        for scheme in ("", "foo:", "\xf6lk\xfcrbis"):
+        for scheme in ("", "foo:", "foo\n", b"foo\n", "\xf6lk\xfcrbis"):
             with self.assertRaises(ValueError, msg="scheme=%r" % scheme):
                 uricompose(scheme=scheme)
 
@@ -62,6 +62,11 @@ class ComposeTest(unittest.TestCase):
             ("//user@[::1]:42", b"user@[::1]:42"),
             ("//user:c2VjcmV0@example.com", "user:c2VjcmV0@example.com"),
             ("//user:c2VjcmV0@example.com", b"user:c2VjcmV0@example.com"),
+            ("//foo%0Abar", "foo\nbar"),
+            ("//foo%0Abar", b"foo\nbar"),
+            ("//a%0Ab@example.com", "a\nb@example.com"),
+            ("//a%0Ab@example.com", b"a\nb@example.com"),
+            ("//example.com%3A42%0A", "example.com:42\n"),
         ]
         for uri, authority in cases:
             self.check(uri, authority=authority)

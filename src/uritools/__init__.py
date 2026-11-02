@@ -469,7 +469,7 @@ class SplitResultBytes(SplitResult):
     (?:\?([^#]*))?                   # query
     (?:\#(.*))?                      # fragment
     """,
-        flags=re.VERBOSE,
+        flags=re.VERBOSE | re.DOTALL,
     )
 
     @classmethod
@@ -508,7 +508,7 @@ class SplitResultString(SplitResult):
     (?:\?([^#]*))?                   # query
     (?:\#(.*))?                      # fragment
     """,
-        flags=re.VERBOSE,
+        flags=re.VERBOSE | re.DOTALL,
     )
 
     @classmethod
@@ -614,11 +614,11 @@ def issamedoc(uristring):
 
 
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-_SCHEME_RE = re.compile(b"^[A-Za-z][A-Za-z0-9+.-]*$")
+_SCHEME_RE = re.compile(b"[A-Za-z][A-Za-z0-9+.-]*")
 
 # RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
-_AUTHORITY_RE_BYTES = re.compile(b"^(?:(.*)@)?(.*?)(?::([0-9]*))?$")
-_AUTHORITY_RE_STR = re.compile("^(?:(.*)@)?(.*?)(?::([0-9]*))?$")
+_AUTHORITY_RE_BYTES = re.compile(b"(?:(.*)@)?(.*?)(?::([0-9]*))?", re.DOTALL)
+_AUTHORITY_RE_STR = re.compile("(?:(.*)@)?(.*?)(?::([0-9]*))?", re.DOTALL)
 
 # safe component characters
 _SAFE_USERINFO = SUB_DELIMS + ":"
@@ -629,7 +629,7 @@ _SAFE_FRAGMENT = SUB_DELIMS + ":@/?"
 
 
 def _scheme(scheme):
-    if _SCHEME_RE.match(scheme):
+    if _SCHEME_RE.fullmatch(scheme):
         return scheme.lower()
     else:
         raise ValueError("Invalid scheme component")
@@ -755,9 +755,9 @@ def uricompose(
     if authority is None:
         authority = (None, None, None)
     elif isinstance(authority, bytes):
-        authority = _AUTHORITY_RE_BYTES.match(authority).groups()
+        authority = _AUTHORITY_RE_BYTES.fullmatch(authority).groups()
     elif isinstance(authority, str):
-        authority = _AUTHORITY_RE_STR.match(authority).groups()
+        authority = _AUTHORITY_RE_STR.fullmatch(authority).groups()
     elif not isinstance(authority, collections.abc.Sequence):
         raise TypeError("Invalid authority type")
     elif len(authority) != 3:

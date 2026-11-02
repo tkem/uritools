@@ -48,6 +48,8 @@ class SplitTest(unittest.TestCase):
             ("//?", (None, "", "", "", None)),
             ("//#", (None, "", "", None, "")),
             ("//?#", (None, "", "", "", "")),
+            ("#foo\nbar", (None, None, "", None, "foo\nbar")),
+            ("?foo\nbar#baz\n", (None, None, "", "foo\nbar", "baz\n")),
             ("?", (None, None, "", "", None)),
             ("??", (None, None, "", "?", None)),
             ("?#", (None, None, "", "", "")),
