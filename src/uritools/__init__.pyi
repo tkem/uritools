@@ -2,7 +2,7 @@ import ipaddress
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any, AnyStr, Generic, NamedTuple, TypeAlias, overload
 
-__all__ = [
+__all__ = (
     "GEN_DELIMS",
     "RESERVED",
     "SUB_DELIMS",
@@ -20,7 +20,7 @@ __all__ = [
     "urijoin",
     "urisplit",
     "uriunsplit",
-]
+)
 __version__: str
 
 GEN_DELIMS: str

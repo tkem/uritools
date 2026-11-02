@@ -316,7 +316,7 @@ class SplitTest(unittest.TestCase):
     def test_getport(self):
         for uri in ["foo://bar", "foo://bar:", "foo://bar/", "foo://bar:/"]:
             result = urisplit(uri)
-            if result.authority.endswith(":"):
+            if result.authority.endswith(":"):  # type: ignore
                 self.assertEqual(result.port, "")
             else:
                 self.assertEqual(result.port, None)
