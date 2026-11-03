@@ -66,6 +66,14 @@ class JoinTest(unittest.TestCase):
         self.check(self.RFC3986_BASE, "http:g", "http:g", True)
         self.check(self.RFC3986_BASE, "http:g", "http://a/b/c/g", False)
 
+    def test_scheme_case(self):
+        # RFC 3986 3.1: scheme names are case-insensitive
+        self.check(self.RFC3986_BASE, "HTTP:g", "http://a/b/c/g")
+        self.check(self.RFC3986_BASE, "HTTP:g", "HTTP:g", strict=True)
+        self.check("HTTP://a/b/c/d;p?q", "http:g", "HTTP://a/b/c/g")
+        self.check("HTTP://a/b/c/d;p?q", "http:g", "http:g", strict=True)
+        self.check("g:h", "G:h", "g:h")
+
     def test_rfc3986_merge(self):
         """urijoin test cases for RFC 3986 5.2.3. Merge Paths"""
         self.check("http://a", "b", "http://a/b")

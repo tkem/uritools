@@ -396,8 +396,11 @@ class SplitResult(
         """
         scheme, authority, path, query, fragment = self._match(ref).groups()
 
-        # RFC 3986 5.2.2. Transform References
-        if scheme is not None and (strict or scheme != self.scheme):
+        # RFC 3986 5.2.2. Transform References; scheme names are
+        # case-insensitive (RFC 3986 3.1)
+        if scheme is not None and (
+            strict or self.scheme is None or scheme.lower() != self.scheme.lower()
+        ):
             path = self.__remove_dot_segments(path)
         elif authority is not None:
             scheme = self.scheme

@@ -118,7 +118,7 @@ URI Composition
 .. autofunction:: urijoin
 
    If `strict` is :const:`False`, a scheme in the reference is
-   ignored if it is identical to the base URI's scheme.
+   ignored if it matches the base URI's scheme, ignoring case.
 
 .. autofunction:: uriunsplit
 
