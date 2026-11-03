@@ -275,6 +275,10 @@ class SplitResult(
             else:
                 return ipaddress.IPv4Address(host)
         except ValueError:
+            # RFC 3986 3.2.2. Host: Non-ASCII characters must first be
+            # encoded according to UTF-8 [STD63], and then each octet
+            # of the corresponding UTF-8 sequence must be
+            # percent-encoded to be represented as URI characters.
             return uridecode(host, "utf-8", errors).lower()
 
     def getport(self, default=None):

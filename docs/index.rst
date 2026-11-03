@@ -102,6 +102,9 @@ URI Composition
 
    All components may be specified as either Unicode strings, which
    will be encoded according to `encoding`, or :class:`bytes` objects.
+   A `host` given as a Unicode string is always encoded as UTF-8,
+   regardless of `encoding`, as :rfc:`3986#section-3.2.2` requires
+   for non-ASCII registered names.
 
    `authority` may also be passed a three-item sequence specifying
    userinfo, host and port subcomponents.  If both `authority` and any
@@ -121,6 +124,11 @@ URI Composition
    ignored if it matches the base URI's scheme, ignoring case.
 
 .. autofunction:: uriunsplit
+
+   The type of the returned URI reference is that of the `path`
+   element.  All other elements must be of the same type, or
+   :const:`None`; mixing :class:`str` and :class:`bytes` elements
+   raises :exc:`TypeError`.
 
 
 URI Decomposition
@@ -187,6 +195,11 @@ URI Encoding
    percent-encodings and decode `uristring` using the codec registered
    for `encoding`, returning a Unicode string.
 
+   `errors` specifies how decoding errors are handled, as for
+   :meth:`bytes.decode`.  A Unicode `uristring` is first encoded as
+   ASCII if `encoding` is :const:`None`, and using `encoding`
+   otherwise, with the same `errors` setting.
+
 .. autofunction:: uriencode
 
    If `uristring` is a :class:`bytes` object, replace any characters
@@ -194,6 +207,12 @@ URI Encoding
    percent-encodings and return the result as a :class:`bytes` object.
    Otherwise, encode `uristring` using the codec registered for
    `encoding` before replacing any percent encodings.
+
+   `safe` specifies additional characters that are left unencoded, as
+   a string of ASCII characters or a :class:`bytes` object, for
+   example ``"/"`` to keep path separators.  `encoding` and `errors`
+   are passed to :meth:`str.encode` when `uristring` is a Unicode
+   string; they are ignored for :class:`bytes` input.
 
 
 Structured Parse Results
@@ -210,6 +229,11 @@ convenience methods.
 
 .. autoclass:: SplitResult
    :members:
+
+   :meth:`transform` expects `ref` to be of the same type as the
+   components of the result, i.e. a string or a :class:`bytes`
+   object; :func:`urijoin` converts mixed `base` and `ref` types
+   itself.
 
 
 Character Constants
