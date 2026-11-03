@@ -126,10 +126,14 @@ class ComposeTest(unittest.TestCase):
             with self.assertRaises(TypeError, msg="host=%r" % host):
                 uricompose(host=host)  # type: ignore
         # invalid host ip-literal
-        for host in ("[foo]", "[v1.x]"):
+        for host in ("[foo]", "[v1.x]", "[V1.x]"):
             with self.assertRaises(ValueError, msg="host=%r" % host):
                 uricompose(authority=[None, host, None])
             with self.assertRaises(ValueError, msg="host=%r" % host):
+                uricompose(host=host)
+        # RFC 3986 3.2.2: the IPvFuture version flag is case-insensitive
+        for host in ("[v1.x]", "[V1.x]", b"[v1.x]", b"[V1.x]"):
+            with self.assertRaisesRegex(ValueError, "mechanism not supported"):
                 uricompose(host=host)
         # invalid port value
         for port in (-1, "foo", 3.14):

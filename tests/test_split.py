@@ -591,6 +591,12 @@ class SplitTest(unittest.TestCase):
                 urisplit(uri).gethost()
             with self.assertRaises(ValueError, msg="%r" % uri.encode("ascii")):
                 urisplit(uri.encode("ascii")).gethost()
+        # RFC 3986 3.2.2: the IPvFuture version flag is case-insensitive
+        for uri in ["http://[v7.future]/", "http://[V7.future]/"]:
+            with self.assertRaisesRegex(ValueError, "mechanism not supported"):
+                urisplit(uri).gethost()
+            with self.assertRaisesRegex(ValueError, "mechanism not supported"):
+                urisplit(uri.encode("ascii")).gethost()
 
     def test_encoding_none(self):
         uri = "foo://user@example.com:8042/over/there?name=ferret#nose"
