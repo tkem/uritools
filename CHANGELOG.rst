@@ -1,3 +1,19 @@
+v6.1.4 (2026-11-04)
+===================
+
+- Fix newline handling in ``uricompose()`` and ``urisplit()``.
+
+- Compare schemes case-insensitively in non-strict ``urijoin()``.
+
+- Recognize an uppercase ``IPvFuture`` version flag.
+
+- Various documentation improvements.
+
+- Minor unit test improvements.
+
+- Update build environment.
+
+
 v6.1.3 (2026-07-24)
 ===================
 
