@@ -16,8 +16,8 @@ PYTHONPATH=src python3 -m doctest README.rst     # README examples; tox does not
 
 Green means: all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0
 errors and 0 warnings. `SplitResult` declares the per-subclass constants (`_RE`, ...)
-for `pyright`; the two `fullmatch(...).groups()` and the final `.decode()` in
-`uricompose()` end with `# type: ignore`; no guards, no file pragma. Unused ignores error.
+for `pyright`; narrow with `assert isinstance(...)` / `assert ... is not None` rather than
+`# type: ignore` (`src/` has none); no file pragma. Unused ignores error.
 
 ## Code style
 
@@ -64,28 +64,29 @@ directive bodies indented 3 spaces, single backticks for parameters, roles for o
    will be encoded according to `encoding`, or :class:`bytes` objects.
 ```
 
-Changelog entry (release commits only, subject `Release v6.1.4.`): `- Improve unit tests.`
+Changelog entry (release commits only, subject `Release v6.1.5.`): `- Improve unit tests.`
 
 ## Architecture constraints
 
 - Results are `namedtuple` subclasses: tuple access and `get*()` methods both stay
 - `get*()` methods return `str` (or `ipaddress` objects) unless `encoding=None`
-- `uricompose()` returns `str`; a `str` host is always encoded as UTF-8; only `authority`,
-  `host` and `query` check their type (`TypeError`), other components rely on the stubs
+- `uricompose()` returns `str`; a `str` host is always encoded as UTF-8; a string `authority`
+  is split at the last `@` and a trailing `:` + digits-only port (`_splitauthority()`, no
+  regex); only `authority`, `host` and `query` raise `TypeError` on a bad type; others rely on stubs
 - Percent-encoding uses uppercase hex; safe characters per component (`_SAFE_PATH`, ...)
 - IP literals via `ipaddress`; output bracketed and compressed; IPvFuture (`v`/`V`) rejected
 - Schemes are case-insensitive: `getscheme()` lowercases, non-strict `urijoin()` compares lowered
-- Hot path: no avoidable Python-level calls in `urisplit()` / `uriencode()`
+- Hot path: no avoidable Python-level calls in `urisplit()` / `uriencode()`; per-`safe`
+  lookup tables come from `_get_encoded()` (`lru_cache`, default `maxsize`)
 
 ## Boundaries
 
 - Never edit `CHANGELOG.rst` or `__version__`; both change in release commits only
 - Never add submodules, runtime dependencies, or names to `__all__`
 - Never rename `SplitResultBytes` / `SplitResultString`; semi-private by decision
-- Never "fix" these; they are tested, documented and decided: `getscheme()` and
-  `getfragment()` decode `bytes` input to `str`; `gethost()` returns `""` for an empty
-  host with `default=None`; an empty port matches as `""` and `getport()` returns the
-  default; `_encoded` grows per `safe` value; the FIXME/TODO comments stay
+- Never "fix" these decided behaviors: `getscheme()` and `getfragment()` decode `bytes`
+  input to `str`; `gethost()` returns `""` for an empty host with `default=None`; an empty
+  port matches as `""` and `getport()` returns the default; the FIXME/TODO comments stay
 - Feature requests are not accepted; bug reports require the latest release
 - Keep this file under 100 lines; change it in the same PR as the convention
 

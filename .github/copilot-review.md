@@ -1,118 +1,75 @@
-# Code Review — uritools 6.1.4
+# Code Review — uritools 6.1.5
 
-**Date:** 2026-11-04
+**Date:** 2026-11-07
 
-**Reviewed:** `develop` at `facc907` ("Release v6.1.4."), ten commits
-ahead of the last-reviewed `c0aee0d` ("Update copilot-review.md.",
-which reviewed v6.1.1). Scope: `36ff44a` (bug report template only),
-`3d9212f` and `2b2a96d` (CI/tooling only — Python 3.15 added to the CI
-matrix and `pyproject.toml` classifiers, `pyright` config tightened to
-`reportUnnecessaryTypeIgnoreComment = "error"`, `pytest-cov` gains
-`--cov-branch`), `5f73517` ("Fix newline handling in uricompose() and
-urisplit()"), `65fecbb` ("Improve type correctness."), `b146c75`
-("Extend and improve various unit tests."), `9ca7b01` ("Compare
-schemes case-insensitively in non-strict urijoin()."), `2f21b6d`
-("Recognize an uppercase IPvFuture version flag."), `52ffab2` (docs
-only), `facc907` (`__version__` 6.1.3 → 6.1.4 and the `CHANGELOG.rst`
-section, nothing else). `README.rst` is unchanged since `c0aee0d`, so
-its row is carried over. Local `develop` is 3 ahead and 2 behind
-`origin/develop` (`65dee88`): `2f21b6d` and `52ffab2` rewrite origin's
-`93e8888` and `65dee88`, differing only in the capitalized
-`"Address mechanism not supported"` message (line 481), and `facc907`
-is not yet pushed. This review covers the local branch.
+**Reviewed:** `develop` at `0c631bc` ("Release v6.1.5."), six commits
+ahead of the last-reviewed `facc907` ("Release v6.1.4."): `7eabbde`
+(review files only), `40b1790` (`docs/conf.py` only, drops the default
+`root_doc = "index"`), `504a94b` ("Bound uriencode() lookup table with
+lru_cache()."), `2909370` ("Improve authority string parsing in
+uricompose()."), `ad8ab1f` ("Prefer assert() to "type: ignore".") and
+`0c631bc` (`__version__` 6.1.4 → 6.1.5 and the `CHANGELOG.rst`
+section, nothing else). No stub or docs changes.
+Local `develop` is in sync with `origin/develop`.
 
-**CI status:** `tox` (`py`, `docs`, `doctest`, `pyright`, `ruff`,
-`ruff-format`) passes locally on CPython 3.14.4 (`py` 50 passed under
-pytest 9.2.0; `pyright` 1.1.414 0 errors, 0 warnings; Sphinx 9.2.0
-`-W` clean; `doctest` 10 passed). `PYTHONPATH=src python3 -m doctest
-README.rst` passes. GitHub Actions not re-checked for this review.
+**CI status:** `tox` passes locally on CPython 3.14.4 (`py` 50 passed;
+`pyright` 1.1.414 0 errors, 0 warnings; Sphinx 9.2.0 `-W` clean;
+`doctest` 10 passed). `README.rst` doctest passes. GitHub Actions not
+re-checked.
 
-**Coverage:** 100% line and branch coverage of
-`src/uritools/__init__.py` (392 statements, 186 branches;
-`--cov-branch` was added by `2b2a96d`).
+**Coverage:** 100% line and branch (401 statements, 188 branches; 392
+and 186 at `facc907`).
 
-**Verified:** `5f73517` fixes a real bug: unanchored `$` in
-`_SCHEME_RE` and `_AUTHORITY_RE_*` let a trailing newline pass
-validation (Python's `$`, without `re.MULTILINE`, matches just before
-a trailing `\n`), and the `SplitResult` regexes' fragment group
-(`(.*)`) excluded embedded newlines without `re.DOTALL`, silently
-truncating fragments. Fixed by switching `_scheme()` and the
-`uricompose()` authority parsing to `.fullmatch()` with the anchors
-removed and adding `re.DOTALL` to all four regexes; `test_compose.py`
-(`test_scheme`, `test_authority`) and `test_split.py` (`test_abnormal`)
-round-trip embedded-newline cases as both `str` and `bytes`.
-`65fecbb` reacts to the stricter `pyright` config: it declares the
-per-subclass constants (`_RE: re.Pattern`, `_COLON: str | bytes`, ...)
-on `SplitResult`, hoists `_match()` into the base class, and adds the
-two `uricompose()` authority `# type: ignore` comments that the
-previously-overridden `reportAttributeAccessIssue`/
-`reportOptionalMemberAccess` settings had been masking. Removing the
-three source ignores on a scratch copy reproduces exactly three errors
-(`reportOptionalMemberAccess` at lines 776 and 778,
-`reportAttributeAccessIssue` at line 839) and nothing else, so each is
-load-bearing. `b146c75` closes all six test gaps from the previous
-review (`test_fragment`, `test_encoding`, `test_authority_override`,
-`test_mixed_types`, `test_getfragment_default`, `test_getauthority`).
-`9ca7b01` makes non-strict `urijoin()` compare schemes with
-`.lower()` per RFC 3986 3.1; the added `self.scheme is None` guard
-only avoids `None.lower()` and preserves the old result for a
-scheme-less base. Checked by hand: `urijoin("HTTP://a/b/c/d;p?q",
-"http:g")` → `HTTP://a/b/c/g`, the reverse case → `http://a/b/c/g`,
-and `strict=True` → `HTTP:g`; `test_join.py` `test_scheme_case` pins
-all three plus `bytes` via `check()`. `2f21b6d` accepts an uppercase
-IPvFuture flag in both `__parse_ip_literal()` and `_ip_literal()` per
-RFC 3986 3.2.2 (`"v"` is case-insensitive); `[V1.x]` now raises
-`ValueError("Address mechanism not supported")` from both `gethost()`
-and `uricompose()` instead of a generic `AddressValueError`, as `str`
-and `bytes`, and both sites use the same capitalized message as every
-other `ValueError`/`TypeError` in the module (lines 236–827).
-`52ffab2` resolves the former Docs rows 1–4 (`host` UTF-8 note,
-`uriunsplit` prose, `uriencode`/`uridecode` parameter docs,
-`root_doc`) and adds a `transform()` note; the new prose matches the
-code (`uridecode()` line 95, `uriencode()` lines 75–76,
-`_authority()` lines 669–670). `facc907` touches only `__version__`
-and `CHANGELOG.rst`, whose six entries match the commits above. The
-error-type probe in Code row 1 was run against `src/` by hand. Line
-numbers below refer to `HEAD` (`facc907`).
+**Verified:** `504a94b` replaces the `_encoded` dict keyed by `safe`,
+and its FIXME, with a 256-entry base table plus `_get_encoded(safe)`
+under `functools.lru_cache` (default `maxsize=128`): bounded,
+thread-safe, same table contents. `safe` is still normalized to ASCII
+`bytes` first, so `"/"` and `b"/"` share an entry; an unhashable `safe`
+raises `TypeError` as before. `2909370` replaces the two authority
+regexes and their `# type: ignore`s with `_splitauthority()`:
+`rpartition` on the last `@`, then on the last `:`, taking the tail as
+port only if it is all ASCII digits, else the whole remainder is the
+host. An empty port stays `""` (`"host:"` → `//host`). A differential
+test against the old regexes agreed on all 66 430 `str` and `bytes`
+strings of length 0–5 over `a @ : 1 ] [ \n 9x`. `ad8ab1f` swaps the
+last `src/` ignore for `assert isinstance(uri, bytes)` in
+`uricompose()` and the `test_getport()` ignore for
+`assert result.authority is not None`; alternatives (redeclaring
+`_EMPTY: bytes` per subclass, calling `SplitResultBytes(...).geturi()`
+directly, `str(uri, "utf-8")`) all still fail `pyright`. `0c631bc`'s
+two changelog entries (`lru_cache`, "minor code and test
+improvements") cover `504a94b`, `2909370` and `ad8ab1f`. Line numbers
+refer to `0c631bc`.
 
 ## Type Stubs (`__init__.pyi`)
 
-No issues. Generic types correctly model both `SplitResultString` and
-`SplitResultBytes` via `Generic[AnyStr]`. Overload ordering is correct
-for dual-input functions (`str` before `bytes`; `encoding: None`
-overloads are keyword-only where a `default` parameter precedes them,
-positional in `uridecode()` and `getpath()`). Design intent is clear:
-`getscheme()`, `getfragment()`, and all `get*()` methods intentionally
-return `str` (decoding bytes when needed), and type stubs reflect
-this. Note that `pyright` does not consult the stubs while checking
-`__init__.py` itself; inside the module every call resolves to the
-unannotated `.py` definition, which is why the three source ignores
-exist (Code rows 5–6).
+No issues; unchanged since `c0aee0d`. `Generic[AnyStr]` models both
+result types; `str` overloads precede `bytes`, `encoding: None`
+overloads are keyword-only where a `default` precedes them. `pyright`
+does not consult the stubs inside `__init__.py`, hence the
+`assert isinstance` before `.decode()` (line 847).
 
 ## Code — Potential Issues
 
 | # | Priority | Location | Finding |
 |---|----------|----------|---------|
-| 1 | Low | `uricompose()` component type checks (lines 767–770, 783–788, 794, 820–827, 834–835) | Only `authority` (line 780), `host` (line 672) and `query` (line 827) validate their type and raise `TypeError`. Every other component of the wrong type leaks `AttributeError: 'int' object has no attribute 'encode'` from `uriencode()` or `_scheme()`: `scheme=42`, `userinfo=42`, `path=42`, `path=None`, `fragment=42`, `port=[1]`, `query={1: 2}`, `query=[(1, 2)]` and `authority=[42, None, None]` all do (`port=True` is a `numbers.Number` and raises `ValueError`). The stubs type all of these, so a checker catches misuse; `copilot-instructions.md` *Architecture constraints* states the narrower guarantee. No change unless the maintainer wants uniform `TypeError`s. |
-| 2 | Info | `uriencode()` `_encoded` dict (lines 62, 79) | Cache grows without limit when callers pass arbitrary `safe` values; the FIXME at line 79 acknowledges this. Decided in `copilot-instructions.md` *Boundaries*; no change. |
-| 3 | Info | `gethost()` default behavior (line 258) | Returns `""` when host is empty and `default=None`, but returns `default` when default is not `None`. Edge case (`"file:///"` → `gethost()` returns `""`) is tested and documented; intentional. |
-| 4 | Info | `_AUTHORITY_RE_*` port group (lines 638–639) | Regex `(?::([0-9]*))?` captures an empty port string for URIs like `http://host:`. Handled correctly downstream (`getport()` returns `default` for an empty port). No bug. |
-| 5 | Info | `fullmatch(...).groups()` in `uricompose()` (lines 776, 778) | `pyright` reports `"groups" is not a known attribute of "None"` (`reportOptionalMemberAccess`) at both sites, each silenced by `# type: ignore`. `urisplit()`'s `result._match(uristring).groups()` (line 575) needs none: `_match()` (line 428) is an unannotated classmethod reached through a `type[SplitResultBytes] \| type[SplitResultString]` union, so `pyright` infers the call as `Unknown` and reports nothing. All three regexes always match: `SplitResult._RE` is not end-anchored and every group is optional, and the `_AUTHORITY_RE_*` groups are optional with `(.*?)`/`re.DOTALL` absorbing any remainder. No guard needed. |
-| 6 | Info | `uricompose()` final `.decode()` (line 839) | `pyright` reports `Cannot access attribute "decode" for class "str"` (`reportAttributeAccessIssue`), hence the `# type: ignore`. Inside the module `uriunsplit()` is the unannotated `.py` function, whose return is inferred from `SplitResult.geturi()` → `self._EMPTY.join(result)` with `_EMPTY: str \| bytes` (line 155), so the call is typed `bytes \| str` regardless of the `bytes`-only `parts` tuple. Narrowing it would need a return annotation or `typing` import in the `.py`; accepted to keep both out. |
-| 7 | Info | All twelve `# type: ignore` in the repo (3 in `src/uritools/__init__.py`: lines 776, 778, 839; 9 in `tests/`: `test_compose.py` lines 77, 125, 127, 141, 143, 257, `test_split.py` lines 319, 321, 343) | Unscoped, as documented in `copilot-instructions.md`: each silences every rule on its line. `# pyright: ignore[<rule>]` would keep other rules live if that convention changes. |
+| 1 | Low | `uricompose()` component type checks (lines 779, 790–793, 801, 827–832, 842) | Only `authority` (787), `host` (681) and `query` (834) raise `TypeError`; `scheme=42`, `userinfo=42`, `path=42`, `fragment=42`, `port=[1]`, `query={1: 2}`, `authority=[42, None, None]` leak `AttributeError` from `uriencode()`/`_scheme()`. Stubs catch misuse; documented as the narrower guarantee. No change unless uniform `TypeError`s are wanted. |
+| 2 | Info | `_get_encoded()` (lines 73–78) | `lru_cache(maxsize=128)`; the five `_SAFE_*` constants plus the default use six entries. More than 128 distinct `safe` values thrash but stay bounded. No change. |
+| 3 | Info | `_splitauthority()` (lines 650–662) | `lstrip(b"0123456789")` rather than `.isdigit()` keeps the port ASCII-only in the `str` path, matching the old `[0-9]*`. Empty port `""` is emitted as nothing by `_port()` (line 714). No bug. |
+| 4 | Info | `gethost()` default (line 256) | Returns `""` for an empty host with `default=None`; tested and documented. |
+| 5 | Info | Eight `# type: ignore`, all in `tests/` (`test_compose.py` 77, 125, 127, 141, 143, 257; `test_split.py` 319, 321) | Each passes a deliberately wrong type, so no narrowing can replace it. Unscoped by convention; `# pyright: ignore[<rule>]` would scope them. |
 
 No implementation bugs found.
 
 ## Tests — Gaps
 
-No gaps found.
+No gaps found; every new branch is covered by existing cases.
 
 ## Docs
 
 | # | Priority | Location | Finding |
 |---|----------|----------|---------|
-| 1 | Low | `README.rst` doctests not run by CI | `README.rst` is not included from `docs/index.rst`, so neither `tox -e doctest` nor `tox -e py` executes its examples. `--doctest-glob=README.rst README.rst` on the `pytest` command in `tox.ini` would. `python3 -m doctest README.rst` passes. |
-| 2 | Info | `SplitResult` attribute table (`docs/index.rst`) | Empty `Index` cells for properties (`userinfo`, `host`, `port`). Intentional (not tuple fields), but could clarify with "n/a". |
-| 3 | Info | `DefragResult` / `SplitResult` duplication | Documented twice: inline attribute tables in "URI Decomposition" + `.. autoclass::` with `:members:` in "Structured Parse Results". Provides the best reference coverage. |
-| 4 | Info | Changelog format | Documented in `copilot-instructions.md`. No separate `CONTRIBUTING.md`, but guidance is clear. |
-| 5 | Info | `tox -e docs` / `tox -e doctest` need network | `sphinx.ext.intersphinx` fetches `https://docs.python.org/3/objects.inv`; with `-W`, an unreachable inventory fails the build offline. Not a repository defect. |
+| 1 | Low | `README.rst` doctests not run by CI | Not included from `docs/index.rst`; `--doctest-glob=README.rst README.rst` on the `pytest` command in `tox.ini` would run them. Passes by hand. |
+| 2 | Info | `SplitResult` attribute table (`docs/index.rst`) | Empty `Index` cells for `userinfo`, `host`, `port` (properties, not tuple fields). Intentional. |
+| 3 | Info | `DefragResult` / `SplitResult` duplication | Inline tables plus `.. autoclass::` with `:members:`. Best reference coverage. |
+| 4 | Info | `tox -e docs` / `doctest` need network | `intersphinx` fetches `docs.python.org/3/objects.inv`; offline with `-W` the build fails. Not a repository defect. |
