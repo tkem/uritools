@@ -1,3 +1,11 @@
+v6.1.5 (2026-11-07)
+===================
+
+- Bound ``uriencode()`` lookup table using ``functools.lru_cache()``.
+
+- Minor code and test improvements.
+
+
 v6.1.4 (2026-11-04)
 ===================
 
