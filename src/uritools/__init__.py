@@ -843,4 +843,6 @@ def uricompose(
 
     # return URI reference as `str`
     parts = (scheme, authority, path, query, fragment)
-    return uriunsplit(parts).decode()  # type: ignore
+    uri = uriunsplit(parts)
+    assert isinstance(uri, bytes)
+    return uri.decode()
