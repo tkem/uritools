@@ -632,10 +632,6 @@ def issamedoc(uristring):
 # RFC 3986 3.1: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 _SCHEME_RE = re.compile(b"[A-Za-z][A-Za-z0-9+.-]*")
 
-# RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
-_AUTHORITY_RE_BYTES = re.compile(b"(?:(.*)@)?(.*?)(?::([0-9]*))?", re.DOTALL)
-_AUTHORITY_RE_STR = re.compile("(?:(.*)@)?(.*?)(?::([0-9]*))?", re.DOTALL)
-
 # safe component characters
 _SAFE_USERINFO = SUB_DELIMS + ":"
 _SAFE_HOST = SUB_DELIMS
@@ -649,6 +645,21 @@ def _scheme(scheme):
         return scheme.lower()
     else:
         raise ValueError("Invalid scheme component")
+
+
+def _splitauthority(authority):
+    # RFC 3986 3.2: authority = [ userinfo "@" ] host [ ":" port ]
+    if isinstance(authority, bytes):
+        userinfo, present, hostport = authority.rpartition(b"@")
+        host, sep, port = hostport.rpartition(b":")
+        numeric = sep and not port.lstrip(b"0123456789")
+    else:
+        userinfo, present, hostport = authority.rpartition("@")
+        host, sep, port = hostport.rpartition(":")
+        numeric = sep and not port.lstrip("0123456789")
+    if not numeric:
+        host, port = hostport, None
+    return (userinfo if present else None, host, port)
 
 
 def _authority(userinfo, host, port, encoding):
@@ -770,10 +781,8 @@ def uricompose(
     # authority must be string type or three-item sequence
     if authority is None:
         authority = (None, None, None)
-    elif isinstance(authority, bytes):
-        authority = _AUTHORITY_RE_BYTES.fullmatch(authority).groups()  # type: ignore
-    elif isinstance(authority, str):
-        authority = _AUTHORITY_RE_STR.fullmatch(authority).groups()  # type: ignore
+    elif isinstance(authority, (bytes, str)):
+        authority = _splitauthority(authority)
     elif not isinstance(authority, collections.abc.Sequence):
         raise TypeError("Invalid authority type")
     elif len(authority) != 3:
