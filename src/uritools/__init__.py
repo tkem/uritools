@@ -8,6 +8,7 @@ commonly used functions of the Python Standard Library
 
 import collections
 import collections.abc
+import functools
 import ipaddress
 import numbers
 import re
@@ -59,15 +60,22 @@ _unreserved = frozenset(UNRESERVED.encode())
 
 # RFC 3986 2.1: For consistency, URI producers and normalizers should
 # use uppercase hexadecimal digits for all percent-encodings.
-_encoded = {
-    b"": [
-        bytes([i]) if i in _unreserved else ("%%%02X" % i).encode() for i in range(256)
-    ]
-}
+_encoded = [
+    bytes([i]) if i in _unreserved else ("%%%02X" % i).encode() for i in range(256)
+]
 
 _decoded = {
     (a + b).encode(): bytes.fromhex(a + b) for a in hexdigits for b in hexdigits
 }
+
+
+@functools.lru_cache
+def _get_encoded(safe):
+    # one lookup table per "safe" value; cache is bounded and thread-safe
+    table = _encoded[:]
+    for i in safe:
+        table[i] = bytes([i])
+    return table
 
 
 def uriencode(uristring, safe="", encoding="utf-8", errors="strict"):
@@ -76,17 +84,7 @@ def uriencode(uristring, safe="", encoding="utf-8", errors="strict"):
         uristring = uristring.encode(encoding, errors)
     if isinstance(safe, str):
         safe = safe.encode("ascii")
-    # FIXME: though unlikely, _encoded may grow without bounds if arbitrary
-    # safe values are passed by a caller - consider using @functools.lru_cache
-    # instead of plain dict?
-    try:
-        encoded = _encoded[safe]
-    except KeyError:
-        encoded = _encoded[b""][:]
-        for i in safe:
-            encoded[i] = bytes([i])
-        _encoded[safe] = encoded
-    return b"".join(map(encoded.__getitem__, uristring))
+    return b"".join(map(_get_encoded(safe).__getitem__, uristring))
 
 
 def uridecode(uristring, encoding="utf-8", errors="strict"):
