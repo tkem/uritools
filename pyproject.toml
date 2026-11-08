@@ -52,5 +52,9 @@ version = {attr = "uritools.__version__"}
 typeCheckingMode = "standard"
 reportUnnecessaryTypeIgnoreComment = "error"
 
+[tool.pytest]
+minversion = "9.0"
+addopts = ["--doctest-glob=*.rst"]
+
 [tool.ruff.lint]
 ignore = ["DTZ005", "SIM102", "UP031"]
