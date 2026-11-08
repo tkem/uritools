@@ -171,8 +171,8 @@ class SplitResult(
         if authority is None:
             return None
         _, _, hostinfo = authority.rpartition(self._AT)
-        host, _, port = hostinfo.rpartition(self._COLON)
-        if port.lstrip(self._DIGITS):
+        host, present, port = hostinfo.rpartition(self._COLON)
+        if not present or port.lstrip(self._DIGITS):
             return hostinfo
         else:
             return host
