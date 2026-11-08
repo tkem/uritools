@@ -40,6 +40,10 @@ class ComposeTest(unittest.TestCase):
         for scheme in ("", "foo:", "foo\n", b"foo\n", "\xf6lk\xfcrbis"):
             with self.assertRaises(ValueError, msg="scheme=%r" % scheme):
                 uricompose(scheme=scheme)
+        # invalid scheme type
+        for scheme in (True, 42, 3.14):
+            with self.assertRaises(TypeError, msg="scheme=%r" % scheme):
+                uricompose(scheme=scheme)  # type: ignore
 
     def test_authority(self):
         cases = [
@@ -141,6 +145,18 @@ class ComposeTest(unittest.TestCase):
                 uricompose(authority=[None, "", port])  # type: ignore
             with self.assertRaises(ValueError, msg="port=%r" % port):
                 uricompose(port=port)  # type: ignore
+        # invalid port type
+        for port in ([1], (80,), {"port": 80}):
+            with self.assertRaises(TypeError, msg="port=%r" % port):
+                uricompose(authority=[None, "", port])  # type: ignore
+            with self.assertRaises(TypeError, msg="port=%r" % port):
+                uricompose(port=port)  # type: ignore
+        # invalid userinfo type
+        for userinfo in (True, 42, 3.14):
+            with self.assertRaises(TypeError, msg="userinfo=%r" % userinfo):
+                uricompose(authority=[userinfo, "", None])  # type: ignore
+            with self.assertRaises(TypeError, msg="userinfo=%r" % userinfo):
+                uricompose(userinfo=userinfo)  # type: ignore
 
     def test_authority_override(self):
         cases = [
@@ -208,6 +224,10 @@ class ComposeTest(unittest.TestCase):
         for path in ("//", b"//", "//foo", b"//foo"):
             with self.assertRaises(ValueError, msg="path=%r" % path):
                 uricompose(path=path)
+        # invalid path type
+        for path in (None, True, 42, 3.14, ["foo"]):
+            with self.assertRaises(TypeError, msg="path=%r" % path):
+                uricompose(path=path)  # type: ignore
 
     def test_query(self):
         from collections import OrderedDict as od
@@ -303,3 +323,7 @@ class ComposeTest(unittest.TestCase):
         ]
         for uri, fragment in cases:
             self.check(uri, fragment=fragment)
+        # invalid fragment type
+        for fragment in (True, 42, 3.14, ["nose"]):
+            with self.assertRaises(TypeError, msg="fragment=%r" % fragment):
+                uricompose(fragment=fragment)  # type: ignore

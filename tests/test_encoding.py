@@ -76,3 +76,8 @@ class EncodingTest(unittest.TestCase):
         ]
         for exception, string, safe, encoding in cases:
             self.assertRaises(exception, uriencode, string, safe, encoding)
+
+    def test_encode_type_errors(self):
+        for uristring in (None, True, 42, 3.14, ["foo"], bytearray(b"foo")):
+            with self.assertRaises(TypeError, msg="uristring=%r" % uristring):
+                uriencode(uristring)  # type: ignore

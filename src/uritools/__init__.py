@@ -80,8 +80,10 @@ def _get_encoded(safe):
 
 def uriencode(uristring, safe="", encoding="utf-8", errors="strict"):
     """Encode a URI string or string component."""
-    if not isinstance(uristring, bytes):
+    if isinstance(uristring, str):
         uristring = uristring.encode(encoding, errors)
+    elif not isinstance(uristring, bytes):
+        raise TypeError("Invalid URI string type: %r" % type(uristring))
     if isinstance(safe, str):
         safe = safe.encode("ascii")
     return b"".join(map(_get_encoded(safe).__getitem__, uristring))
@@ -684,8 +686,10 @@ def _authority(userinfo, host, port, encoding):
         authority.append(_port(str(port).encode()))
     elif isinstance(port, bytes):
         authority.append(_port(port))
-    elif port is not None:
+    elif isinstance(port, str):
         authority.append(_port(port.encode()))
+    elif port is not None:
+        raise TypeError("Invalid port type: %r" % type(port))
 
     return b"".join(authority) if authority else None
 
@@ -775,8 +779,10 @@ def uricompose(
     # only produce lowercase scheme names for consistency.
     if isinstance(scheme, bytes):
         scheme = _scheme(scheme)
-    elif scheme is not None:
+    elif isinstance(scheme, str):
         scheme = _scheme(scheme.encode())
+    elif scheme is not None:
+        raise TypeError("Invalid scheme type: %r" % type(scheme))
 
     # authority must be string type or three-item sequence
     if authority is None:
