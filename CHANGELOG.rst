@@ -1,3 +1,18 @@
+v7.0.0 (2026-11-08)
+===================
+
+- Drop Python 3.10 support (breaking change).
+
+- Fix ``SplitResult.host`` for registered names consisting of digits
+  only (potentially breaking change).
+
+- ``uriencode()`` and ``uricompose()`` now raise ``TypeError`` on a
+  wrong type instead of leaking ``AttributeError`` (potentially
+  breaking change).
+
+- Update build and test environment.
+
+
 v6.1.5 (2026-11-07)
 ===================
 
@@ -8,6 +23,8 @@ v6.1.5 (2026-11-07)
 
 v6.1.4 (2026-11-04)
 ===================
+
+- Add support for Python 3.15.
 
 - Fix newline handling in ``uricompose()`` and ``urisplit()``.
 
