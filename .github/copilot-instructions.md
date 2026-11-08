@@ -1,100 +1,63 @@
 # Copilot Instructions for uritools
 
-RFC 3986 URI parsing, classification and composition. Pure Python ≥ 3.10, no runtime
-dependencies, one module (`src/uritools/__init__.py`) plus stubs (`__init__.pyi`).
-Single maintainer; `master` = releases, `develop` = integration and Dependabot target.
+Project conventions (stack, commands, code style, architecture constraints, testing,
+boundaries and git workflow) live in [`AGENTS.md`](../AGENTS.md). This file adds only
+the code review process.
 
-## Commands
+## Code Review
 
-```bash
-tox                                              # everything; CI runs exactly this
-tox -e py -- tests/test_split.py -k ipv6         # tests; posargs go to pytest
-tox -e ruff,ruff-format,pyright,docs,doctest     # lint, format, types, Sphinx -W (network)
-PYTHONPATH=src python3 -m pytest tests/          # without tox (tests src, not site-packages)
-PYTHONPATH=src python3 -m doctest README.rst     # README examples; tox does not run them
-```
+- Reviews **amend `.github/copilot-review.md` in place** (header: date, commit, CI
+  status, coverage); never new files, dated sections, a per-commit change summary or
+  a list of what was verified (git history is the record).
+- Findings are tables ordered High, Medium, Low, Info with columns
+  `# | Priority | Location | Finding`; renumber after changes; cross-reference as
+  "Code #3". **Resolved issues are removed**, never marked resolved.
+- Name the reviewed commit by hash and subject plus its base (`master` at hash). Every
+  hash in the review must be an ancestor of the reviewed commit (`git merge-base
+  --is-ancestor`); after a rebase or amend replace stale hashes instead of narrating
+  history, and drop hashes that survive only in the reflog. When local and
+  `origin/develop` differ (`git status -sb` shows ahead/behind), say which was reviewed
+  and what differs. List only interpreter versions actually run.
+- Keep it brief: under 100 lines, one or two sentences per row, numbers only where
+  they decide something, current snapshot only (no comparisons with earlier releases).
+  Drop "no issues" sections and Info rows that only restate accepted design. Record
+  settled matters under *Maintainer Decisions*. A review changes nothing; fix only
+  when asked.
+- `CHANGELOG.rst` is reviewed, never edited: entries are imperative one-liners with
+  ``double backticks`` and no issue numbers, tagged "(breaking change)" or
+  "(potentially breaking change)". A `Prepare vX.Y.Z.` or `Release vX.Y.Z.` commit sets
+  `__version__` and the dated `vX.Y.Z (YYYY-MM-DD)` section together and is amended, not
+  followed up, until the tag. Every user-visible behavior change needs an entry; docs-only,
+  test-only and tooling work is one "Minor/Various ... improvements." or "Update build
+  environment." line each; two blank lines between releases.
+- Verify before reporting: probe behavior with scripts in both `str` and `bytes`,
+  compare parser changes against the previous implementation with a differential test,
+  and cross-check `host`/`port` results against `urllib.parse` and `uricompose()`.
+- Whatever could not be verified must show up: mark the finding, figure or status as
+  unverified where it stands (e.g. "CI not run for this commit", "not run on PyPy")
+  and say why. Never state an unchecked claim as fact or leave it out.
 
-Green means: all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0
-errors and 0 warnings. `SplitResult` declares the per-subclass constants (`_RE`, ...)
-for `pyright`; narrow with `assert isinstance(...)` / `assert ... is not None` rather than
-`# type: ignore` (`src/` has none); no file pragma. Unused ignores error.
+## Maintainer Decisions (do not re-raise)
 
-## Code style
-
-Every public function takes `str` or `bytes`. Dispatch on the input; change both paths:
-
-```python
-if isinstance(uristring, bytes):
-    result = SplitResultBytes
-else:
-    result = SplitResultString
-```
-
-No function annotations or `typing` imports in `.py`; types live in `__init__.pyi`
-(`str` overloads before `encoding: None` ones). Tests with deliberately invalid types add
-`# type: ignore` only where `pyright` flags it. Docstrings name types in prose:
-
-```python
-"""Return the port subcomponent of the URI authority as an
-:class:`int`, or `default` if the original URI reference did
-not contain a port or if the port was empty.
-
-"""
-```
-
-Tests: `unittest.TestCase` with a `check()` helper, one `str` and one `bytes` case per
-input, RFC 3986 examples in `test_rfc3986*()`, edge cases in `test_abnormal()`:
-
-```python
-cases = [
-    ("//example.com:42", "example.com:42"),
-    ("//example.com:42", b"example.com:42"),
-]
-for uri, authority in cases:
-    self.check(uri, authority=authority)
-```
-
-Docs (`docs/index.rst`): prose wrapped at column 70, two spaces after a sentence,
-directive bodies indented 3 spaces, single backticks for parameters, roles for objects:
-
-```rst
-.. autofunction:: uricompose
-
-   All components may be specified as either Unicode strings, which
-   will be encoded according to `encoding`, or :class:`bytes` objects.
-```
-
-Changelog entry (release commits only, subject `Release v6.1.5.`): `- Improve unit tests.`
-
-## Architecture constraints
-
-- Results are `namedtuple` subclasses: tuple access and `get*()` methods both stay
-- `get*()` methods return `str` (or `ipaddress` objects) unless `encoding=None`
-- `uricompose()` returns `str`; a `str` host is always encoded as UTF-8; a string `authority`
-  is split at the last `@` and a trailing `:` + digits-only port (`_splitauthority()`, no
-  regex); only `authority`, `host` and `query` raise `TypeError` on a bad type; others rely on stubs
-- Percent-encoding uses uppercase hex; safe characters per component (`_SAFE_PATH`, ...)
-- IP literals via `ipaddress`; output bracketed and compressed; IPvFuture (`v`/`V`) rejected
-- Schemes are case-insensitive: `getscheme()` lowercases, non-strict `urijoin()` compares lowered
-- Hot path: no avoidable Python-level calls in `urisplit()` / `uriencode()`; per-`safe`
-  lookup tables come from `_get_encoded()` (`lru_cache`, default `maxsize`)
-
-## Boundaries
-
-- Never edit `CHANGELOG.rst` or `__version__`; both change in release commits only
-- Never add submodules, runtime dependencies, or names to `__all__`
-- Never rename `SplitResultBytes` / `SplitResultString`; semi-private by decision
-- Never "fix" these decided behaviors: `getscheme()` and `getfragment()` decode `bytes`
-  input to `str`; `gethost()` returns `""` for an empty host with `default=None`; an empty
-  port matches as `""` and `getport()` returns the default; the FIXME/TODO comments stay
-- Feature requests are not accepted; bug reports require the latest release
-- Keep this file under 100 lines; change it in the same PR as the convention
-
-## Git
-
-- Branch from `develop`, PR to `develop`; `master` receives releases only
-- Commit subject: one imperative sentence ending with a period (`Fix RTD version handling.`)
-- New Python version: add it to the CI matrix and the `pyproject.toml` classifiers
-- Reviews amend `.github/copilot-review.md` in place: header (date, commit, CI, coverage,
-  one *Verified* paragraph), tables `# | Priority | Location | Finding` ordered
-  High → Info and renumbered, resolved rows removed; a review changes no code
+- `getscheme()` and `getfragment()` decode `bytes` input to `str`, like every other
+  `get*()` method; the FIXME comments noting the asymmetry stay.
+- `gethost()` returns `""` for an empty host with `default=None` (`"file:///"`); an
+  empty port matches as `""` and `getport()` returns the default.
+- A digits-only authority (`//12345`) is a host; a trailing `:` + ASCII digits is the
+  port. `lstrip(b"0123456789")` is used instead of `.isdigit()` so the `str` path does
+  not accept Unicode digits.
+- The `host` and `port` properties and `_splitauthority()` are three hand-synced
+  copies of that rule; a shared helper would cost a Python-level call on the hot path.
+- `_get_encoded()` uses `lru_cache` with the default `maxsize=128`; callers cycling
+  through more distinct `safe` values rebuild tables but stay bounded.
+- `uricompose()` final `.decode()` is narrowed by `assert isinstance(uri, bytes)`;
+  `pyright` does not consult the stubs inside the module and no `typing` import is
+  wanted in `.py`.
+- The `# type: ignore` comments in `tests/` are unscoped and each covers a
+  deliberately wrong argument type.
+- `SplitResultBytes` / `SplitResultString` are semi-private and stay named as they are.
+- `docs/index.rst` documents `DefragResult` and `SplitResult` twice (attribute tables
+  under the functions, `autoclass` with `:members:` under "Structured Parse Results").
+- `tox -e docs` needs network for the `intersphinx` inventory; not a repository defect.
+- A Python version that only joins the CI matrix and classifiers gets no "Add support
+  for Python 3.x." changelog line (3.15 in 6.1.4); "Update build environment." covers it.
