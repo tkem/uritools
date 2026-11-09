@@ -269,18 +269,21 @@ class SplitResult(
             return self.__parse_ip_literal(host[1:-1])
         elif host.startswith(self._LBRACKET) or host.endswith(self._RBRACKET):
             raise ValueError("Invalid host %r: mismatched brackets" % host)
-        # TODO: faster check for IPv4 address?
-        try:
-            if isinstance(host, bytes):
-                return ipaddress.IPv4Address(host.decode("ascii"))
-            else:
-                return ipaddress.IPv4Address(host)
-        except ValueError:
-            # RFC 3986 3.2.2. Host: Non-ASCII characters must first be
-            # encoded according to UTF-8 [STD63], and then each octet
-            # of the corresponding UTF-8 sequence must be
-            # percent-encoded to be represented as URI characters.
-            return uridecode(host, "utf-8", errors).lower()
+        # RFC 3986 3.2.2: an IPv4address starts with a digit, so other
+        # registered names skip the (failing) parse
+        if host and host[0] in self._DIGITS:
+            try:
+                if isinstance(host, bytes):
+                    return ipaddress.IPv4Address(host.decode("ascii"))
+                else:
+                    return ipaddress.IPv4Address(host)
+            except ValueError:
+                pass
+        # RFC 3986 3.2.2. Host: Non-ASCII characters must first be
+        # encoded according to UTF-8 [STD63], and then each octet
+        # of the corresponding UTF-8 sequence must be
+        # percent-encoded to be represented as URI characters.
+        return uridecode(host, "utf-8", errors).lower()
 
     def getport(self, default=None):
         """Return the port subcomponent of the URI authority as an
@@ -713,11 +716,14 @@ def _host(host):
     # using uppercase letters for percent-encodings.
     if host.startswith(b"[") and host.endswith(b"]"):
         return _ip_literal(host[1:-1].decode())
-    # check for IPv6 addresses as returned by SplitResult.gethost()
-    try:
-        return _ip_literal(host.decode("utf-8"))
-    except ValueError:
-        return uriencode(host.lower(), _SAFE_HOST, "utf-8")
+    # check for IPv6 addresses as returned by SplitResult.gethost(); any
+    # IPv6 text form contains a ":", so other hosts skip the (failing) parse
+    if b":" in host:
+        try:
+            return _ip_literal(host.decode("utf-8"))
+        except ValueError:
+            pass
+    return uriencode(host.lower(), _SAFE_HOST, "utf-8")
 
 
 def _port(port):
