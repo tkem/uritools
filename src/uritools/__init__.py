@@ -152,6 +152,7 @@ class SplitResult(
     _AT: str | bytes
     _DOT: str | bytes
     _DOTDOT: str | bytes
+    _SLASHDOT: str | bytes
     _EMPTY: str | bytes
     _EQ: str | bytes
     _DIGITS: str | bytes
@@ -295,7 +296,11 @@ class SplitResult(
 
     def getpath(self, encoding="utf-8", errors="strict"):
         """Return the normalized decoded URI path."""
-        path = self.__remove_dot_segments(self.path)
+        path = self.path
+        # RFC 3986 3.3: a dot-segment is a complete segment "." or "..", so
+        # it follows a "/" or starts the path; other paths skip the removal
+        if self._SLASHDOT in path or path.startswith(self._DOT):
+            path = self.__remove_dot_segments(path)
         return uridecode(path, encoding, errors)
 
     def getquery(self, default=None, encoding="utf-8", errors="strict"):
@@ -510,7 +515,7 @@ class SplitResultBytes(SplitResult):
     )
 
     # RFC 3986 3.3 dot-segments
-    _DOT, _DOTDOT = b".", b".."
+    _DOT, _DOTDOT, _SLASHDOT = b".", b"..", b"/."
 
     _EMPTY, _EQ = b"", b"="
 
@@ -545,7 +550,7 @@ class SplitResultString(SplitResult):
     )
 
     # RFC 3986 3.3 dot-segments
-    _DOT, _DOTDOT = ".", ".."
+    _DOT, _DOTDOT, _SLASHDOT = ".", "..", "/."
 
     _EMPTY, _EQ = "", "="
 
