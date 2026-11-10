@@ -1,23 +1,26 @@
 # Code Review — uritools 7.0.0
 
-**Date:** 2026-11-09
-**Reviewed:** `develop` at `fdea0d0` ("Add AGENTS.md, update Copilot instructions and
-review.", tagged `v7.0.0`; `master` is at the same commit). `ecb30db` ("Prepare v7.0.0.")
-sets `__version__` 7.0.0 and the `v7.0.0 (2026-11-08)` changelog section with four
-entries. `develop` is in sync with `origin/develop`.
+**Date:** 2026-11-10
+**Reviewed:** `develop` at `d6d672d` ("Exclude AGENTS.md from source distribution."),
+one commit ahead of `master` at `fdea0d0` ("Add AGENTS.md, update Copilot instructions
+and review.", tagged `v7.0.0`). `ecb30db` ("Prepare v7.0.0.") sets `__version__` 7.0.0
+and the `v7.0.0 (2026-11-08)` changelog section with four entries. `develop` is in sync
+with `origin/develop`.
 
-**CI status:** `tox -p auto` passes on CPython 3.14.4 and 3.13.17 (`py`: 54 passed,
-including `README.rst` and `docs/index.rst` doctests; `pyright` 1.1.414 0 errors,
-0 warnings; Sphinx 9.2.0 `-W` clean). GitHub Actions is green for `fdea0d0` on `master`
-and `develop` (all nine matrix jobs); other interpreters not run locally.
+**CI status:** `tox -p auto` passes on CPython 3.13.17 (`py`: 54 passed, including
+`README.rst` and `docs/index.rst` doctests; `pyright` 1.1.414 0 errors, 0 warnings;
+Sphinx 9.2.0 `-W` clean); `py` also passes on 3.11.17 and 3.12.3. GitHub Actions is
+green for this tree on `develop` (all nine matrix jobs); 3.14, 3.15, the free-threaded
+builds and PyPy were not run locally.
 **Coverage:** 100% line and branch (`src/uritools/__init__.py`).
 
 ## Code — Potential Issues
 
 | # | Priority | Location | Finding |
 |---|----------|----------|---------|
-| 1 | Low | `SplitResult.host` (lines 171–180), `SplitResult.port` (183–189), `_splitauthority()` (652–664) | Three copies of the port rule (*Maintainer Decisions*); `host` drifted once and shipped the `//12345` bug fixed in `a73b146`. A one-line comment at each site naming the other two would make the next edit touch all three. |
-| 2 | Info | `# type: ignore` in `tests/` (`test_encoding.py` 83; `test_compose.py` 46, 81, 129, 131, 145, 147, 151, 153, 157, 159, 230, 277, 329; `test_split.py` 319, 321) | Each silences every rule on its line; `# pyright: ignore[reportArgumentType]` would keep the other rules live. Mechanical change. |
+| 1 | Low | `uridecode()` (line 95), `uridefrag()` (560), `urijoin()` (601), `getquerylist()` (337) | A wrong type still leaks `AttributeError`: `uridecode(42)`, `uridecode(None)`, `uridefrag(42)`, `urijoin("http://a/", 42)` and `getquerylist(sep=42)` all do, while 7.0.0 made `uriencode()` and `uricompose()` raise `TypeError` and `urisplit(42)` raises `TypeError` from `re`. The same `isinstance(..., str)` / `elif not bytes: raise TypeError` pattern as `uriencode()` would finish the job. |
+| 2 | Low | `_ip_literal()` (697–701), `_authority()` (675), `__parse_ip_literal()` (482) | Scoped IPv6 addresses pass through `ipaddress` unchecked. `uricompose(host=ipaddress.IPv6Address("fe80::1%eth0"))` and `host="fe80::1%eth0"` return `//[fe80::1%eth0]`, which is not a URI: RFC 3986 3.2.2 `IPv6address` has no zone and `%et` is not `pct-encoded`. `urisplit("//[fe80::1%25eth0]").gethost()` returns an address with `scope_id == "25eth0"`. Rejecting a `scope_id` with `ValueError` in both directions is the conservative fix. |
+| 3 | Low | `SplitResult.host` (lines 171–180), `SplitResult.port` (183–189), `_splitauthority()` (652–664) | Three copies of the port rule (*Maintainer Decisions*); `host` drifted once and shipped the `//12345` bug fixed in `a73b146`. A one-line comment at each site naming the other two would make the next edit touch all three. |
 
 ## Performance
 
