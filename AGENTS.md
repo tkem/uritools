@@ -80,6 +80,8 @@ all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors 
   `SplitResultBytes` / `SplitResultString` (semi-private by decision).
 - Feature requests are not accepted; bug reports require the latest release.
 - Do not re-raise the *Maintainer Decisions* in `.github/copilot-instructions.md`.
+- Never change `AGENTS.md`, `.github/copilot-instructions.md` or
+  `.github/copilot-review.md` in a code PR; they change only in a PR or commit of their own.
 
 ## Git
 
@@ -91,5 +93,5 @@ all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors 
   absorbs follow-ups, so hashes change while subjects stay. Refer to commits by subject;
   before citing a hash, check `git status -sb` for ahead/behind and
   `git merge-base --is-ancestor <hash> develop`, and never cite reflog-only hashes.
-- Run `tox -p auto` before pushing. Update this file in the same PR that changes a
-  convention, and keep it under 100 lines.
+- Run `tox -p auto` before pushing. A change of convention updates this file in a
+  separate, instructions-only PR; keep it under 100 lines.
