@@ -34,6 +34,9 @@ the code review process.
 - Verify before reporting: probe behavior with scripts in both `str` and `bytes`,
   compare parser changes against the previous implementation with a differential test,
   and cross-check `host`/`port` results against `urllib.parse` and `uricompose()`.
+- The *Performance* section lists ns per call (`timeit`, best of 7) against
+  `urllib.parse`: name the interpreter, the noise and whether the core was pinned, take
+  the whole table from one run, and verify a proposed fast path by differential test.
 - Whatever could not be verified must show up: mark the finding, figure or status as
   unverified where it stands (e.g. "CI not run for this commit", "not run on PyPy")
   and say why. Never state an unchecked claim as fact or leave it out.
@@ -51,6 +54,9 @@ the code review process.
   copies of that rule; a shared helper would cost a Python-level call on the hot path.
 - `_get_encoded()` uses `lru_cache` with the default `maxsize=128`; callers cycling
   through more distinct `safe` values rebuild tables but stay bounded.
+- `gethost()` and `_host()` call `ipaddress` only after a cheap necessary check (leading
+  digit, `:` in the host), and `getpath()` removes dot-segments only if the path has
+  `/.` or a leading `.`; the guards are deliberate fast paths, not redundant checks.
 - `uricompose()` final `.decode()` is narrowed by `assert isinstance(uri, bytes)`;
   `pyright` does not consult the stubs inside the module and no `typing` import is
   wanted in `.py`.
