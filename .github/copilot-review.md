@@ -1,17 +1,17 @@
 # Code Review — uritools 7.0.0
 
 **Date:** 2026-11-10
-**Reviewed:** `develop` at `d6d672d` ("Exclude AGENTS.md from source distribution."),
+**Reviewed:** `develop`, i.e. `d6d672d` ("Exclude AGENTS.md from source distribution."),
 one commit ahead of `master` at `fdea0d0` ("Add AGENTS.md, update Copilot instructions
-and review.", tagged `v7.0.0`). `ecb30db` ("Prepare v7.0.0.") sets `__version__` 7.0.0
-and the `v7.0.0 (2026-11-08)` changelog section with four entries. `develop` is in sync
-with `origin/develop`.
+and review.", tagged `v7.0.0`), plus this review commit. `ecb30db` ("Prepare v7.0.0.")
+sets `__version__` 7.0.0 and the `v7.0.0 (2026-11-08)` changelog section with four
+entries.
 
 **CI status:** `tox -p auto` passes on CPython 3.13.17 (`py`: 54 passed, including
 `README.rst` and `docs/index.rst` doctests; `pyright` 1.1.414 0 errors, 0 warnings;
 Sphinx 9.2.0 `-W` clean); `py` also passes on 3.11.17 and 3.12.3. GitHub Actions is
-green for this tree on `develop` (all nine matrix jobs); 3.14, 3.15, the free-threaded
-builds and PyPy were not run locally.
+green for this tree on `develop` (all nine matrix jobs); 3.14, 3.15, the
+free-threaded builds and PyPy were not run locally.
 **Coverage:** 100% line and branch (`src/uritools/__init__.py`).
 
 ## Code — Potential Issues
