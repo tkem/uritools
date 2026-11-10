@@ -12,12 +12,13 @@ the code review process.
 - Findings are tables ordered High, Medium, Low, Info with columns
   `# | Priority | Location | Finding`; renumber after changes; cross-reference as
   "Code #3". **Resolved issues are removed**, never marked resolved.
-- Name the reviewed commit by hash and subject plus its base (`master` at hash). Every
-  hash in the review must be an ancestor of the reviewed commit (`git merge-base
-  --is-ancestor`); after a rebase or amend replace stale hashes instead of narrating
-  history, and drop hashes that survive only in the reflog. When local and
-  `origin/develop` differ (`git status -sb` shows ahead/behind), say which was reviewed
-  and what differs. List only interpreter versions actually run.
+- Name the reviewed tree by its base commit (hash and subject, release tag if any)
+  plus "this review commit", never by the review commit's own hash, which changes
+  with every rebase. Every other hash in the review must be an ancestor of that base
+  (`git merge-base --is-ancestor`); after a rebase or amend replace stale hashes
+  instead of narrating history, and drop hashes that survive only in the reflog. When
+  local and `origin/develop` differ (`git status -sb` shows ahead/behind), say which
+  was reviewed and what differs. List only interpreter versions actually run.
 - Keep it brief: under 100 lines, one or two sentences per row, numbers only where
   they decide something, current snapshot only (no comparisons with earlier releases).
   Drop "no issues" sections and Info rows that only restate accepted design. Record
