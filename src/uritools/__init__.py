@@ -153,6 +153,9 @@ class SplitResult(
     _DOT: str | bytes
     _DOTDOT: str | bytes
     _SLASHDOT: str | bytes
+    _PERCENT: str | bytes
+    _DOT_UPPER: str | bytes
+    _DOT_LOWER: str | bytes
     _EMPTY: str | bytes
     _EQ: str | bytes
     _DIGITS: str | bytes
@@ -300,11 +303,25 @@ class SplitResult(
     def getpath(self, encoding="utf-8", errors="strict"):
         """Return the normalized decoded URI path."""
         path = self.path
+        encoded = self._PERCENT in path
+        if encoded:
+            # RFC 3986 2.3: "%2E" is equivalent to "."
+            path = path.replace(self._DOT_UPPER, self._DOT)
+            path = path.replace(self._DOT_LOWER, self._DOT)
         # RFC 3986 3.3: a dot-segment is a complete segment "." or "..", so
         # it follows a "/" or starts the path; other paths skip the removal
         if self._SLASHDOT in path or path.startswith(self._DOT):
             path = self.__remove_dot_segments(path)
-        return uridecode(path, encoding, errors)
+        path = uridecode(path, encoding, errors)
+        if not encoded:
+            return path
+        # a decoded "%2F" may complete further dot-segments
+        if isinstance(path, bytes):
+            if b"/." in path or path.startswith(b"."):
+                path = SplitResultBytes.__remove_dot_segments(path)
+        elif "/." in path or path.startswith("."):
+            path = SplitResultString.__remove_dot_segments(path)
+        return path
 
     def getquery(self, default=None, encoding="utf-8", errors="strict"):
         """Return the decoded query string, or `default` if the original URI
@@ -520,6 +537,8 @@ class SplitResultBytes(SplitResult):
     # RFC 3986 3.3 dot-segments
     _DOT, _DOTDOT, _SLASHDOT = b".", b"..", b"/."
 
+    _PERCENT, _DOT_UPPER, _DOT_LOWER = b"%", b"%2E", b"%2e"
+
     _EMPTY, _EQ = b"", b"="
 
     _DIGITS = b"0123456789"
@@ -554,6 +573,8 @@ class SplitResultString(SplitResult):
 
     # RFC 3986 3.3 dot-segments
     _DOT, _DOTDOT, _SLASHDOT = ".", "..", "/."
+
+    _PERCENT, _DOT_UPPER, _DOT_LOWER = "%", "%2E", "%2e"
 
     _EMPTY, _EQ = "", "="
 

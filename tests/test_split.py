@@ -376,6 +376,11 @@ class SplitTest(unittest.TestCase):
             ("../../foo/../bar/.", "../../bar/", "/bar/"),
             ("../../foo/../bar/..", "../../", "/"),
             ("../../foo/../..", "../../../", "/"),
+            ("%2e%2E/foo", "../foo", "/foo"),
+            ("foo/%2E%2E/bar", "bar", "/bar"),
+            ("foo/%252E%252E/bar", "foo/%2E%2E/bar", "/foo/%2E%2E/bar"),
+            ("foo%2Fbar/../baz", "baz", "/baz"),
+            ("foo/..%2F..%2Fbar", "../bar", "/bar"),
         ]
         for uri, relpath, abspath in cases:
             parts = urisplit(uri)
@@ -384,8 +389,10 @@ class SplitTest(unittest.TestCase):
             self.assertEqual(relpath, parts.getpath())
             parts = urisplit("/" + uri)
             self.assertEqual(abspath, parts.getpath())
+            self.assertEqual(abspath.encode("ascii"), parts.getpath(encoding=None))
             parts = urisplit(("/" + uri).encode("ascii"))
             self.assertEqual(abspath, parts.getpath())
+            self.assertEqual(abspath.encode("ascii"), parts.getpath(encoding=None))
 
     def test_getquery(self):
         cases = [
