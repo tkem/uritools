@@ -1,3 +1,13 @@
+v7.0.1 (2026-11-19)
+===================
+
+- Remove percent-encoded dot-segments in ``SplitResult.getpath()``.
+
+- Minor performance improvements.
+
+- Update build environment.
+
+
 v7.0.0 (2026-11-08)
 ===================
 
@@ -179,7 +189,7 @@ v3.0.0 (2019-12-15)
 v2.2.0 (2018-05-17)
 ===================
 
--  Add URI classification methods and functions.
+- Add URI classification methods and functions.
 
 
 v2.1.1 (2018-05-13)
@@ -246,7 +256,7 @@ v1.0.0 (2015-06-12)
 - Remove ``SplitResult.getauthority()``.
 
 - Remove ``SplitResult.gethostip()``; return ``ipaddress`` address
-objects from ``SplitResult.gethost()`` instead.
+  objects from ``SplitResult.gethost()`` instead.
 
 - Remove ``SplitResult.gethost()`` ``encoding`` parameter.
 
@@ -370,7 +380,8 @@ v0.4.0 (2014-03-20)
 
 - Fix ``SplitResult.port`` to return int (matching urlparse).
 
-- Add ``SplitResult.getquerylist(), SplitResult.getquerydict()``.
+- Add ``SplitResult.getquerylist()`` and
+  ``SplitResult.getquerydict()``.
 
 
 v0.3.0 (2014-03-02)
