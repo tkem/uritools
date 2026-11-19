@@ -2,9 +2,8 @@
 
 RFC 3986 URI parsing, classification and composition, replacing the most-used parts of
 `urllib.parse`. Pure Python ≥ 3.11, no runtime dependencies, `src/` layout, one module
-(`src/uritools/__init__.py`) with inline type stubs (`__init__.pyi`, `py.typed`). Single
-maintainer; `master` is the release branch, `develop` is the integration and Dependabot
-target. Code reviews follow `.github/copilot-instructions.md`.
+(`src/uritools/__init__.py`), inline type stubs (`__init__.pyi`, `py.typed`). Single
+maintainer; Dependabot targets `develop`; reviews follow `.github/copilot-instructions.md`.
 
 ## Commands
 
@@ -16,13 +15,12 @@ tox -e py -- tests/test_split.py -k ipv6     # tests; posargs go to pytest
 tox -e pyright,ruff,ruff-format,docs         # stubs, lint, format, Sphinx -W (network)
 ```
 
-A bare `tox -e py` also runs the `README.rst` and `docs/index.rst` examples
-(`--doctest-glob=*.rst`); there is no separate doctest environment. CI (GitHub Actions
-on `tkem/uritools`, every push and PR) runs CPython 3.11–3.15, free-threaded 3.13t–3.15t
-and PyPy 3.11, then uploads to Codecov; without `gh`, check runs via
-`https://api.github.com/repos/tkem/uritools/actions/runs?branch=<branch>`. Green means:
-all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors and
-0 warnings (`reportUnnecessaryTypeIgnoreComment` is an error).
+`tox -e py` also doctests `README.rst` and `docs/index.rst` (`--doctest-glob=*.rst`). CI
+(GitHub Actions on `tkem/uritools`, every push and PR) runs CPython 3.11–3.15,
+free-threaded 3.13t–3.15t and PyPy 3.11, then uploads to Codecov; without `gh`, check
+runs via `https://api.github.com/repos/tkem/uritools/actions/runs?branch=<branch>`. Green
+means: all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors
+and 0 warnings (`reportUnnecessaryTypeIgnoreComment` is an error).
 
 ## Code Style
 
@@ -62,6 +60,8 @@ all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors 
 - Schemes are case-insensitive: `getscheme()` lowercases, non-strict `urijoin()`
   compares lowered; `uricompose()` produces lowercase.
 - The `host` property mirrors `port`: a digits-only authority (`//12345`) is a host.
+- `getpath()` counts `%2E` as `.` and removes dot-segments before and after decoding (a
+  decoded `%2F` separates segments); `urijoin()` removes literal dot-segments only.
 
 ## Testing
 
@@ -71,6 +71,8 @@ all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors 
   `docs/index.rst`. Wrong-type inputs assert `TypeError`, wrong values `ValueError`.
 - Verify a refactor of a parser against the old implementation with a differential
   test over a small alphabet before trusting the unit tests.
+- Scratch scripts (probes, benchmarks, differential tests) go into `.cache/tmp/` in the
+  workspace (ignored by git), never `/tmp` or a top-level `tmp/`; remove it when done.
 
 ## Boundaries
 
@@ -80,6 +82,10 @@ all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors 
   `SplitResultBytes` / `SplitResultString` (semi-private by decision).
 - Feature requests are not accepted; bug reports require the latest release.
 - Do not re-raise the *Maintainer Decisions* in `.github/copilot-instructions.md`.
+- `AGENTS.md` and the two `.github/copilot-*.md` files never change in a code PR, only in
+  a commit of their own, which follows the `Prepare`/`Release` commit.
+- `setuptools-scm` puts every tracked file into the sdist: a new file that is not part
+  of the distribution (like `AGENTS.md`) needs an `exclude` line in `MANIFEST.in`.
 
 ## Git
 
@@ -87,9 +93,7 @@ all tests pass, 100% line and branch coverage, `ruff` clean, `pyright` 0 errors 
   subjects are one imperative sentence ending with a period (`Fix RTD version handling.`).
 - A new Python version goes into the CI matrix and the `pyproject.toml` classifiers;
   dropping one bumps `requires-python` and is a major release.
-- `develop` is rebased and amended freely until release: the `Prepare vX.Y.Z.` commit
-  absorbs follow-ups, so hashes change while subjects stay. Refer to commits by subject;
-  before citing a hash, check `git status -sb` for ahead/behind and
+- `develop` is rebased and amended freely until release (the `Prepare vX.Y.Z.` commit
+  absorbs follow-ups), so refer to commits by subject; before citing a hash, check
   `git merge-base --is-ancestor <hash> develop`, and never cite reflog-only hashes.
-- Run `tox -p auto` before pushing. Update this file in the same PR that changes a
-  convention, and keep it under 100 lines.
+- Run `tox -p auto` before pushing. Keep this file under 100 lines.
